@@ -4,7 +4,7 @@ This repository contains projects and experiments for the purposes of gaining fa
 ## Getting Started
 This repository was created using [PyCharm Community Edition](https://www.jetbrains.com/pycharm/download) allowing to run PyTorchExperiments on a local computer.
 In order to run on a local pc you will need to install the following libraries to the local Python environment.
-(This will install to [.venv](.venv) if using PyCharm IDE).
+(This will install to the .venv folder if using PyCharm IDE).
 
 ### Required
 Run the following command in the terminal to install PyTorch to the local Python environment .
@@ -28,4 +28,3 @@ Code was obtained from: https://pytorch.org/tutorials/beginner/basics/quickstart
 Simple autoencoder that implements quantization on the encoded latent variables.
 * Files included in project:
   * [autoencoder_quantization.py](autoencoder_quantization.py)
-* TODO: implement quantization
