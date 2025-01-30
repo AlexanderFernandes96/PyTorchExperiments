@@ -3,6 +3,7 @@ from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import ToTensor
+from collections import OrderedDict
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -19,13 +20,15 @@ class NeuralNetwork(nn.Module):
     def __init__(self):
         super().__init__()
         self.flatten = nn.Flatten()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(28 * 28, 512),
-            nn.ReLU(),
-            nn.Linear(512, 512),
-            nn.ReLU(),
-            nn.Linear(512, 10)
-        )
+        self.linear_relu_stack = nn.Sequential(OrderedDict([
+            ('fc1', nn.Linear(28 * 28, 512)),
+            ('fc2', nn.Linear(512, 8)),
+            ('qi', nn.Linear(8, 8)),
+            ('tan', nn.Tanh()), # Tanh funciton applied elementwise: h_i(x) = Tanh(x.T * W[:,i] + b_i)
+            ('qo', nn.Linear(8, 8, bias=False)),
+            ('fc3', nn.Linear(8, 512)),
+            ('fc4', nn.Linear(512, 10))
+        ]))
 
     def forward(self, x):
         x = self.flatten(x)
@@ -34,7 +37,7 @@ class NeuralNetwork(nn.Module):
 
 def train(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
-    model.train()
+    model.train()  # set neural network to train mode
     for batch, (X, y) in enumerate(dataloader):
         X, y = X.to(device), y.to(device)
 
@@ -54,7 +57,7 @@ def train(dataloader, model, loss_fn, optimizer):
 def test(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
-    model.eval()
+    model.eval()  # set neural network to evaluation mode
     test_loss, correct = 0, 0
     with torch.no_grad():
         for X, y in dataloader:
@@ -96,13 +99,18 @@ if __name__ == "__main__":
 
     model = NeuralNetwork().to(device)
     print(model)
+    print('qi:')
+    print(model.linear_relu_stack.qi.weight)
 
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
 
-    epochs = 10
+    epochs = 5
     for t in range(epochs):
         print(f"Epoch {t + 1}\n-------------------------------")
         train(train_dataloader, model, loss_fn, optimizer)
         test(test_dataloader, model, loss_fn)
     print("Done!")
+
+    print('qi:')
+    print(model.linear_relu_stack.qi.weight)
