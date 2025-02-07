@@ -16,8 +16,18 @@ pip3 install torch torchvision torchaudio --index-url https://download.pytorch.o
 To check if PyTorch installed correctly run: [quickstart.py](quickstart.py).
 
 ## Description
-Descriptions of the Python Projects included in this repository.
+Descriptions of the Python projects, directories, and content included in this repository.
 
+### MATLAB
+MATLAB (version 2022a) is used to generate a dataset for a simulated RIS communication system model, i.e. channel matrices, pilots, receive signal, etc.
+* [generateHDRISData.m](MATLAB/generateHDRISData.m)
+  * Run this MATLAB script to generate data for a Half-Duplex RIS model
+* [src/](MATLAB/src/)
+  * directory containing MATLAB scripts and functions to generate RIS data
+* [datasets/](MATLAB/datasets/)
+  * directory to store the generated datasets.
+  * for Python scripts use the .csv files from this directory to easily load the datasets into a numpy array.
+  
 ### Quick Start
 A simple autoencoder neural network classifier on MNIST data. 
 Code was obtained from: https://pytorch.org/tutorials/beginner/basics/quickstart_tutorial.html. 
