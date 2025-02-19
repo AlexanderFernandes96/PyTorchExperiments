@@ -1,0 +1,25 @@
+C:\Users\alex9\PycharmProjects\PyTorchExperiments\.venv\Scripts\python.exe "C:/Program Files/JetBrains/PyCharm Community Edition 2024.3.1.1/plugins/python-ce/helpers/pydev/pydevconsole.py" --mode=client --host=127.0.0.1 --port=54876
+import sys; print('Python %s on %s' % (sys.version, sys.platform))
+sys.path.extend(['C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments'])
+PyDev console: starting.
+Python 3.9.6 (tags/v3.9.6:db3ff76, Jun 28 2021, 15:26:21) [MSC v.1929 64 bit (AMD64)] on win32
+runfile('C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments\\autoencoder_quantization.py', wdir='C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments')
+Using cuda device
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 128, 'Nc_RIS_compressed_ratio': 0.7, 'M_code_words': 16, 'lr': 0.001, 'epochs': 200}
+N RIS elements: 25
+Nc RIS compressed: 17
+M quantization code words: 16
+overall bits: 68
+  0%|          | 1/200 [00:01<04:36,  1.39s/it]
+Epoch: 0 	Training Loss: 12626.984943 	Validation Loss: 3248.987056
+Validation loss decreased (inf --> 3248.987056). Saving model ...
+ 26%|██▌       | 51/200 [00:24<01:00,  2.46it/s]
+Epoch: 50 	Training Loss: 8817.301653 	Validation Loss: 2324.025069
+Validation loss decreased (2325.537516 --> 2324.025069). Saving model ...
+ 50%|█████     | 101/200 [00:45<00:40,  2.41it/s]
+Epoch: 100 	Training Loss: 8692.058580 	Validation Loss: 2292.486376
+Validation loss decreased (2292.733511 --> 2292.486376). Saving model ...
+ 76%|███████▌  | 151/200 [01:05<00:20,  2.42it/s]
+Epoch: 150 	Training Loss: 8657.653905 	Validation Loss: 2283.951472
+Validation loss decreased (2284.064872 --> 2283.951472). Saving model ...
+100%|██████████| 200/200 [01:25<00:00,  2.33it/s]
