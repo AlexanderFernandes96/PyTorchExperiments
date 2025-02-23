@@ -1,0 +1,5 @@
+Monte Carlo Run: 2000 4000 6000 8000 10000 12000 14000 16000 18000 20000 22000 24000 26000 28000 30000 32000 34000 36000 38000 40000 42000 44000 46000 48000 50000 
+
+ Optimized receive signal: mean(Yopt' * Yopt) = 2147.6883
+Script Execution time:
+Elapsed time: 0 days, 0 hours, 0 minutes, 10.828829 seconds

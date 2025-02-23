@@ -1,0 +1,5 @@
+Monte Carlo Run: 800 1600 2400 3200 4000 4800 5600 6400 7200 8000 8800 9600 10400 11200 12000 12800 13600 14400 15200 16000 16800 17600 18400 19200 20000 
+
+ Optimized receive signal: mean(Yopt' * Yopt) = 2102.0897
+Script Execution time:
+Elapsed time: 0 days, 0 hours, 0 minutes, 4.950634 seconds
