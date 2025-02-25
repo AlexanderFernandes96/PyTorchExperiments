@@ -209,7 +209,7 @@ class Trainer(object):
                     val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
                 if epoch % 50 == 0 or epoch == parameters['epochs']-1:
-                    print('\n\nEpoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(
+                    print('\nEpoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(
                         epoch, train_loss, val_loss))
 
                 # save model if validation loss has decreased
@@ -277,60 +277,72 @@ if __name__ == "__main__":
     parameters = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'batch_size': 1000,
-                  'Nc_RIS_compressed_ratio': 0.2,
+                  'Nc_RIS_compressed_ratio': 2.0,
                   'C_code_words': 2**8, # 2 to the power of number of bits
                   'lr': 0.001, # optimizer learning rate
-                  'epochs': 500,
+                  'epochs': 200,
                   'snr_dB': 5
                   }
-    print(parameters)
 
     # Load RIS data from .csv files
-    dataset_dir = "MATLAB/datasets/HDRISData/01/"
+    dataset_dir = "MATLAB/datasets/HDRISData/02/"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
     Hur = load_complex(dataset_dir, "Hur_r", "Hur_i")
     RISopt = np.loadtxt(dataset_dir + "RISopt.csv", delimiter=',')
     smp = pd.read_csv(dataset_dir + "systemModelParameters.csv").iloc[0]
 
-
-    # Create the Torch Dataset
-    parameters['mc_runs'] = RISopt.shape[0]
-    parameters['N_RIS'] = RISopt.shape[1]
-    num_train_val = int(parameters['train_test_split'] * parameters['mc_runs'])
-    num_test = parameters['mc_runs'] - num_train_val
-    num_train = int(parameters['train_val_split'] * num_train_val)
-    num_val = num_train_val - num_train
-    train_set = [] # [[sample0, label0], [sample0, label0], ... ]
-    test_set = []
-    val_set = []
-    for i in range(0, parameters['mc_runs']):
-        theta = RISopt[i]
-        if i < num_train:
-            train_set.append([theta, theta, Hua[i], Hra[i], Hur[i]])
-        elif i >= num_train_val:
-            test_set.append([theta, theta, Hua[i], Hra[i], Hur[i]])
-        else:
-            val_set.append([theta, theta, Hua[i], Hra[i], Hur[i]])
-    train_set = LoadData(train_set)
-    test_set = LoadData(test_set)
-    val_set = LoadData(val_set)
-    train_loader = DataLoader(train_set, batch_size=parameters['batch_size'])
-    test_loader = DataLoader(test_set, batch_size=parameters['batch_size'])
-    val_loader = DataLoader(val_set, batch_size=parameters['batch_size'])
-
-    # Train model
-    trainer = Trainer(train_loader)
-    AQEnet, train_losses, val_losses = trainer.train(val_loader, parameters)
-    print(AQEnet)
-
-    # Test model
     print('System Model Parameters:', smp, sep='\n')
-    for snr_dB in [-20, -10, -5, 0, 5, 10, 20]:
-        parameters['snr_dB'] = snr_dB
-        y_opt, y_AQE, y_rand = trainer.evaluate(test_loader, smp, parameters, AQEnet)
 
-        print('Receive power using RIS phase shifts with SNR {:.0f} dB:'.format(snr_dB))
-        print('optimum: {:.6f}'.format(np.abs(y_opt @ y_opt.H)[0, 0] / y_opt.size))
-        print('AQE net: {:.6f}'.format(np.abs(y_AQE @ y_AQE.H)[0, 0] / y_AQE.size))
-        print('random:  {:.6f}'.format(np.abs(y_rand @ y_rand.H)[0, 0] / y_rand.size))
+    bits_list = range(1,11)
+    P_opt = np.zeros(len(bits_list))
+    P_AQE = np.zeros(len(bits_list))
+    P_rand = np.zeros(len(bits_list))
+    for b, bits in enumerate(bits_list):
+        print(b, bits)
+        parameters['C_code_words'] = 2**bits
+        print(parameters)
+
+        # Create the Torch Dataset
+        parameters['mc_runs'] = RISopt.shape[0]
+        parameters['N_RIS'] = RISopt.shape[1]
+        num_train_val = int(parameters['train_test_split'] * parameters['mc_runs'])
+        num_test = parameters['mc_runs'] - num_train_val
+        num_train = int(parameters['train_val_split'] * num_train_val)
+        num_val = num_train_val - num_train
+        train_set = [] # [[sample0, label0], [sample0, label0], ... ]
+        test_set = []
+        val_set = []
+        for i in range(0, parameters['mc_runs']):
+            theta = RISopt[i]
+            if i < num_train:
+                train_set.append([theta, theta, Hua[i], Hra[i], Hur[i]])
+            elif i >= num_train_val:
+                test_set.append([theta, theta, Hua[i], Hra[i], Hur[i]])
+            else:
+                val_set.append([theta, theta, Hua[i], Hra[i], Hur[i]])
+        train_set = LoadData(train_set)
+        test_set = LoadData(test_set)
+        val_set = LoadData(val_set)
+        train_loader = DataLoader(train_set, batch_size=parameters['batch_size'])
+        test_loader = DataLoader(test_set, batch_size=parameters['batch_size'])
+        val_loader = DataLoader(val_set, batch_size=parameters['batch_size'])
+
+        # Train model
+        trainer = Trainer(train_loader)
+        AQEnet, train_losses, val_losses = trainer.train(val_loader, parameters)
+        # print(AQEnet)
+
+        # Test model
+        # for snr_dB in [-20, -10, -5, 0, 5, 10, 20]:
+        #     parameters['snr_dB'] = snr_dB
+        y_opt, y_AQE, y_rand = trainer.evaluate(test_loader, smp, parameters, AQEnet)
+        P_opt[b] = 10*np.log10(np.abs(y_opt @ y_opt.H)[0, 0] / y_opt.size)
+        P_AQE[b] = 10*np.log10(np.abs(y_AQE @ y_AQE.H)[0, 0] / y_AQE.size)
+        P_rand[b] = 10*np.log10(np.abs(y_rand @ y_rand.H)[0, 0] / y_rand.size)
+
+    print('C code words:', 2**np.array(bits_list))
+    print('Receive power (dB) using RIS phase shifts with Transmit power SNR {:.0f} dB:'.format(parameters['snr_dB']))
+    print('optimum: ', P_opt)
+    print('AQE net: ', P_AQE)
+    print('random:  ', P_rand)

@@ -216,3 +216,929 @@ print(bits_list)
 >>> range(1, 11)
 print(2**np.array(bits_list))
 >>> [   2    4    8   16   32   64  128  256  512 1024]
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+C:\Users\alex9\PycharmProjects\PyTorchExperiments\.venv\Scripts\python.exe "C:/Program Files/JetBrains/PyCharm Community Edition 2024.3.1.1/plugins/python-ce/helpers/pydev/pydevconsole.py" --mode=client --host=127.0.0.1 --port=63901
+import sys; print('Python %s on %s' % (sys.version, sys.platform))
+sys.path.extend(['C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments'])
+PyDev console: starting.
+Python 3.9.6 (tags/v3.9.6:db3ff76, Jun 28 2021, 15:26:21) [MSC v.1929 64 bit (AMD64)] on win32
+runfile('C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments\\autoencoder_quantization.py', wdir='C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments')
+Using cuda device
+System Model Parameters:
+LOS            2
+B             26
+L              1
+T             26
+K              1
+M              1
+N             25
+Nw             5
+Nh             5
+mc_runs    50000
+Name: 0, dtype: int64
+0 1
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.0, 'C_code_words': 2, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5}
+N RIS elements: 25
+Nc RIS compressed: 25
+C quantization code words: 2
+overall bits per transmission: 25
+  0%|          | 1/200 [00:02<07:16,  2.19s/it]
+Epoch: 0 	Training Loss: 6.369788 	Validation Loss: 25.315155
+Validation loss decreased (inf --> 25.315155). Saving model ...
+ 26%|██▌       | 51/200 [01:03<03:20,  1.35s/it]
+Epoch: 50 	Training Loss: 6.368611 	Validation Loss: 25.228539
+ 50%|█████     | 101/200 [02:02<01:53,  1.15s/it]
+Epoch: 100 	Training Loss: 6.330079 	Validation Loss: 25.271770
+ 76%|███████▌  | 151/200 [02:59<00:59,  1.21s/it]
+Epoch: 150 	Training Loss: 6.320787 	Validation Loss: 25.264736
+100%|██████████| 200/200 [03:55<00:00,  1.18s/it]
+Epoch: 199 	Training Loss: 6.316820 	Validation Loss: 25.258071
+1 2
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.0, 'C_code_words': 4, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 25
+C quantization code words: 4
+overall bits per transmission: 50
+  0%|          | 1/200 [00:01<03:49,  1.15s/it]
+Epoch: 0 	Training Loss: 5.587029 	Validation Loss: 22.228549
+Validation loss decreased (inf --> 22.228549). Saving model ...
+ 26%|██▌       | 51/200 [00:59<02:55,  1.18s/it]
+Epoch: 50 	Training Loss: 4.130906 	Validation Loss: 16.990495
+Validation loss decreased (16.993629 --> 16.990495). Saving model ...
+ 50%|█████     | 101/200 [01:57<01:55,  1.17s/it]
+Epoch: 100 	Training Loss: 4.068091 	Validation Loss: 16.852997
+ 76%|███████▌  | 151/200 [02:55<00:56,  1.15s/it]
+Epoch: 150 	Training Loss: 4.040538 	Validation Loss: 16.818270
+100%|██████████| 200/200 [03:52<00:00,  1.16s/it]
+Epoch: 199 	Training Loss: 4.019389 	Validation Loss: 16.807143
+2 3
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.0, 'C_code_words': 8, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 25
+C quantization code words: 8
+overall bits per transmission: 75
+  0%|          | 1/200 [00:01<03:59,  1.20s/it]
+Epoch: 0 	Training Loss: 5.775184 	Validation Loss: 23.033483
+Validation loss decreased (inf --> 23.033483). Saving model ...
+ 26%|██▌       | 51/200 [01:01<03:03,  1.23s/it]
+Epoch: 50 	Training Loss: 4.189190 	Validation Loss: 16.577315
+Validation loss decreased (16.579926 --> 16.577315). Saving model ...
+ 50%|█████     | 101/200 [02:06<02:04,  1.25s/it]
+Epoch: 100 	Training Loss: 4.150690 	Validation Loss: 16.474899
+ 76%|███████▌  | 151/200 [03:09<01:02,  1.27s/it]
+Epoch: 150 	Training Loss: 4.141745 	Validation Loss: 16.399819
+100%|██████████| 200/200 [04:10<00:00,  1.25s/it]
+Epoch: 199 	Training Loss: 4.139431 	Validation Loss: 16.373509
+3 4
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.0, 'C_code_words': 16, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 25
+C quantization code words: 16
+overall bits per transmission: 100
+  0%|          | 1/200 [00:01<04:32,  1.37s/it]
+Epoch: 0 	Training Loss: 5.653789 	Validation Loss: 22.502197
+Validation loss decreased (inf --> 22.502197). Saving model ...
+ 26%|██▌       | 51/200 [01:07<03:16,  1.32s/it]
+Epoch: 50 	Training Loss: 3.480385 	Validation Loss: 13.767841
+ 50%|█████     | 101/200 [02:12<02:09,  1.31s/it]
+Epoch: 100 	Training Loss: 3.416769 	Validation Loss: 13.529026
+ 76%|███████▌  | 151/200 [03:18<01:04,  1.31s/it]
+Epoch: 150 	Training Loss: 3.394196 	Validation Loss: 13.470161
+100%|██████████| 200/200 [04:22<00:00,  1.31s/it]
+Epoch: 199 	Training Loss: 3.361276 	Validation Loss: 13.350233
+Validation loss decreased (13.352368 --> 13.350233). Saving model ...
+4 5
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.0, 'C_code_words': 32, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 25
+C quantization code words: 32
+overall bits per transmission: 125
+  0%|          | 1/200 [00:01<04:57,  1.50s/it]
+Epoch: 0 	Training Loss: 5.749360 	Validation Loss: 22.920746
+Validation loss decreased (inf --> 22.920746). Saving model ...
+ 26%|██▌       | 51/200 [01:16<03:54,  1.58s/it]
+Epoch: 50 	Training Loss: 3.147913 	Validation Loss: 12.863739
+Validation loss decreased (12.886041 --> 12.863739). Saving model ...
+ 50%|█████     | 101/200 [02:38<02:54,  1.76s/it]
+Epoch: 100 	Training Loss: 3.006333 	Validation Loss: 12.282859
+ 76%|███████▌  | 151/200 [03:59<01:17,  1.58s/it]
+Epoch: 150 	Training Loss: 2.966741 	Validation Loss: 12.054950
+Validation loss decreased (12.057661 --> 12.054950). Saving model ...
+100%|██████████| 200/200 [05:20<00:00,  1.60s/it]
+Epoch: 199 	Training Loss: 2.928862 	Validation Loss: 11.829092
+5 6
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.0, 'C_code_words': 64, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 25
+C quantization code words: 64
+overall bits per transmission: 150
+  0%|          | 1/200 [00:01<06:24,  1.93s/it]
+Epoch: 0 	Training Loss: 5.693518 	Validation Loss: 22.568881
+Validation loss decreased (inf --> 22.568881). Saving model ...
+ 26%|██▌       | 51/200 [01:42<04:33,  1.84s/it]
+Epoch: 50 	Training Loss: 3.056068 	Validation Loss: 12.407081
+Validation loss decreased (12.463546 --> 12.407081). Saving model ...
+ 50%|█████     | 101/200 [03:12<03:00,  1.82s/it]
+Epoch: 100 	Training Loss: 2.807114 	Validation Loss: 11.428039
+Validation loss decreased (11.434518 --> 11.428039). Saving model ...
+ 76%|███████▌  | 151/200 [04:43<01:29,  1.83s/it]
+Epoch: 150 	Training Loss: 2.770105 	Validation Loss: 11.218681
+100%|██████████| 200/200 [06:13<00:00,  1.87s/it]
+Epoch: 199 	Training Loss: 2.725962 	Validation Loss: 11.032699
+Validation loss decreased (11.034810 --> 11.032699). Saving model ...
+6 7
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.0, 'C_code_words': 128, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 25
+C quantization code words: 128
+overall bits per transmission: 175
+  0%|          | 1/200 [00:02<08:27,  2.55s/it]
+Epoch: 0 	Training Loss: 5.586710 	Validation Loss: 22.222052
+Validation loss decreased (inf --> 22.222052). Saving model ...
+ 26%|██▌       | 51/200 [02:07<06:10,  2.49s/it]
+Epoch: 50 	Training Loss: 3.048599 	Validation Loss: 11.942917
+Validation loss decreased (11.974949 --> 11.942917). Saving model ...
+ 50%|█████     | 101/200 [04:12<04:07,  2.50s/it]
+Epoch: 100 	Training Loss: 2.774122 	Validation Loss: 11.058354
+Validation loss decreased (11.064959 --> 11.058354). Saving model ...
+ 76%|███████▌  | 151/200 [06:19<02:03,  2.53s/it]
+Epoch: 150 	Training Loss: 2.733812 	Validation Loss: 10.905181
+100%|██████████| 200/200 [08:21<00:00,  2.51s/it]
+Epoch: 199 	Training Loss: 2.689472 	Validation Loss: 10.823707
+7 8
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.0, 'C_code_words': 256, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 25
+C quantization code words: 256
+overall bits per transmission: 200
+  0%|          | 1/200 [00:03<12:52,  3.88s/it]
+Epoch: 0 	Training Loss: 5.620117 	Validation Loss: 22.213393
+Validation loss decreased (inf --> 22.213393). Saving model ...
+ 26%|██▌       | 51/200 [03:12<09:20,  3.76s/it]
+Epoch: 50 	Training Loss: 3.050511 	Validation Loss: 12.505930
+Validation loss decreased (12.541227 --> 12.505930). Saving model ...
+ 50%|█████     | 101/200 [06:20<06:11,  3.75s/it]
+Epoch: 100 	Training Loss: 2.812141 	Validation Loss: 11.504949
+Validation loss decreased (11.517949 --> 11.504949). Saving model ...
+ 76%|███████▌  | 151/200 [09:28<03:04,  3.76s/it]
+Epoch: 150 	Training Loss: 2.733744 	Validation Loss: 11.233684
+Validation loss decreased (11.243624 --> 11.233684). Saving model ...
+100%|██████████| 200/200 [12:35<00:00,  3.78s/it]
+Epoch: 199 	Training Loss: 2.678393 	Validation Loss: 11.022409
+8 9
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.0, 'C_code_words': 512, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 25
+C quantization code words: 512
+overall bits per transmission: 225
+  0%|          | 1/200 [00:06<21:18,  6.42s/it]
+Epoch: 0 	Training Loss: 5.710960 	Validation Loss: 22.454614
+Validation loss decreased (inf --> 22.454614). Saving model ...
+ 26%|██▌       | 51/200 [05:25<15:41,  6.32s/it]
+Epoch: 50 	Training Loss: 2.878641 	Validation Loss: 11.440688
+Validation loss decreased (11.479516 --> 11.440688). Saving model ...
+ 50%|█████     | 101/200 [10:44<10:36,  6.43s/it]
+Epoch: 100 	Training Loss: 2.553404 	Validation Loss: 10.285175
+Validation loss decreased (10.294988 --> 10.285175). Saving model ...
+ 76%|███████▌  | 151/200 [16:07<05:16,  6.46s/it]
+Epoch: 150 	Training Loss: 2.401781 	Validation Loss: 9.716151
+Validation loss decreased (9.717762 --> 9.716151). Saving model ...
+100%|██████████| 200/200 [21:25<00:00,  6.43s/it]
+Epoch: 199 	Training Loss: 2.361760 	Validation Loss: 9.534307
+9 10
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.0, 'C_code_words': 1024, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 25
+C quantization code words: 1024
+overall bits per transmission: 250
+  0%|          | 1/200 [00:12<40:15, 12.14s/it]
+Epoch: 0 	Training Loss: 5.662761 	Validation Loss: 22.431525
+Validation loss decreased (inf --> 22.431525). Saving model ...
+ 26%|██▌       | 51/200 [11:45<36:07, 14.55s/it]
+Epoch: 50 	Training Loss: 2.891357 	Validation Loss: 11.709595
+Validation loss decreased (11.786017 --> 11.709595). Saving model ...
+ 50%|█████     | 101/200 [23:52<22:02, 13.36s/it]
+Epoch: 100 	Training Loss: 2.593724 	Validation Loss: 10.550714
+Validation loss decreased (10.563728 --> 10.550714). Saving model ...
+ 76%|███████▌  | 151/200 [33:50<09:48, 12.00s/it]
+Epoch: 150 	Training Loss: 2.459871 	Validation Loss: 10.050379
+Validation loss decreased (10.058676 --> 10.050379). Saving model ...
+100%|██████████| 200/200 [43:53<00:00, 13.17s/it]
+Epoch: 199 	Training Loss: 2.399306 	Validation Loss: 9.801943
+Validation loss decreased (9.809108 --> 9.801943). Saving model ...
+Receive power (dB) using RIS phase shifts with Transmit power SNR 5 dB:
+optimum:  [43.69377592 43.69400627 43.69358431 43.69287213 43.6948153  43.69471055 43.6943794  43.69331968 43.69427676 43.69491709]
+AQE net:  [33.71064732 38.83277708 38.59720323 39.9978301  40.67732228 40.89667435 41.00895887 41.04088705 41.44960725 41.4426447 ]
+random:   [35.33196521 35.35332925 35.2377525  35.37031884 35.26723031 35.27231507 35.13283904 35.26458806 35.28323665 35.30241662]
+print('C code words:', 2**np.array(bits_list))
+C code words: [   2    4    8   16   32   64  128  256  512 1024]
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+C:\Users\alex9\PycharmProjects\PyTorchExperiments\.venv\Scripts\python.exe "C:/Program Files/JetBrains/PyCharm Community Edition 2024.3.1.1/plugins/python-ce/helpers/pydev/pydevconsole.py" --mode=client --host=127.0.0.1 --port=49188
+import sys; print('Python %s on %s' % (sys.version, sys.platform))
+sys.path.extend(['C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments'])
+PyDev console: starting.
+Python 3.9.6 (tags/v3.9.6:db3ff76, Jun 28 2021, 15:26:21) [MSC v.1929 64 bit (AMD64)] on win32
+runfile('C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments\\autoencoder_quantization.py', wdir='C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments')
+Using cuda device
+System Model Parameters:
+LOS            2
+B             26
+L              1
+T             26
+K              1
+M              1
+N             25
+Nw             5
+Nh             5
+mc_runs    50000
+Name: 0, dtype: int64
+0 1
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 0.25, 'C_code_words': 2, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5}
+N RIS elements: 25
+Nc RIS compressed: 6
+C quantization code words: 2
+overall bits per transmission: 6
+  0%|          | 1/200 [00:02<06:43,  2.03s/it]
+Epoch: 0 	Training Loss: 6.350249 	Validation Loss: 25.260486
+Validation loss decreased (inf --> 25.260486). Saving model ...
+ 26%|██▌       | 51/200 [01:04<03:03,  1.23s/it]
+Epoch: 50 	Training Loss: 6.351190 	Validation Loss: 25.210694
+ 50%|█████     | 101/200 [02:05<02:02,  1.23s/it]
+Epoch: 100 	Training Loss: 6.319401 	Validation Loss: 25.260084
+ 76%|███████▌  | 151/200 [03:07<00:59,  1.22s/it]
+Epoch: 150 	Training Loss: 6.313992 	Validation Loss: 25.254492
+100%|██████████| 200/200 [04:07<00:00,  1.24s/it]
+Epoch: 199 	Training Loss: 6.312826 	Validation Loss: 25.251947
+1 2
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 0.25, 'C_code_words': 4, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 6
+C quantization code words: 4
+overall bits per transmission: 12
+  0%|          | 1/200 [00:01<04:05,  1.23s/it]
+Epoch: 0 	Training Loss: 6.015810 	Validation Loss: 23.901460
+Validation loss decreased (inf --> 23.901460). Saving model ...
+ 26%|██▌       | 51/200 [01:02<03:04,  1.24s/it]
+Epoch: 50 	Training Loss: 5.084609 	Validation Loss: 20.283564
+Validation loss decreased (20.287014 --> 20.283564). Saving model ...
+ 50%|█████     | 101/200 [02:04<02:02,  1.24s/it]
+Epoch: 100 	Training Loss: 5.043744 	Validation Loss: 20.185853
+Validation loss decreased (20.187469 --> 20.185853). Saving model ...
+ 76%|███████▌  | 151/200 [03:06<01:00,  1.22s/it]
+Epoch: 150 	Training Loss: 5.011080 	Validation Loss: 20.078928
+Validation loss decreased (20.080191 --> 20.078928). Saving model ...
+100%|██████████| 200/200 [04:06<00:00,  1.23s/it]
+Epoch: 199 	Training Loss: 4.987114 	Validation Loss: 20.018869
+Validation loss decreased (20.020295 --> 20.018869). Saving model ...
+2 3
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 0.25, 'C_code_words': 8, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 6
+C quantization code words: 8
+overall bits per transmission: 18
+  0%|          | 1/200 [00:01<04:08,  1.25s/it]
+Epoch: 0 	Training Loss: 6.061789 	Validation Loss: 24.226123
+Validation loss decreased (inf --> 24.226123). Saving model ...
+ 26%|██▌       | 51/200 [01:05<03:06,  1.25s/it]
+Epoch: 50 	Training Loss: 5.220623 	Validation Loss: 20.807989
+Validation loss decreased (20.817996 --> 20.807989). Saving model ...
+ 50%|█████     | 101/200 [02:07<02:02,  1.24s/it]
+Epoch: 100 	Training Loss: 5.189529 	Validation Loss: 20.685675
+Validation loss decreased (20.688717 --> 20.685675). Saving model ...
+ 76%|███████▌  | 151/200 [03:09<01:00,  1.24s/it]
+Epoch: 150 	Training Loss: 5.175766 	Validation Loss: 20.594139
+Validation loss decreased (20.595440 --> 20.594139). Saving model ...
+100%|██████████| 200/200 [04:10<00:00,  1.25s/it]
+Epoch: 199 	Training Loss: 5.134332 	Validation Loss: 20.615415
+3 4
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 0.25, 'C_code_words': 16, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 6
+C quantization code words: 16
+overall bits per transmission: 24
+  0%|          | 1/200 [00:01<04:41,  1.41s/it]
+Epoch: 0 	Training Loss: 6.169312 	Validation Loss: 24.570708
+Validation loss decreased (inf --> 24.570708). Saving model ...
+ 26%|██▌       | 51/200 [01:07<03:18,  1.33s/it]
+Epoch: 50 	Training Loss: 4.877521 	Validation Loss: 19.524556
+ 50%|█████     | 101/200 [02:14<02:11,  1.33s/it]
+Epoch: 100 	Training Loss: 4.838119 	Validation Loss: 19.485382
+ 76%|███████▌  | 151/200 [03:20<01:04,  1.32s/it]
+Epoch: 150 	Training Loss: 4.809714 	Validation Loss: 19.477887
+100%|██████████| 200/200 [04:25<00:00,  1.33s/it]
+Epoch: 199 	Training Loss: 4.820624 	Validation Loss: 19.475789
+4 5
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 0.25, 'C_code_words': 32, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 6
+C quantization code words: 32
+overall bits per transmission: 30
+  0%|          | 1/200 [00:01<05:17,  1.59s/it]
+Epoch: 0 	Training Loss: 6.063281 	Validation Loss: 24.044924
+Validation loss decreased (inf --> 24.044924). Saving model ...
+ 26%|██▌       | 51/200 [01:16<03:43,  1.50s/it]
+Epoch: 50 	Training Loss: 4.708848 	Validation Loss: 19.094319
+Validation loss decreased (19.124948 --> 19.094319). Saving model ...
+ 50%|█████     | 101/200 [02:31<02:30,  1.52s/it]
+Epoch: 100 	Training Loss: 4.637845 	Validation Loss: 18.786098
+Validation loss decreased (18.789877 --> 18.786098). Saving model ...
+ 76%|███████▌  | 151/200 [03:46<01:13,  1.50s/it]
+Epoch: 150 	Training Loss: 4.638035 	Validation Loss: 18.663101
+100%|██████████| 200/200 [04:59<00:00,  1.50s/it]
+Epoch: 199 	Training Loss: 4.597329 	Validation Loss: 18.626157
+5 6
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 0.25, 'C_code_words': 64, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 6
+C quantization code words: 64
+overall bits per transmission: 36
+  0%|          | 1/200 [00:01<06:16,  1.89s/it]
+Epoch: 0 	Training Loss: 6.130229 	Validation Loss: 24.449877
+Validation loss decreased (inf --> 24.449877). Saving model ...
+ 26%|██▌       | 51/200 [01:33<04:34,  1.84s/it]
+Epoch: 50 	Training Loss: 4.745444 	Validation Loss: 19.000690
+Validation loss decreased (19.013153 --> 19.000690). Saving model ...
+ 50%|█████     | 101/200 [03:04<03:01,  1.83s/it]
+Epoch: 100 	Training Loss: 4.655108 	Validation Loss: 18.640733
+Validation loss decreased (18.643118 --> 18.640733). Saving model ...
+ 76%|███████▌  | 151/200 [04:35<01:29,  1.82s/it]
+Epoch: 150 	Training Loss: 4.651759 	Validation Loss: 18.546003
+Validation loss decreased (18.562327 --> 18.546003). Saving model ...
+100%|██████████| 200/200 [06:04<00:00,  1.82s/it]
+Epoch: 199 	Training Loss: 4.636103 	Validation Loss: 18.507252
+6 7
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 0.25, 'C_code_words': 128, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 6
+C quantization code words: 128
+overall bits per transmission: 42
+  0%|          | 1/200 [00:02<08:26,  2.54s/it]
+Epoch: 0 	Training Loss: 6.096300 	Validation Loss: 24.230579
+Validation loss decreased (inf --> 24.230579). Saving model ...
+ 26%|██▌       | 51/200 [02:07<06:09,  2.48s/it]
+Epoch: 50 	Training Loss: 4.702686 	Validation Loss: 18.825579
+ 50%|█████     | 101/200 [04:13<04:08,  2.51s/it]
+Epoch: 100 	Training Loss: 4.680915 	Validation Loss: 18.741740
+Validation loss decreased (18.745711 --> 18.741740). Saving model ...
+ 76%|███████▌  | 151/200 [06:19<02:00,  2.47s/it]
+Epoch: 150 	Training Loss: 4.662400 	Validation Loss: 18.661644
+100%|██████████| 200/200 [08:20<00:00,  2.50s/it]
+Epoch: 199 	Training Loss: 4.639402 	Validation Loss: 18.601123
+7 8
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 0.25, 'C_code_words': 256, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 6
+C quantization code words: 256
+overall bits per transmission: 48
+  0%|          | 1/200 [00:03<12:47,  3.86s/it]
+Epoch: 0 	Training Loss: 6.066250 	Validation Loss: 24.399148
+Validation loss decreased (inf --> 24.399148). Saving model ...
+ 26%|██▌       | 51/200 [03:14<09:26,  3.80s/it]
+Epoch: 50 	Training Loss: 4.500497 	Validation Loss: 18.709281
+Validation loss decreased (18.715184 --> 18.709281). Saving model ...
+ 50%|█████     | 101/200 [06:25<06:21,  3.86s/it]
+Epoch: 100 	Training Loss: 4.461495 	Validation Loss: 18.625935
+ 76%|███████▌  | 151/200 [09:36<03:07,  3.82s/it]
+Epoch: 150 	Training Loss: 4.442672 	Validation Loss: 18.565480
+100%|██████████| 200/200 [12:43<00:00,  3.82s/it]
+Epoch: 199 	Training Loss: 4.423496 	Validation Loss: 18.492703
+Validation loss decreased (18.495194 --> 18.492703). Saving model ...
+8 9
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 0.25, 'C_code_words': 512, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 6
+C quantization code words: 512
+overall bits per transmission: 54
+  0%|          | 1/200 [00:06<21:33,  6.50s/it]
+Epoch: 0 	Training Loss: 6.012421 	Validation Loss: 23.965165
+Validation loss decreased (inf --> 23.965165). Saving model ...
+ 26%|██▌       | 51/200 [05:30<16:04,  6.47s/it]
+Epoch: 50 	Training Loss: 4.473624 	Validation Loss: 18.548492
+Validation loss decreased (18.551518 --> 18.548492). Saving model ...
+ 50%|█████     | 101/200 [10:53<10:37,  6.44s/it]
+Epoch: 100 	Training Loss: 4.453281 	Validation Loss: 18.451179
+Validation loss decreased (18.455417 --> 18.451179). Saving model ...
+ 76%|███████▌  | 151/200 [16:21<05:36,  6.86s/it]
+Epoch: 150 	Training Loss: 4.429626 	Validation Loss: 18.349760
+Validation loss decreased (18.351362 --> 18.349760). Saving model ...
+100%|██████████| 200/200 [21:44<00:00,  6.52s/it]
+Epoch: 199 	Training Loss: 4.411327 	Validation Loss: 18.268064
+Validation loss decreased (18.271518 --> 18.268064). Saving model ...
+9 10
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 0.25, 'C_code_words': 1024, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 6
+C quantization code words: 1024
+overall bits per transmission: 60
+  0%|          | 1/200 [00:11<39:20, 11.86s/it]
+Epoch: 0 	Training Loss: 6.086187 	Validation Loss: 24.314402
+Validation loss decreased (inf --> 24.314402). Saving model ...
+ 26%|██▌       | 51/200 [12:07<37:10, 14.97s/it]
+Epoch: 50 	Training Loss: 4.696783 	Validation Loss: 18.768184
+Validation loss decreased (18.772495 --> 18.768184). Saving model ...
+ 50%|█████     | 101/200 [24:28<24:28, 14.83s/it]
+Epoch: 100 	Training Loss: 4.681943 	Validation Loss: 18.705396
+ 76%|███████▌  | 151/200 [34:02<09:03, 11.09s/it]
+Epoch: 150 	Training Loss: 4.662402 	Validation Loss: 18.649096
+Validation loss decreased (18.649987 --> 18.649096). Saving model ...
+100%|██████████| 200/200 [43:12<00:00, 12.96s/it]
+Epoch: 199 	Training Loss: 4.645355 	Validation Loss: 18.595966
+Validation loss decreased (18.597788 --> 18.595966). Saving model ...
+C code words: [   2    4    8   16   32   64  128  256  512 1024]
+Receive power (dB) using RIS phase shifts with Transmit power SNR 5 dB:
+optimum:  [43.69326906 43.69392214 43.69325289 43.69383967 43.69444426 43.693292 43.69441052 43.6948538  43.69401642 43.69419061]
+AQE net:  [33.75042083 36.72310896 36.12862433 37.09123054 37.05568507 37.49804249 37.1144017  37.64895525 37.56612073 37.14165818]
+random:   [35.36884033 35.18552109 35.22645198 35.3731304  35.15144437 35.2523692 35.27292952 35.2558909  35.23624121 35.26552446]
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+C:\Users\alex9\PycharmProjects\PyTorchExperiments\.venv\Scripts\python.exe "C:/Program Files/JetBrains/PyCharm Community Edition 2024.3.1.1/plugins/python-ce/helpers/pydev/pydevconsole.py" --mode=client --host=127.0.0.1 --port=50458
+import sys; print('Python %s on %s' % (sys.version, sys.platform))
+sys.path.extend(['C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments'])
+PyDev console: starting.
+Python 3.9.6 (tags/v3.9.6:db3ff76, Jun 28 2021, 15:26:21) [MSC v.1929 64 bit (AMD64)] on win32
+runfile('C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments\\autoencoder_quantization.py', wdir='C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments')
+Using cuda device
+System Model Parameters:
+LOS            2
+B             26
+L              1
+T             26
+K              1
+M              1
+N             25
+Nw             5
+Nh             5
+mc_runs    50000
+Name: 0, dtype: int64
+0 1
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.5, 'C_code_words': 2, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5}
+N RIS elements: 25
+Nc RIS compressed: 37
+C quantization code words: 2
+overall bits per transmission: 37
+  0%|          | 1/200 [00:02<06:53,  2.08s/it]
+Epoch: 0 	Training Loss: 6.418479 	Validation Loss: 25.311357
+Validation loss decreased (inf --> 25.311357). Saving model ...
+ 26%|██▌       | 51/200 [01:04<03:08,  1.27s/it]
+Epoch: 50 	Training Loss: 6.351270 	Validation Loss: 25.288773
+ 50%|█████     | 101/200 [02:08<02:05,  1.27s/it]
+Epoch: 100 	Training Loss: 6.337578 	Validation Loss: 25.290270
+ 76%|███████▌  | 151/200 [03:12<01:02,  1.28s/it]
+Epoch: 150 	Training Loss: 6.324584 	Validation Loss: 25.275675
+100%|██████████| 200/200 [04:15<00:00,  1.28s/it]
+Epoch: 199 	Training Loss: 6.318019 	Validation Loss: 25.261646
+1 2
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.5, 'C_code_words': 4, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 37
+C quantization code words: 4
+overall bits per transmission: 74
+  0%|          | 1/200 [00:01<04:25,  1.33s/it]
+Epoch: 0 	Training Loss: 5.408028 	Validation Loss: 21.133820
+Validation loss decreased (inf --> 21.133820). Saving model ...
+ 26%|██▌       | 51/200 [01:06<03:13,  1.30s/it]
+Epoch: 50 	Training Loss: 3.830202 	Validation Loss: 15.809549
+Validation loss decreased (15.812899 --> 15.809549). Saving model ...
+ 50%|█████     | 101/200 [02:10<02:07,  1.28s/it]
+Epoch: 100 	Training Loss: 3.791380 	Validation Loss: 15.729727
+Validation loss decreased (15.731332 --> 15.729727). Saving model ...
+ 76%|███████▌  | 151/200 [03:15<01:02,  1.28s/it]
+Epoch: 150 	Training Loss: 3.758896 	Validation Loss: 15.618040
+100%|██████████| 200/200 [04:18<00:00,  1.29s/it]
+Epoch: 199 	Training Loss: 3.735982 	Validation Loss: 15.621895
+2 3
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.5, 'C_code_words': 8, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 37
+C quantization code words: 8
+overall bits per transmission: 111
+  0%|          | 1/200 [00:01<04:23,  1.32s/it]
+Epoch: 0 	Training Loss: 5.517930 	Validation Loss: 21.627047
+Validation loss decreased (inf --> 21.627047). Saving model ...
+ 26%|██▌       | 51/200 [01:07<03:16,  1.32s/it]
+Epoch: 50 	Training Loss: 3.790390 	Validation Loss: 15.077998
+Validation loss decreased (15.081764 --> 15.077998). Saving model ...
+ 50%|█████     | 101/200 [02:13<02:11,  1.33s/it]
+Epoch: 100 	Training Loss: 3.746314 	Validation Loss: 14.939608
+ 76%|███████▌  | 151/200 [03:20<01:04,  1.32s/it]
+Epoch: 150 	Training Loss: 3.726378 	Validation Loss: 14.874258
+100%|██████████| 200/200 [04:25<00:00,  1.33s/it]
+Epoch: 199 	Training Loss: 3.732307 	Validation Loss: 14.948181
+3 4
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.5, 'C_code_words': 16, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 37
+C quantization code words: 16
+overall bits per transmission: 148
+  0%|          | 1/200 [00:01<04:59,  1.51s/it]
+Epoch: 0 	Training Loss: 5.374066 	Validation Loss: 21.279307
+Validation loss decreased (inf --> 21.279307). Saving model ...
+ 26%|██▌       | 51/200 [01:11<03:28,  1.40s/it]
+Epoch: 50 	Training Loss: 2.996927 	Validation Loss: 12.045238
+Validation loss decreased (12.057973 --> 12.045238). Saving model ...
+ 50%|█████     | 101/200 [02:21<02:17,  1.39s/it]
+Epoch: 100 	Training Loss: 2.877468 	Validation Loss: 11.726127
+Validation loss decreased (11.732803 --> 11.726127). Saving model ...
+ 76%|███████▌  | 151/200 [03:31<01:08,  1.40s/it]
+Epoch: 150 	Training Loss: 2.869079 	Validation Loss: 11.653590
+100%|██████████| 200/200 [04:39<00:00,  1.40s/it]
+Epoch: 199 	Training Loss: 2.876475 	Validation Loss: 11.683259
+4 5
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.5, 'C_code_words': 32, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 37
+C quantization code words: 32
+overall bits per transmission: 185
+  0%|          | 1/200 [00:01<05:39,  1.70s/it]
+Epoch: 0 	Training Loss: 5.397493 	Validation Loss: 21.278338
+Validation loss decreased (inf --> 21.278338). Saving model ...
+ 26%|██▌       | 51/200 [01:20<03:54,  1.57s/it]
+Epoch: 50 	Training Loss: 2.600488 	Validation Loss: 10.324482
+Validation loss decreased (10.347796 --> 10.324482). Saving model ...
+ 50%|█████     | 101/200 [02:39<02:37,  1.60s/it]
+Epoch: 100 	Training Loss: 2.403147 	Validation Loss: 9.700233
+ 76%|███████▌  | 151/200 [03:57<01:16,  1.56s/it]
+Epoch: 150 	Training Loss: 2.386121 	Validation Loss: 9.533807
+Validation loss decreased (9.539659 --> 9.533807). Saving model ...
+100%|██████████| 200/200 [05:14<00:00,  1.57s/it]
+Epoch: 199 	Training Loss: 2.331247 	Validation Loss: 9.329785
+5 6
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.5, 'C_code_words': 64, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 37
+C quantization code words: 64
+overall bits per transmission: 222
+  0%|          | 1/200 [00:02<06:48,  2.05s/it]
+Epoch: 0 	Training Loss: 5.399528 	Validation Loss: 21.473969
+Validation loss decreased (inf --> 21.473969). Saving model ...
+ 26%|██▌       | 51/200 [01:38<04:48,  1.93s/it]
+Epoch: 50 	Training Loss: 2.577067 	Validation Loss: 10.098510
+Validation loss decreased (10.131306 --> 10.098510). Saving model ...
+ 50%|█████     | 101/200 [03:15<03:10,  1.93s/it]
+Epoch: 100 	Training Loss: 2.333507 	Validation Loss: 9.173051
+Validation loss decreased (9.180700 --> 9.173051). Saving model ...
+ 76%|███████▌  | 151/200 [04:51<01:34,  1.92s/it]
+Epoch: 150 	Training Loss: 2.226903 	Validation Loss: 8.821145
+Validation loss decreased (8.835018 --> 8.821145). Saving model ...
+100%|██████████| 200/200 [06:26<00:00,  1.93s/it]
+Epoch: 199 	Training Loss: 2.141194 	Validation Loss: 8.688833
+6 7
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.5, 'C_code_words': 128, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 37
+C quantization code words: 128
+overall bits per transmission: 259
+  0%|          | 1/200 [00:02<08:45,  2.64s/it]
+Epoch: 0 	Training Loss: 5.341662 	Validation Loss: 21.043873
+Validation loss decreased (inf --> 21.043873). Saving model ...
+ 26%|██▌       | 51/200 [02:15<06:38,  2.68s/it]
+Epoch: 50 	Training Loss: 2.394319 	Validation Loss: 9.482297
+Validation loss decreased (9.546952 --> 9.482297). Saving model ...
+ 50%|█████     | 101/200 [04:28<04:26,  2.69s/it]
+Epoch: 100 	Training Loss: 2.149277 	Validation Loss: 8.366364
+Validation loss decreased (8.384318 --> 8.366364). Saving model ...
+ 76%|███████▌  | 151/200 [06:42<02:10,  2.65s/it]
+Epoch: 150 	Training Loss: 2.013381 	Validation Loss: 7.759387
+Validation loss decreased (7.764393 --> 7.759387). Saving model ...
+100%|██████████| 200/200 [08:53<00:00,  2.67s/it]
+Epoch: 199 	Training Loss: 1.964045 	Validation Loss: 7.586233
+Validation loss decreased (7.588744 --> 7.586233). Saving model ...
+7 8
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.5, 'C_code_words': 256, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 37
+C quantization code words: 256
+overall bits per transmission: 296
+  0%|          | 1/200 [00:04<13:33,  4.09s/it]
+Epoch: 0 	Training Loss: 5.268667 	Validation Loss: 20.660044
+Validation loss decreased (inf --> 20.660044). Saving model ...
+ 26%|██▌       | 51/200 [03:27<10:07,  4.08s/it]
+Epoch: 50 	Training Loss: 2.285668 	Validation Loss: 9.103628
+Validation loss decreased (9.154698 --> 9.103628). Saving model ...
+ 50%|█████     | 101/200 [06:51<06:49,  4.14s/it]
+Epoch: 100 	Training Loss: 1.952188 	Validation Loss: 7.970618
+Validation loss decreased (7.992411 --> 7.970618). Saving model ...
+ 76%|███████▌  | 151/200 [10:14<03:18,  4.05s/it]
+Epoch: 150 	Training Loss: 1.848800 	Validation Loss: 7.690260
+Validation loss decreased (7.701066 --> 7.690260). Saving model ...
+100%|██████████| 200/200 [13:37<00:00,  4.09s/it]
+Epoch: 199 	Training Loss: 1.805817 	Validation Loss: 7.455203
+Validation loss decreased (7.463724 --> 7.455203). Saving model ...
+8 9
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.5, 'C_code_words': 512, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 37
+C quantization code words: 512
+overall bits per transmission: 333
+  0%|          | 1/200 [00:06<22:57,  6.92s/it]
+Epoch: 0 	Training Loss: 5.326540 	Validation Loss: 21.276738
+Validation loss decreased (inf --> 21.276738). Saving model ...
+ 26%|██▌       | 51/200 [05:56<17:25,  7.02s/it]
+Epoch: 50 	Training Loss: 2.359489 	Validation Loss: 9.019567
+Validation loss decreased (9.049793 --> 9.019567). Saving model ...
+ 50%|█████     | 101/200 [11:45<11:31,  6.99s/it]
+Epoch: 100 	Training Loss: 2.029330 	Validation Loss: 7.929578
+Validation loss decreased (7.944283 --> 7.929578). Saving model ...
+ 76%|███████▌  | 151/200 [17:37<05:37,  6.89s/it]
+Epoch: 150 	Training Loss: 1.905727 	Validation Loss: 7.455700
+Validation loss decreased (7.463110 --> 7.455700). Saving model ...
+100%|██████████| 200/200 [23:22<00:00,  7.01s/it]
+Epoch: 199 	Training Loss: 1.834597 	Validation Loss: 7.187931
+9 10
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 1.5, 'C_code_words': 1024, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 37
+C quantization code words: 1024
+overall bits per transmission: 370
+  0%|          | 1/200 [00:13<44:18, 13.36s/it]
+Epoch: 0 	Training Loss: 5.309160 	Validation Loss: 21.075707
+Validation loss decreased (inf --> 21.075707). Saving model ...
+ 26%|██▌       | 51/200 [11:30<34:19, 13.82s/it]
+Epoch: 50 	Training Loss: 2.295746 	Validation Loss: 9.361386
+Validation loss decreased (9.399910 --> 9.361386). Saving model ...
+ 50%|█████     | 101/200 [22:37<21:54, 13.28s/it]
+Epoch: 100 	Training Loss: 2.026911 	Validation Loss: 8.306719
+Validation loss decreased (8.322267 --> 8.306719). Saving model ...
+ 76%|███████▌  | 151/200 [33:33<10:57, 13.42s/it]
+Epoch: 150 	Training Loss: 1.871671 	Validation Loss: 7.844701
+Validation loss decreased (7.848909 --> 7.844701). Saving model ...
+100%|██████████| 200/200 [44:21<00:00, 13.31s/it]
+Epoch: 199 	Training Loss: 1.800895 	Validation Loss: 7.577087
+Validation loss decreased (7.580364 --> 7.577087). Saving model ...
+C code words: [   2    4    8   16   32   64  128  256  512 1024]
+Receive power (dB) using RIS phase shifts with Transmit power SNR 5 dB:
+optimum:  [43.69478985 43.69312873 43.69313294 43.69431696 43.69369384 43.69402635 43.69303736 43.69365412 43.69371042 43.69341533]
+AQE net:  [33.69922031 39.32506994 39.46465708 40.77055562 41.47164313 41.85584692 41.99212703 42.09071296 42.1201421  42.13704331]
+random:   [35.25631069 35.17420336 35.2883126  35.31885195 35.17459222 35.36199422 35.34194628 35.25180289 35.21139905 35.48243411]
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+C:\Users\alex9\PycharmProjects\PyTorchExperiments\.venv\Scripts\python.exe "C:/Program Files/JetBrains/PyCharm Community Edition 2024.3.1.1/plugins/python-ce/helpers/pydev/pydevconsole.py" --mode=client --host=127.0.0.1 --port=55154
+import sys; print('Python %s on %s' % (sys.version, sys.platform))
+sys.path.extend(['C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments'])
+PyDev console: starting.
+Python 3.9.6 (tags/v3.9.6:db3ff76, Jun 28 2021, 15:26:21) [MSC v.1929 64 bit (AMD64)] on win32
+runfile('C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments\\autoencoder_quantization.py', wdir='C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments')
+Using cuda device
+System Model Parameters:
+LOS            2
+B             26
+L              1
+T             26
+K              1
+M              1
+N             25
+Nw             5
+Nh             5
+mc_runs    50000
+Name: 0, dtype: int64
+0 1
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 2.0, 'C_code_words': 2, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5}
+N RIS elements: 25
+Nc RIS compressed: 50
+C quantization code words: 2
+overall bits per transmission: 50
+  0%|          | 1/200 [00:02<06:51,  2.07s/it]
+Epoch: 0 	Training Loss: 6.413651 	Validation Loss: 25.296194
+Validation loss decreased (inf --> 25.296194). Saving model ...
+ 26%|██▌       | 51/200 [01:03<03:06,  1.25s/it]
+Epoch: 50 	Training Loss: 6.339126 	Validation Loss: 25.283538
+ 50%|█████     | 101/200 [02:06<02:03,  1.25s/it]
+Epoch: 100 	Training Loss: 6.306662 	Validation Loss: 25.260720
+ 76%|███████▌  | 151/200 [03:09<01:01,  1.25s/it]
+Epoch: 150 	Training Loss: 6.276600 	Validation Loss: 25.253974
+100%|██████████| 200/200 [04:10<00:00,  1.25s/it]
+Epoch: 199 	Training Loss: 6.268671 	Validation Loss: 25.244240
+1 2
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 2.0, 'C_code_words': 4, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 50
+C quantization code words: 4
+overall bits per transmission: 100
+  0%|          | 1/200 [00:01<04:34,  1.38s/it]
+Epoch: 0 	Training Loss: 5.005476 	Validation Loss: 20.059296
+Validation loss decreased (inf --> 20.059296). Saving model ...
+ 26%|██▌       | 51/200 [01:04<03:08,  1.26s/it]
+Epoch: 50 	Training Loss: 3.434904 	Validation Loss: 14.091600
+Validation loss decreased (14.097204 --> 14.091600). Saving model ...
+ 50%|█████     | 101/200 [02:08<02:04,  1.25s/it]
+Epoch: 100 	Training Loss: 3.362908 	Validation Loss: 13.881857
+Validation loss decreased (13.885786 --> 13.881857). Saving model ...
+ 76%|███████▌  | 151/200 [03:11<01:02,  1.27s/it]
+Epoch: 150 	Training Loss: 3.331250 	Validation Loss: 13.806212
+100%|██████████| 200/200 [04:13<00:00,  1.27s/it]
+Epoch: 199 	Training Loss: 3.307342 	Validation Loss: 13.787957
+Validation loss decreased (13.788089 --> 13.787957). Saving model ...
+2 3
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 2.0, 'C_code_words': 8, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 50
+C quantization code words: 8
+overall bits per transmission: 150
+  0%|          | 1/200 [00:01<04:22,  1.32s/it]
+Epoch: 0 	Training Loss: 5.275942 	Validation Loss: 20.858991
+Validation loss decreased (inf --> 20.858991). Saving model ...
+ 26%|██▌       | 51/200 [01:06<03:15,  1.31s/it]
+Epoch: 50 	Training Loss: 3.206456 	Validation Loss: 13.053580
+Validation loss decreased (13.069142 --> 13.053580). Saving model ...
+ 50%|█████     | 101/200 [02:11<02:11,  1.33s/it]
+Epoch: 100 	Training Loss: 3.173766 	Validation Loss: 12.960422
+ 76%|███████▌  | 151/200 [03:16<01:03,  1.30s/it]
+Epoch: 150 	Training Loss: 3.165083 	Validation Loss: 12.937669
+100%|██████████| 200/200 [04:20<00:00,  1.30s/it]
+Epoch: 199 	Training Loss: 3.155889 	Validation Loss: 13.099941
+3 4
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 2.0, 'C_code_words': 16, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 50
+C quantization code words: 16
+overall bits per transmission: 200
+  0%|          | 1/200 [00:01<04:44,  1.43s/it]
+Epoch: 0 	Training Loss: 5.272877 	Validation Loss: 20.807961
+Validation loss decreased (inf --> 20.807961). Saving model ...
+ 26%|██▌       | 51/200 [01:10<03:22,  1.36s/it]
+Epoch: 50 	Training Loss: 2.337244 	Validation Loss: 9.176029
+Validation loss decreased (9.192801 --> 9.176029). Saving model ...
+ 50%|█████     | 101/200 [02:18<02:13,  1.35s/it]
+Epoch: 100 	Training Loss: 2.249207 	Validation Loss: 9.015120
+Validation loss decreased (9.018270 --> 9.015120). Saving model ...
+ 76%|███████▌  | 151/200 [03:26<01:06,  1.37s/it]
+Epoch: 150 	Training Loss: 2.211259 	Validation Loss: 8.848136
+100%|██████████| 200/200 [04:33<00:00,  1.37s/it]
+Epoch: 199 	Training Loss: 2.211358 	Validation Loss: 8.912966
+4 5
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 2.0, 'C_code_words': 32, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 50
+C quantization code words: 32
+overall bits per transmission: 250
+  0%|          | 1/200 [00:01<05:05,  1.53s/it]
+Epoch: 0 	Training Loss: 5.123231 	Validation Loss: 20.441402
+Validation loss decreased (inf --> 20.441402). Saving model ...
+ 26%|██▌       | 51/200 [01:18<03:50,  1.55s/it]
+Epoch: 50 	Training Loss: 1.989029 	Validation Loss: 8.179407
+Validation loss decreased (8.201789 --> 8.179407). Saving model ...
+ 50%|█████     | 101/200 [02:35<02:31,  1.53s/it]
+Epoch: 100 	Training Loss: 1.862008 	Validation Loss: 7.709608
+ 76%|███████▌  | 151/200 [03:52<01:15,  1.54s/it]
+Epoch: 150 	Training Loss: 1.843018 	Validation Loss: 7.360773
+Validation loss decreased (7.372214 --> 7.360773). Saving model ...
+100%|██████████| 200/200 [05:08<00:00,  1.54s/it]
+Epoch: 199 	Training Loss: 1.816114 	Validation Loss: 7.288250
+5 6
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 2.0, 'C_code_words': 64, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 50
+C quantization code words: 64
+overall bits per transmission: 300
+  0%|          | 1/200 [00:01<06:28,  1.95s/it]
+Epoch: 0 	Training Loss: 5.176513 	Validation Loss: 20.248464
+Validation loss decreased (inf --> 20.248464). Saving model ...
+ 26%|██▌       | 51/200 [01:36<04:46,  1.92s/it]
+Epoch: 50 	Training Loss: 1.811007 	Validation Loss: 7.063189
+Validation loss decreased (7.084811 --> 7.063189). Saving model ...
+ 50%|█████     | 101/200 [03:09<03:04,  1.86s/it]
+Epoch: 100 	Training Loss: 1.661221 	Validation Loss: 6.610270
+Validation loss decreased (6.619662 --> 6.610270). Saving model ...
+ 76%|███████▌  | 151/200 [04:44<01:32,  1.88s/it]
+Epoch: 150 	Training Loss: 1.597909 	Validation Loss: 6.337696
+Validation loss decreased (6.355503 --> 6.337696). Saving model ...
+100%|██████████| 200/200 [06:16<00:00,  1.88s/it]
+Epoch: 199 	Training Loss: 1.552235 	Validation Loss: 6.073542
+6 7
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 2.0, 'C_code_words': 128, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 50
+C quantization code words: 128
+overall bits per transmission: 350
+  0%|          | 1/200 [00:02<08:45,  2.64s/it]
+Epoch: 0 	Training Loss: 4.964156 	Validation Loss: 20.051912
+Validation loss decreased (inf --> 20.051912). Saving model ...
+ 26%|██▌       | 51/200 [02:12<06:34,  2.65s/it]
+Epoch: 50 	Training Loss: 1.831625 	Validation Loss: 7.637495
+Validation loss decreased (7.642484 --> 7.637495). Saving model ...
+ 50%|█████     | 101/200 [04:22<04:19,  2.62s/it]
+Epoch: 100 	Training Loss: 1.575564 	Validation Loss: 6.455109
+Validation loss decreased (6.458476 --> 6.455109). Saving model ...
+ 76%|███████▌  | 151/200 [06:32<02:07,  2.60s/it]
+Epoch: 150 	Training Loss: 1.491107 	Validation Loss: 5.993742
+100%|██████████| 200/200 [08:39<00:00,  2.60s/it]
+Epoch: 199 	Training Loss: 1.432222 	Validation Loss: 5.860913
+Validation loss decreased (5.866225 --> 5.860913). Saving model ...
+7 8
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 2.0, 'C_code_words': 256, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 50
+C quantization code words: 256
+overall bits per transmission: 400
+  0%|          | 1/200 [00:04<13:36,  4.10s/it]
+Epoch: 0 	Training Loss: 5.188470 	Validation Loss: 20.867221
+Validation loss decreased (inf --> 20.867221). Saving model ...
+ 26%|██▌       | 51/200 [03:24<10:04,  4.05s/it]
+Epoch: 50 	Training Loss: 1.773870 	Validation Loss: 6.993823
+Validation loss decreased (7.040685 --> 6.993823). Saving model ...
+ 50%|█████     | 101/200 [06:43<06:45,  4.09s/it]
+Epoch: 100 	Training Loss: 1.432207 	Validation Loss: 5.705439
+Validation loss decreased (5.711823 --> 5.705439). Saving model ...
+ 76%|███████▌  | 151/200 [10:01<03:10,  3.89s/it]
+Epoch: 150 	Training Loss: 1.353527 	Validation Loss: 5.405444
+Validation loss decreased (5.405506 --> 5.405444). Saving model ...
+100%|██████████| 200/200 [13:14<00:00,  3.97s/it]
+Epoch: 199 	Training Loss: 1.297982 	Validation Loss: 5.119773
+Validation loss decreased (5.122539 --> 5.119773). Saving model ...
+8 9
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 2.0, 'C_code_words': 512, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 50
+C quantization code words: 512
+overall bits per transmission: 450
+  0%|          | 1/200 [00:06<22:55,  6.91s/it]
+Epoch: 0 	Training Loss: 4.910889 	Validation Loss: 19.600199
+Validation loss decreased (inf --> 19.600199). Saving model ...
+ 26%|██▌       | 51/200 [05:45<16:53,  6.80s/it]
+Epoch: 50 	Training Loss: 1.727944 	Validation Loss: 6.948879
+Validation loss decreased (6.972731 --> 6.948879). Saving model ...
+ 50%|█████     | 101/200 [11:23<11:14,  6.81s/it]
+Epoch: 100 	Training Loss: 1.451015 	Validation Loss: 5.822814
+Validation loss decreased (5.854578 --> 5.822814). Saving model ...
+ 76%|███████▌  | 151/200 [17:01<05:27,  6.68s/it]
+Epoch: 150 	Training Loss: 1.328548 	Validation Loss: 5.275462
+Validation loss decreased (5.276714 --> 5.275462). Saving model ...
+100%|██████████| 200/200 [22:33<00:00,  6.77s/it]
+Epoch: 199 	Training Loss: 1.267689 	Validation Loss: 5.044697
+Validation loss decreased (5.051821 --> 5.044697). Saving model ...
+9 10
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 1000, 'Nc_RIS_compressed_ratio': 2.0, 'C_code_words': 1024, 'lr': 0.001, 'epochs': 200, 'snr_dB': 5, 'mc_runs': 50000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 50
+C quantization code words: 1024
+overall bits per transmission: 500
+  0%|          | 1/200 [00:12<41:31, 12.52s/it]
+Epoch: 0 	Training Loss: 4.997306 	Validation Loss: 19.954759
+Validation loss decreased (inf --> 19.954759). Saving model ...
+ 26%|██▌       | 51/200 [10:50<32:28, 13.07s/it]
+Epoch: 50 	Training Loss: 1.633085 	Validation Loss: 6.938571
+Validation loss decreased (6.989698 --> 6.938571). Saving model ...
+ 50%|█████     | 101/200 [21:27<20:59, 12.73s/it]
+Epoch: 100 	Training Loss: 1.377209 	Validation Loss: 5.701708
+Validation loss decreased (5.718730 --> 5.701708). Saving model ...
+ 76%|███████▌  | 151/200 [32:01<10:22, 12.71s/it]
+Epoch: 150 	Training Loss: 1.261189 	Validation Loss: 5.078836
+Validation loss decreased (5.086647 --> 5.078836). Saving model ...
+100%|██████████| 200/200 [42:17<00:00, 12.69s/it]
+Epoch: 199 	Training Loss: 1.203118 	Validation Loss: 4.810774
+Validation loss decreased (4.812290 --> 4.810774). Saving model ...
+C code words: [   2    4    8   16   32   64  128  256  512 1024]
+Receive power (dB) using RIS phase shifts with Transmit power SNR 5 dB:
+optimum:  [43.69326917 43.69471158 43.69406035 43.69417061 43.69384992 43.69506935 43.69389817 43.69391133 43.69327716 43.69494053]
+AQE net:  [33.59454602 40.26168153 40.51837457 41.74469477 42.17103078 42.41993332 42.60677996 42.6373     42.70474339 42.80472302]
+random:   [35.28566467 35.16590371 35.36097743 35.36339102 35.1466504  35.24125298 35.28780906 35.25117588 35.31834146 35.21936723]
+
+##############################################################################################################################################################
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+##############################################################################################################################################################
+
+N RIS elements: 25
+Receive power (dB) using RIS phase shifts with Transmit power SNR 5 dB:
+C code words: [   2    4    8   16   32   64  128  256  512 1024]
+
+Nc_RIS_compressed_ratio: 0.25
+Nc RIS compressed: 6
+# bits:   [6           12          18          24          30          36          42          48          54          60]
+optimum:  [43.69326906 43.69392214 43.69325289 43.69383967 43.69444426 43.693292   43.69441052 43.6948538  43.69401642 43.69419061]
+AQE net:  [33.75042083 36.72310896 36.12862433 37.09123054 37.05568507 37.49804249 37.1144017  37.64895525 37.56612073 37.14165818]
+random:   [35.36884033 35.18552109 35.22645198 35.3731304  35.15144437 35.2523692  35.27292952 35.2558909  35.23624121 35.26552446]
+
+Nc_RIS_compressed_ratio: 0.5
+Nc RIS compressed: 12
+C quantization code words: 2
+# bits:   [12          24          36          48          60          72          84          96          108         120]
+optimum:  [43.69366131 43.69452507 43.69399915 43.69397867 43.69373726 43.69477056 43.6936529  43.69360466 43.69427624 43.69457254]
+AQE net:  [33.70565702 37.03563259 37.73745802 38.101641   38.64299398 39.21382468 39.58505489 39.03429377 39.47251798 39.02513574]
+random:   [35.29669579 35.28709651 35.27276513 35.31083454 35.25722587 35.21664731 35.23426277 35.38966255 35.35457988 35.1079085 ]
+
+Nc_RIS_compressed_ratio: 1.0
+Nc RIS compressed: 25
+# bits:   [25          50          75          100         125         150         175         200         225         250]
+optimum:  [43.69377592 43.69400627 43.69358431 43.69287213 43.6948153  43.69471055 43.6943794  43.69331968 43.69427676 43.69491709]
+AQE net:  [33.71064732 38.83277708 38.59720323 39.9978301  40.67732228 40.89667435 41.00895887 41.04088705 41.44960725 41.4426447 ]
+random:   [35.33196521 35.35332925 35.2377525  35.37031884 35.26723031 35.27231507 35.13283904 35.26458806 35.28323665 35.30241662]
+
+Nc_RIS_compressed_ratio: 1.5
+Nc RIS compressed: 37
+# bits:   [37          74          111         148         185         222         259         296         333         370]
+optimum:  [43.69478985 43.69312873 43.69313294 43.69431696 43.69369384 43.69402635 43.69303736 43.69365412 43.69371042 43.69341533]
+AQE net:  [33.69922031 39.32506994 39.46465708 40.77055562 41.47164313 41.85584692 41.99212703 42.09071296 42.1201421  42.13704331]
+random:   [35.25631069 35.17420336 35.2883126  35.31885195 35.17459222 35.36199422 35.34194628 35.25180289 35.21139905 35.48243411]
+
+Nc_RIS_compressed_ratio: 2.0
+Nc RIS compressed: 50
+# bits:   [50          100         150         200         250         300         350         400         450         500]
+optimum:  [43.69326917 43.69471158 43.69406035 43.69417061 43.69384992 43.69506935 43.69389817 43.69391133 43.69327716 43.69494053]
+AQE net:  [33.59454602 40.26168153 40.51837457 41.74469477 42.17103078 42.41993332 42.60677996 42.6373     42.70474339 42.80472302]
+random:   [35.28566467 35.16590371 35.36097743 35.36339102 35.1466504  35.24125298 35.28780906 35.25117588 35.31834146 35.21936723]
