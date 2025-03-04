@@ -6,6 +6,7 @@ from torch.utils.data import DataLoader, Dataset
 import torch.optim as optim
 from tqdm import tqdm
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -24,13 +25,22 @@ def load_complex(dataset_dir, variable_name_real, variable_name_imag):
 class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS_compressed):
         super(EncoderLayer, self).__init__()
+        # self.linear_encoder = nn.Sequential(
+        #     nn.Linear(N_RIS, int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed) ),
+        #     # nn.SELU(),
+        #     nn.ReLU(),
+        #     nn.Linear(int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed)),
+        #     # nn.SELU(),
+        #     nn.ReLU(),
+        #     nn.Linear(int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), Nc_RIS_compressed)
+        # )
+
         self.linear_encoder = nn.Sequential(
-            nn.Linear(N_RIS, int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed) ),
-            nn.SELU(),
-            nn.Linear(int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed)),
-            nn.SELU(),
-            nn.Linear(int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), Nc_RIS_compressed)
-        ).double()
+            nn.Linear(N_RIS, Nc_RIS_compressed),
+            # nn.SELU(),
+            nn.ReLU(),
+            nn.Linear(Nc_RIS_compressed, Nc_RIS_compressed)
+        )
 
     def forward(self, theta):
         theta_enc = self.linear_encoder(theta)
@@ -46,28 +56,52 @@ class QuantizerLayer(nn.Module):
         # where theta_n is a scalar value: [-pi, +pi) and z is the quantized theta_n
         self.a = torch.nn.Parameter(
             data=torch.from_numpy(
-                np.ones(C_code_words) * np.pi / C_code_words
+                np.ones(C_code_words-1) * np.pi / (C_code_words - 1)
             ), requires_grad=False)
+        spacing = np.linspace(-1, 1, C_code_words + 1) * np.pi
         self.b = torch.nn.Parameter(
             data=torch.from_numpy(
-                np.linspace(-1, 1, C_code_words - 1) * np.pi * 15/16),
-            requires_grad=True)
+                np.delete(spacing,[0,-1])
+                # np.random.rand(C_code_words - 1, 1) * 2 * np.pi - 3 * np.pi),
+            ), requires_grad=True)
         if len(self.b) > 1:
             self.c = torch.nn.Parameter(
-                data=torch.from_numpy(
-                    (15 / np.mean(np.diff(self.b.data.numpy()))) * np.ones(C_code_words - 1)
-                ), requires_grad=False)
+                # data=torch.from_numpy((15 / np.mean(np.diff(self.b.data.numpy()))) * np.ones(C_code_words - 1)),
+                data=torch.from_numpy((0.9 * 2 * np.pi / np.mean(np.diff(self.b.data.numpy())) ) * np.ones(C_code_words - 1)),
+                # data=torch.from_numpy(0.9 * np.ones(C_code_words - 1)),
+            requires_grad = True)
         else:
-            self.c = torch.nn.Parameter(data=torch.from_numpy(15 / int(self.b.data) * np.ones(C_code_words - 1)),
-                                        requires_grad=False)
+            self.b = torch.nn.Parameter(data=torch.from_numpy(np.zeros(C_code_words - 1)), requires_grad=True)
+            self.c = torch.nn.Parameter(
+                data=torch.from_numpy(0.9 * np.ones(C_code_words - 1)),
+                # data=torch.from_numpy(15 / np.pi * np.ones(C_code_words - 1)),
+                                        requires_grad=True)
         self.C_code_words = C_code_words
 
     def forward(self, theta_enc):
         # theta_enc = matrix (number of samples of train/test dataset, Nc_RIS_compressed), in the range: [-pi, +pi)
-        theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1]).double().double().to(device)
+        theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1]).to(device)
         for i in range(self.C_code_words - 1):
             theta_qnt += self.a[i] * torch.tanh(self.c[i] * (theta_enc - self.b[i]))
         return theta_qnt
+
+    def plot_vals(self):
+        a = np.array(self.a.cpu().detach().numpy())
+        b = np.array(self.b.cpu().detach().numpy())
+        c = np.array(self.c.cpu().detach().numpy())
+        print(a,b,c)
+        if len(b) > 1:
+            bdiff = np.max(np.diff(b))
+            x_vals = np.linspace(np.min(b) - bdiff, np.max(b) + bdiff, 1000)
+        else:
+            x_vals = np.linspace(np.min(b) - np.pi, np.max(b) + np.pi, 1000)
+        soft_quant = []
+        hard_quant = []
+        for x_val in x_vals:
+            soft_quant.append(np.sum(a * np.tanh(c * (x_val - b))))
+            hard_quant.append(np.sum(a * np.sign(c * (x_val - b))))
+        return x_vals, soft_quant, hard_quant
+
 
 class HardQuantizerLayer(nn.Module):
     def __init__(self, a, b, c, C_code_words):
@@ -78,7 +112,7 @@ class HardQuantizerLayer(nn.Module):
         self.C_code_words = C_code_words
 
     def forward(self, theta_enc):
-        theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1]).double().double().to(device)
+        theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1]).to(device)
         for i in range(self.C_code_words - 1):
             theta_qnt += self.a[i] * torch.sign(self.c[i] * (theta_enc - self.b[i]))
         return theta_qnt
@@ -86,13 +120,22 @@ class HardQuantizerLayer(nn.Module):
 class DecoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS_compressed):
         super(DecoderLayer, self).__init__()
+        # self.linear_decoder = nn.Sequential(
+        #     nn.Linear(Nc_RIS_compressed, int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed)),
+        #     # nn.SELU(),
+        #     nn.ReLU(),
+        #     nn.Linear(int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed)),
+        #     # nn.SELU(),
+        #     nn.ReLU(),
+        #     nn.Linear(int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), N_RIS)
+        # )
+
         self.linear_decoder = nn.Sequential(
-            nn.Linear(Nc_RIS_compressed, int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed)),
-            nn.SELU(),
-            nn.Linear(int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed)),
-            nn.SELU(),
-            nn.Linear(int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), N_RIS)
-        ).double()
+            nn.Linear(Nc_RIS_compressed, N_RIS),
+            # nn.SELU(),
+            nn.ReLU(),
+            nn.Linear(N_RIS, N_RIS)
+        )
 
     def forward(self, theta_qnt):
         theta_dec = self.linear_decoder(theta_qnt)
@@ -107,12 +150,14 @@ class AutoQEncoder(nn.Module):
         self.encoder_layer = EncoderLayer(N_RIS, Nc_RIS_compressed).to(device)
         self.quantizer_layer = QuantizerLayer(C_code_words).to(device)
         self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS_compressed).to(device)
+        self.quantizer_layer_plot = self.quantizer_layer
 
     def forward(self, theta):
-        theta_enc = self.encoder_layer(theta)
+        theta_enc = self.encoder_layer(theta.float())
         theta_qnt = self.quantizer_layer(theta_enc)
         theta_dec = self.decoder_layer(theta_qnt)
-        return theta_dec
+        return theta_dec.double()
+
 
 class LoadData(Dataset):
     def __init__(self, data):
@@ -155,8 +200,8 @@ class Trainer(object):
 
         AQEnet = AutoQEncoder(N_RIS, Nc_RIS_compressed, C_code_words).to(device)
         # criterion = nn.MSELoss()
-        # optimizer = optim.Adam(AQEnet.parameters(), lr=parameters['lr'])
-        optimizer = optim.AdamW(AQEnet.parameters(), lr=parameters['lr'])
+        optimizer = optim.Adam(AQEnet.parameters(), lr=parameters['lr'])
+        # optimizer = optim.AdamW(AQEnet.parameters(), lr=parameters['lr'])
 
         val_loss_min = np.Inf
         AQEnet_validated = deepcopy(AQEnet) # if val loss does not decrease, return the copy of AQEnet before training
@@ -208,13 +253,14 @@ class Trainer(object):
                     val_loss += loss.item() * parameters['batch_size']  # update validation loss
                     val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
-                if epoch % 50 == 0 or epoch == parameters['epochs']-1:
+
+                if epoch % parameters['epoch_print'] == 0 or epoch == parameters['epochs']-1:
                     print('\nEpoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(
                         epoch, train_loss, val_loss))
 
                 # save model if validation loss has decreased
                 if val_loss <= val_loss_min:
-                    if epoch % 50 == 0 or epoch == parameters['epochs']-1:
+                    if epoch % parameters['epoch_print'] == 0 or epoch == parameters['epochs']-1:
                         print('Validation loss decreased ({:.6f} --> {:.6f}). Saving model ...'.format(
                             val_loss_min, val_loss))
                     AQEnet_validated = AQEnet
@@ -276,16 +322,17 @@ if __name__ == "__main__":
     # Training Parameters
     parameters = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
-                  'batch_size': 1000,
-                  'Nc_RIS_compressed_ratio': 2.0,
-                  'C_code_words': 2**8, # 2 to the power of number of bits
+                  'batch_size': 32,
+                  # 'Nc_RIS_compressed_ratio': 0.8,
+                  # 'C_code_words': 2**1, # 2 to the power of number of bits
                   'lr': 0.001, # optimizer learning rate
-                  'epochs': 200,
-                  'snr_dB': 5
+                  'epochs': 1000,
+                  'snr_dB': -5,
+                  'epoch_print': 100 # print every epoch #
                   }
 
     # Load RIS data from .csv files
-    dataset_dir = "MATLAB/datasets/HDRISData/02/"
+    dataset_dir = "MATLAB/datasets/HDRISData/01/"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
     Hur = load_complex(dataset_dir, "Hur_r", "Hur_i")
@@ -294,13 +341,16 @@ if __name__ == "__main__":
 
     print('System Model Parameters:', smp, sep='\n')
 
-    bits_list = range(1,11)
+    max_bits = 6
+    bits_list = range(1,max_bits+1)
+    # bits_list = [1, 2]
     P_opt = np.zeros(len(bits_list))
     P_AQE = np.zeros(len(bits_list))
     P_rand = np.zeros(len(bits_list))
     for b, bits in enumerate(bits_list):
         print(b, bits)
         parameters['C_code_words'] = 2**bits
+        parameters['Nc_RIS_compressed_ratio'] = (max_bits+1)/bits
         print(parameters)
 
         # Create the Torch Dataset
@@ -331,7 +381,13 @@ if __name__ == "__main__":
         # Train model
         trainer = Trainer(train_loader)
         AQEnet, train_losses, val_losses = trainer.train(val_loader, parameters)
+        x_vals, soft_quant, hard_quant = AQEnet.quantizer_layer_plot.plot_vals()
         # print(AQEnet)
+        fig, ax = plt.subplots()
+        ax.plot(x_vals, soft_quant, label='Soft Quantizer')
+        ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
+        ax.set_title("Quantizer Values: bits = " + str(bits))
+        ax.legend()
 
         # Test model
         # for snr_dB in [-20, -10, -5, 0, 5, 10, 20]:
@@ -346,3 +402,7 @@ if __name__ == "__main__":
     print('optimum: ', P_opt)
     print('AQE net: ', P_AQE)
     print('random:  ', P_rand)
+
+
+    plt.show(block=True)
+    plt.interactive(False)

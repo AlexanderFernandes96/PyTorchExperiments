@@ -1,0 +1,267 @@
+C:\Users\alex9\PycharmProjects\PyTorchExperiments\.venv\Scripts\python.exe "C:/Program Files/JetBrains/PyCharm Community Edition 2024.3.1.1/plugins/python-ce/helpers/pydev/pydevconsole.py" --mode=client --host=127.0.0.1 --port=49259
+import sys; print('Python %s on %s' % (sys.version, sys.platform))
+sys.path.extend(['C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments'])
+PyDev console: starting.
+Python 3.9.6 (tags/v3.9.6:db3ff76, Jun 28 2021, 15:26:21) [MSC v.1929 64 bit (AMD64)] on win32
+runfile('C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments\\autoencoder_quantization.py', wdir='C:\\Users\\alex9\\PycharmProjects\\PyTorchExperiments')
+Using cuda device
+System Model Parameters:
+LOS            2
+B             26
+L              1
+T             26
+K              1
+M              1
+N             25
+Nw             5
+Nh             5
+mc_runs    20000
+Name: 0, dtype: int64
+0 1
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 32, 'lr': 0.001, 'epochs': 1000, 'snr_dB': -5, 'epoch_print': 100, 'C_code_words': 2, 'Nc_RIS_compressed_ratio': 7.0}
+N RIS elements: 25
+Nc RIS compressed: 175
+C quantization code words: 2
+overall bits per transmission: 175
+  0%|          | 1/1000 [00:10<2:48:28, 10.12s/it]
+Epoch: 0 	Training Loss: 0.223016 	Validation Loss: 0.931800
+Validation loss decreased (inf --> 0.931800). Saving model ...
+ 10%|█         | 101/1000 [16:31<2:28:13,  9.89s/it]
+Epoch: 100 	Training Loss: 0.235876 	Validation Loss: 0.496962
+ 20%|██        | 201/1000 [33:02<2:09:14,  9.71s/it]
+Epoch: 200 	Training Loss: 0.224652 	Validation Loss: 0.490896
+ 30%|███       | 301/1000 [49:35<1:55:34,  9.92s/it]
+Epoch: 300 	Training Loss: 0.216361 	Validation Loss: 0.498567
+ 40%|████      | 401/1000 [1:06:00<1:39:45,  9.99s/it]
+Epoch: 400 	Training Loss: 0.212948 	Validation Loss: 0.512708
+ 50%|█████     | 501/1000 [1:22:31<1:23:10, 10.00s/it]
+Epoch: 500 	Training Loss: 0.216985 	Validation Loss: 0.502421
+ 60%|██████    | 601/1000 [1:39:08<1:06:10,  9.95s/it]
+Epoch: 600 	Training Loss: 0.215245 	Validation Loss: 0.498304
+ 70%|███████   | 701/1000 [1:55:37<49:39,  9.97s/it]
+Epoch: 700 	Training Loss: 0.211886 	Validation Loss: 0.499734
+ 80%|████████  | 801/1000 [2:12:09<32:01,  9.66s/it]
+Epoch: 800 	Training Loss: 0.209140 	Validation Loss: 0.495784
+ 90%|█████████ | 901/1000 [2:28:41<16:43, 10.14s/it]
+Epoch: 900 	Training Loss: 0.207961 	Validation Loss: 0.492190
+100%|██████████| 1000/1000 [2:45:00<00:00,  9.90s/it]
+Epoch: 999 	Training Loss: 0.206319 	Validation Loss: 0.491003
+[3.14159265] [0.01069079] [1.01216796]
+Backend tkagg is interactive backend. Turning interactive mode on.
+1 2
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 32, 'lr': 0.001, 'epochs': 1000, 'snr_dB': -5, 'epoch_print': 100, 'C_code_words': 4, 'Nc_RIS_compressed_ratio': 3.5, 'mc_runs': 20000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 87
+C quantization code words: 4
+overall bits per transmission: 174
+  0%|          | 1/1000 [00:10<2:58:17, 10.71s/it]
+Epoch: 0 	Training Loss: 0.347037 	Validation Loss: 0.890150
+Validation loss decreased (inf --> 0.890150). Saving model ...
+ 10%|█         | 101/1000 [17:12<2:27:46,  9.86s/it]
+Epoch: 100 	Training Loss: 0.258140 	Validation Loss: 0.635085
+ 20%|██        | 201/1000 [34:15<2:15:48, 10.20s/it]
+Epoch: 200 	Training Loss: 0.242030 	Validation Loss: 0.642913
+ 30%|███       | 301/1000 [51:22<2:02:04, 10.48s/it]
+Epoch: 300 	Training Loss: 0.238551 	Validation Loss: 0.643653
+ 40%|████      | 401/1000 [1:08:32<1:43:20, 10.35s/it]
+Epoch: 400 	Training Loss: 0.238989 	Validation Loss: 0.646906
+ 50%|█████     | 501/1000 [1:25:40<1:24:24, 10.15s/it]
+Epoch: 500 	Training Loss: 0.238997 	Validation Loss: 0.651901
+ 60%|██████    | 601/1000 [1:42:51<1:08:52, 10.36s/it]
+Epoch: 600 	Training Loss: 0.238582 	Validation Loss: 0.650844
+ 70%|███████   | 701/1000 [2:00:03<52:09, 10.47s/it]
+Epoch: 700 	Training Loss: 0.239044 	Validation Loss: 0.646167
+ 80%|████████  | 801/1000 [2:17:16<34:14, 10.33s/it]
+Epoch: 800 	Training Loss: 0.240696 	Validation Loss: 0.646540
+ 90%|█████████ | 901/1000 [2:34:37<17:11, 10.42s/it]
+Epoch: 900 	Training Loss: 0.242997 	Validation Loss: 0.647017
+100%|██████████| 1000/1000 [2:51:44<00:00, 10.30s/it]
+Epoch: 999 	Training Loss: 0.242208 	Validation Loss: 0.644982
+[1.04719755 1.04719755 1.04719755] [-1.25704993 -0.00728244  1.25909501] [3.24222232 3.59160603 3.20675115]
+2 3
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 32, 'lr': 0.001, 'epochs': 1000, 'snr_dB': -5, 'epoch_print': 100, 'C_code_words': 8, 'Nc_RIS_compressed_ratio': 2.3333333333333335, 'mc_runs': 20000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 58
+C quantization code words: 8
+overall bits per transmission: 174
+  0%|          | 1/1000 [00:13<3:43:55, 13.45s/it]
+Epoch: 0 	Training Loss: 0.485154 	Validation Loss: 0.972161
+Validation loss decreased (inf --> 0.972161). Saving model ...
+ 10%|█         | 101/1000 [20:15<2:58:06, 11.89s/it]
+Epoch: 100 	Training Loss: 0.286159 	Validation Loss: 0.655212
+Validation loss decreased (0.655226 --> 0.655212). Saving model ...
+ 20%|██        | 201/1000 [40:20<2:36:46, 11.77s/it]
+Epoch: 200 	Training Loss: 0.281992 	Validation Loss: 0.651708
+ 30%|███       | 301/1000 [1:00:22<2:16:10, 11.69s/it]
+Epoch: 300 	Training Loss: 0.278053 	Validation Loss: 0.647854
+Validation loss decreased (0.647919 --> 0.647854). Saving model ...
+ 40%|████      | 401/1000 [1:20:28<1:58:31, 11.87s/it]
+Epoch: 400 	Training Loss: 0.275553 	Validation Loss: 0.645942
+Validation loss decreased (0.645944 --> 0.645942). Saving model ...
+ 50%|█████     | 501/1000 [1:40:24<1:39:40, 11.99s/it]
+Epoch: 500 	Training Loss: 0.274433 	Validation Loss: 0.641867
+ 60%|██████    | 601/1000 [2:00:13<1:20:01, 12.03s/it]
+Epoch: 600 	Training Loss: 0.272100 	Validation Loss: 0.638529
+Validation loss decreased (0.638801 --> 0.638529). Saving model ...
+ 70%|███████   | 701/1000 [2:20:16<59:36, 11.96s/it]
+Epoch: 700 	Training Loss: 0.271416 	Validation Loss: 0.636382
+ 80%|████████  | 801/1000 [2:40:17<39:47, 12.00s/it]
+Epoch: 800 	Training Loss: 0.272645 	Validation Loss: 0.636797
+ 90%|█████████ | 901/1000 [3:00:26<19:53, 12.05s/it]
+Epoch: 900 	Training Loss: 0.273640 	Validation Loss: 0.636381
+100%|██████████| 1000/1000 [3:20:13<00:00, 12.01s/it]
+Epoch: 999 	Training Loss: 0.273900 	Validation Loss: 0.637757
+[0.44879895 0.44879895 0.44879895 0.44879895 0.44879895 0.44879895
+ 0.44879895] [-2.15420011 -1.27136438 -0.57976129  0.02374296  0.6053707   1.30929741
+  2.04603435] [6.97408542 6.96750372 7.04355856 7.23320389 7.07810458 7.00903344
+ 6.97749323]
+3 4
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 32, 'lr': 0.001, 'epochs': 1000, 'snr_dB': -5, 'epoch_print': 100, 'C_code_words': 16, 'Nc_RIS_compressed_ratio': 1.75, 'mc_runs': 20000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 43
+C quantization code words: 16
+overall bits per transmission: 172
+  0%|          | 1/1000 [00:13<3:50:24, 13.84s/it]
+Epoch: 0 	Training Loss: 0.611641 	Validation Loss: 1.124703
+Validation loss decreased (inf --> 1.124703). Saving model ...
+ 10%|█         | 101/1000 [22:58<3:20:30, 13.38s/it]
+Epoch: 100 	Training Loss: 0.348036 	Validation Loss: 0.797567
+ 20%|██        | 201/1000 [45:54<3:12:27, 14.45s/it]
+Epoch: 200 	Training Loss: 0.347710 	Validation Loss: 0.802345
+ 30%|███       | 301/1000 [1:08:54<2:38:04, 13.57s/it]
+Epoch: 300 	Training Loss: 0.345529 	Validation Loss: 0.807149
+ 40%|████      | 401/1000 [1:31:56<2:17:52, 13.81s/it]
+Epoch: 400 	Training Loss: 0.343908 	Validation Loss: 0.813025
+ 50%|█████     | 501/1000 [1:54:58<1:54:56, 13.82s/it]
+Epoch: 500 	Training Loss: 0.341763 	Validation Loss: 0.814524
+ 60%|██████    | 601/1000 [2:17:52<1:30:38, 13.63s/it]
+Epoch: 600 	Training Loss: 0.338186 	Validation Loss: 0.810103
+ 70%|███████   | 701/1000 [2:40:50<1:08:39, 13.78s/it]
+Epoch: 700 	Training Loss: 0.335059 	Validation Loss: 0.799616
+ 80%|████████  | 801/1000 [3:03:47<46:09, 13.92s/it]
+Epoch: 800 	Training Loss: 0.333087 	Validation Loss: 0.786574
+Validation loss decreased (0.786655 --> 0.786574). Saving model ...
+ 90%|█████████ | 901/1000 [3:26:42<23:11, 14.06s/it]
+Epoch: 900 	Training Loss: 0.331638 	Validation Loss: 0.783223
+100%|██████████| 1000/1000 [3:49:37<00:00, 13.78s/it]
+Epoch: 999 	Training Loss: 0.331436 	Validation Loss: 0.781958
+[0.20943951 0.20943951 0.20943951 0.20943951 0.20943951 0.20943951
+ 0.20943951 0.20943951 0.20943951 0.20943951 0.20943951 0.20943951
+ 0.20943951 0.20943951 0.20943951] [-2.65481613 -2.15855361 -1.75579486 -1.30164895 -0.94127197 -0.61483936
+ -0.27226574 -0.01385288  0.28189119  0.58674072  0.95356989  1.33866739
+  1.79047014  2.19747371  2.71742878] [14.33246926 14.34017998 14.27717266 14.28520715 14.29773141 14.34880906
+ 14.40946137 14.42428535 14.43297391 14.33363408 14.33468873 14.34057663
+ 14.32109387 14.32665391 14.38190817]
+4 5
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 32, 'lr': 0.001, 'epochs': 1000, 'snr_dB': -5, 'epoch_print': 100, 'C_code_words': 32, 'Nc_RIS_compressed_ratio': 1.4, 'mc_runs': 20000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 35
+C quantization code words: 32
+overall bits per transmission: 175
+  0%|          | 1/1000 [00:18<5:11:14, 18.69s/it]
+Epoch: 0 	Training Loss: 0.545084 	Validation Loss: 1.135817
+Validation loss decreased (inf --> 1.135817). Saving model ...
+ 10%|█         | 101/1000 [29:17<4:30:59, 18.09s/it]
+Epoch: 100 	Training Loss: 0.376923 	Validation Loss: 0.838727
+ 20%|██        | 201/1000 [58:12<3:44:11, 16.83s/it]
+Epoch: 200 	Training Loss: 0.369719 	Validation Loss: 0.835972
+Validation loss decreased (0.836486 --> 0.835972). Saving model ...
+ 30%|███       | 301/1000 [1:27:10<3:23:26, 17.46s/it]
+Epoch: 300 	Training Loss: 0.362559 	Validation Loss: 0.828924
+ 40%|████      | 401/1000 [1:56:05<2:52:19, 17.26s/it]
+Epoch: 400 	Training Loss: 0.356855 	Validation Loss: 0.826562
+ 50%|█████     | 501/1000 [2:25:00<2:21:25, 17.01s/it]
+Epoch: 500 	Training Loss: 0.355556 	Validation Loss: 0.829084
+ 60%|██████    | 601/1000 [2:54:06<1:55:25, 17.36s/it]
+Epoch: 600 	Training Loss: 0.355964 	Validation Loss: 0.829677
+ 70%|███████   | 701/1000 [3:17:56<1:09:11, 13.88s/it]
+Epoch: 700 	Training Loss: 0.357010 	Validation Loss: 0.829839
+ 80%|████████  | 801/1000 [3:41:23<48:13, 14.54s/it]
+Epoch: 800 	Training Loss: 0.357252 	Validation Loss: 0.830799
+ 90%|█████████ | 901/1000 [4:04:46<22:58, 13.92s/it]
+Epoch: 900 	Training Loss: 0.357480 	Validation Loss: 0.831105
+100%|██████████| 1000/1000 [4:27:52<00:00, 16.07s/it]
+Epoch: 999 	Training Loss: 0.357195 	Validation Loss: 0.832168
+[0.1013417 0.1013417 0.1013417 0.1013417 0.1013417 0.1013417 0.1013417
+ 0.1013417 0.1013417 0.1013417 0.1013417 0.1013417 0.1013417 0.1013417
+ 0.1013417 0.1013417 0.1013417 0.1013417 0.1013417 0.1013417 0.1013417
+ 0.1013417 0.1013417 0.1013417 0.1013417 0.1013417 0.1013417 0.1013417
+ 0.1013417 0.1013417 0.1013417] [-2.81243539 -2.66802141 -2.46284931 -2.2209859  -2.03978958 -1.81518903
+ -1.57727311 -1.35355351 -1.11885827 -0.94982286 -0.79705461 -0.59443456
+ -0.45512362 -0.29540723 -0.16649668  0.01819213  0.12067346  0.29324648
+  0.41752676  0.58258201  0.7903267   0.96362743  1.1969274   1.37881278
+  1.60451679  1.80267647  1.9797501   2.23998138  2.44689604  2.61982605
+  2.8760232 ] [28.80651402 28.74693799 28.75489207 28.79432508 28.7458707  28.86151206
+ 28.73984932 28.78467333 28.74657936 28.83418116 28.80858385 28.75581073
+ 28.78962697 28.81633725 28.81449613 28.83202493 28.77701885 28.80920399
+ 28.7728618  28.79166922 28.7548281  28.77644513 28.75059664 28.77696124
+ 28.75939412 28.7635191  28.77000214 28.85449762 28.78914773 28.76912961
+ 28.79246179]
+5 6
+{'train_test_split': 0.8, 'train_val_split': 0.8, 'batch_size': 32, 'lr': 0.001, 'epochs': 1000, 'snr_dB': -5, 'epoch_print': 100, 'C_code_words': 64, 'Nc_RIS_compressed_ratio': 1.1666666666666667, 'mc_runs': 20000, 'N_RIS': 25}
+N RIS elements: 25
+Nc RIS compressed: 29
+C quantization code words: 64
+overall bits per transmission: 174
+  0%|          | 1/1000 [00:20<5:46:15, 20.80s/it]
+Epoch: 0 	Training Loss: 0.599340 	Validation Loss: 1.140221
+Validation loss decreased (inf --> 1.140221). Saving model ...
+ 10%|█         | 101/1000 [34:19<5:03:10, 20.23s/it]
+Epoch: 100 	Training Loss: 0.472256 	Validation Loss: 0.957197
+Validation loss decreased (0.957845 --> 0.957197). Saving model ...
+ 20%|██        | 201/1000 [1:08:08<4:31:59, 20.42s/it]
+Epoch: 200 	Training Loss: 0.461515 	Validation Loss: 0.928236
+Validation loss decreased (0.928340 --> 0.928236). Saving model ...
+ 30%|███       | 301/1000 [1:41:48<3:54:49, 20.16s/it]
+Epoch: 300 	Training Loss: 0.462763 	Validation Loss: 0.917201
+ 40%|████      | 401/1000 [2:14:47<3:23:14, 20.36s/it]
+Epoch: 400 	Training Loss: 0.461552 	Validation Loss: 0.915665
+ 50%|█████     | 501/1000 [2:48:11<2:39:38, 19.20s/it]
+Epoch: 500 	Training Loss: 0.460669 	Validation Loss: 0.916207
+ 60%|██████    | 601/1000 [3:21:21<2:15:21, 20.35s/it]
+Epoch: 600 	Training Loss: 0.458628 	Validation Loss: 0.915206
+ 70%|███████   | 701/1000 [3:54:34<1:36:54, 19.45s/it]
+Epoch: 700 	Training Loss: 0.458158 	Validation Loss: 0.913700
+ 80%|████████  | 801/1000 [4:26:15<1:03:39, 19.19s/it]
+Epoch: 800 	Training Loss: 0.458228 	Validation Loss: 0.908180
+Validation loss decreased (0.908383 --> 0.908180). Saving model ...
+ 90%|█████████ | 901/1000 [4:57:51<31:02, 18.81s/it]
+Epoch: 900 	Training Loss: 0.458142 	Validation Loss: 0.904913
+100%|██████████| 1000/1000 [5:29:14<00:00, 19.75s/it]
+Epoch: 999 	Training Loss: 0.455254 	Validation Loss: 0.905804
+[0.04986655 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655
+ 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655
+ 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655
+ 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655
+ 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655
+ 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655
+ 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655
+ 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655
+ 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655
+ 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655 0.04986655
+ 0.04986655 0.04986655 0.04986655] [-2.94341011 -2.89521164 -2.74669462 -2.64524667 -2.50866437 -2.49433121
+ -2.33938093 -2.26763313 -2.16205483 -2.03225924 -1.94242084 -1.82928668
+ -1.7213085  -1.64781144 -1.5035699  -1.39365666 -1.35280938 -1.20468565
+ -1.13476383 -0.95789026 -0.87454387 -0.7944605  -0.74787903 -0.64014989
+ -0.55966178 -0.47780725 -0.38733463 -0.32345765 -0.22623308 -0.14750818
+ -0.09410374 -0.00565834  0.0612744   0.15279956  0.18003911  0.28014799
+  0.36876221  0.46578832  0.54383981  0.63489815  0.74588629  0.83662123
+  0.92765571  1.04579562  1.10219086  1.20489038  1.34497734  1.42696763
+  1.56031642  1.60861455  1.75913606  1.84838705  1.9956695   2.07359471
+  2.12023367  2.2847165   2.40123579  2.47834272  2.61893717  2.65138346
+  2.84114882  2.92994609  3.03078345] [57.63058707 57.58194177 57.58745898 57.62365495 57.62284459 57.58319811
+ 57.56973726 57.60707504 57.52873222 57.63143057 57.58661911 57.59212224
+ 57.60387018 57.54783364 57.63124804 57.59261267 57.55665598 57.58353247
+ 57.6183566  57.55708836 57.63192149 57.60257353 57.57820185 57.66489813
+ 57.56034122 57.66029223 57.60276657 57.67386076 57.58948981 57.58184498
+ 57.58659548 57.62446897 57.55257573 57.58999289 57.63160087 57.57318875
+ 57.61008054 57.57685277 57.56164059 57.60983126 57.61577625 57.58683376
+ 57.5800534  57.60897301 57.61533629 57.53008217 57.53981271 57.56872922
+ 57.57881498 57.59018445 57.59200853 57.60793615 57.58108501 57.53335145
+ 57.61181399 57.57273178 57.54830992 57.5868645  57.67887841 57.62734184
+ 57.61931652 57.64626441 57.58907091]
+C code words: [ 2  4  8 16 32 64]
+Receive power (dB) using RIS phase shifts with Transmit power SNR -5 dB:
+optimum:  [23.68332935 23.67096335 23.67319309 23.65486828 23.66836815 23.67489225]
+AQE net:  [22.49136948 22.00672656 21.93936328 21.53342684 21.30380105 20.99424989]
+random:   [15.45033813 15.42496563 15.41696833 15.30237556 15.53427998 15.50924742]
