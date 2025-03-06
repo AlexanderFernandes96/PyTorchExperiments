@@ -7,9 +7,11 @@ In order to run on a local pc you will need to install the following libraries t
 (This will install to the .venv folder if using PyCharm IDE).
 
 ### Required
-Run the following command in the terminal to install PyTorch to the local Python environment .
+Run the following commands in the terminal to install PyTorch libraries to the local Python environment.
 ```sh
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+pip install "ray[tune]" torch torchvision
+pip install optuna
 ```
 
 ### Test Run
