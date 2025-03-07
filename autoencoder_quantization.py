@@ -14,6 +14,7 @@ from ray.tune.search.optuna import OptunaSearch
 from ray.tune.schedulers import ASHAScheduler
 import pprint
 
+# DISABLE_TQDM = False
 DISABLE_TQDM = True
 
 # Get cpu, gpu or mps device for training.
@@ -31,28 +32,50 @@ def load_complex(dataset_dir, variable_name_real, variable_name_imag):
             1j * np.loadtxt(dataset_dir + variable_name_imag + ".csv", delimiter=','))
 
 class EncoderLayer(nn.Module):
-    def __init__(self, N_RIS, Nc_RIS_compressed):
+    def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
-        # self.linear_encoder = nn.Sequential(
-        #     nn.Linear(N_RIS, int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed) ),
-        #     # nn.SELU(),
-        #     nn.ReLU(),
-        #     nn.Linear(int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed)),
-        #     # nn.SELU(),
-        #     nn.ReLU(),
-        #     nn.Linear(int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), Nc_RIS_compressed)
-        # )
+
+        self.cnn_layer = nn.Sequential(
+            nn.Conv2d(1, 1*N_RIS,3, padding=2, padding_mode='circular'),
+            nn.SELU(),
+            nn.BatchNorm2d(1*N_RIS),
+            nn.Conv2d(1*N_RIS, 2*N_RIS,3),
+            nn.ReLU(),
+            nn.Conv2d(2*N_RIS, 3*N_RIS,3),
+            nn.ReLU(),
+            nn.MaxPool2d(2,2),
+        )
 
         self.linear_encoder = nn.Sequential(
-            nn.Linear(N_RIS, Nc_RIS_compressed),
-            # nn.SELU(),
-            nn.ReLU(),
-            nn.Linear(Nc_RIS_compressed, Nc_RIS_compressed)
+            nn.Linear(3*N_RIS, Nc_RIS),
+            nn.Dropout(0.5),
+            nn.Linear(Nc_RIS, Nc_RIS)
         )
 
     def forward(self, theta):
-        theta_enc = self.linear_encoder(theta)
+        theta_cnn = self.cnn_layer(theta)
+        theta_flat = torch.flatten(theta_cnn, start_dim=1)
+        theta_enc = self.linear_encoder(theta_flat)
         return theta_enc
+
+    #     self.linear_encoder = nn.Sequential(
+    #         nn.Linear(N_RIS, int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+    #         nn.LeakyReLU(),
+    #         nn.Linear(int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+    #         nn.LeakyReLU(),
+    #         nn.Linear(int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(3*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+    #         nn.LeakyReLU(),
+    #         nn.Linear(int(3*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(2*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+    #         nn.LeakyReLU(),
+    #         nn.Linear(int(2*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(1*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+    #         nn.LeakyReLU(),
+    #         nn.Linear(int(1*(N_RIS - Nc_RIS)/6 + Nc_RIS), Nc_RIS)
+    #     )
+    #
+    # def forward(self, theta):
+    #     theta_flat = torch.flatten(theta, start_dim=1)
+    #     theta_enc = self.linear_encoder(theta_flat)
+    #     return theta_enc
 
 
 class QuantizerLayer(nn.Module):
@@ -87,7 +110,7 @@ class QuantizerLayer(nn.Module):
         self.C_code_words = C_code_words
 
     def forward(self, theta_enc):
-        # theta_enc = matrix (number of samples of train/test dataset, Nc_RIS_compressed), in the range: [-pi, +pi)
+        # theta_enc = matrix (number of samples of train/test dataset, Nc_RIS), in the range: [-pi, +pi)
         theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1]).to(device)
         for i in range(self.C_code_words - 1):
             theta_qnt += self.a[i] * torch.tanh(self.c[i] * (theta_enc - self.b[i]))
@@ -126,38 +149,35 @@ class HardQuantizerLayer(nn.Module):
         return theta_qnt
 
 class DecoderLayer(nn.Module):
-    def __init__(self, N_RIS, Nc_RIS_compressed):
+    def __init__(self, N_RIS, Nc_RIS):
         super(DecoderLayer, self).__init__()
-        # self.linear_decoder = nn.Sequential(
-        #     nn.Linear(Nc_RIS_compressed, int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed)),
-        #     # nn.SELU(),
-        #     nn.ReLU(),
-        #     nn.Linear(int(1*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed)),
-        #     # nn.SELU(),
-        #     nn.ReLU(),
-        #     nn.Linear(int(2*(N_RIS - Nc_RIS_compressed)/3 + Nc_RIS_compressed), N_RIS)
-        # )
-
         self.linear_decoder = nn.Sequential(
-            nn.Linear(Nc_RIS_compressed, N_RIS),
-            # nn.SELU(),
-            nn.ReLU(),
-            nn.Linear(N_RIS, N_RIS)
+            nn.Linear(Nc_RIS, int(1*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.LeakyReLU(),
+            nn.Linear(int(1*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(2*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.LeakyReLU(),
+            nn.Linear(int(2*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(3*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.LeakyReLU(),
+            nn.Linear(int(3*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.LeakyReLU(),
+            nn.Linear(int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.LeakyReLU(),
+            nn.Linear(int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS), N_RIS)
         )
 
     def forward(self, theta_qnt):
         theta_dec = self.linear_decoder(theta_qnt)
-        return torch.fmod(theta_dec, np.pi)
+        return torch.angle(torch.exp(1j * theta_dec))
 
 # Inspired by: N. Shlezinger and Y. C. Eldar, “Deep task-based quantization,” Entropy, vol. 23, no. 1, pp. 1–18, Jan.
 # 2021, doi: 10.3390/e23010104.
 # Code: https://github.com/arielamar123/ADC-Learning-hyperopt
 class AutoQEncoder(nn.Module):
-    def __init__(self, N_RIS, Nc_RIS_compressed, C_code_words):
+    def __init__(self, N_RIS, Nc_RIS, C_code_words):
         super(AutoQEncoder, self).__init__()
-        self.encoder_layer = EncoderLayer(N_RIS, Nc_RIS_compressed).to(device)
+        self.encoder_layer = EncoderLayer(N_RIS, Nc_RIS).to(device)
         self.quantizer_layer = QuantizerLayer(C_code_words).to(device)
-        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS_compressed).to(device)
+        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS).to(device)
         self.quantizer_layer_plot = self.quantizer_layer
 
     def forward(self, theta):
@@ -196,15 +216,16 @@ class Trainer(object):
     def __init__(self, train_loader, trainparams):
         self.train_loader = train_loader
         self.N_RIS = trainparams['N_RIS']
-        self.Nc_RIS_compressed = int(self.N_RIS * trainparams['Nc_RIS_compressed_ratio'])
+        self.Nc_RIS = int(self.N_RIS * trainparams['Nc_RIS_compressed_ratio'])
         self.C_code_words = trainparams['C_code_words']
         # print('N RIS elements:', self.N_RIS)
-        # print('Nc RIS compressed:', self.Nc_RIS_compressed)
+        # print('Nc RIS compressed:', self.Nc_RIS)
         # print('C quantization code words:', self.C_code_words)
-        # overall_bits = self.Nc_RIS_compressed * int(round(np.log2(self.C_code_words)))
+        # overall_bits = self.Nc_RIS * int(round(np.log2(self.C_code_words)))
         # print('overall bits per transmission:', overall_bits)
-        self.AQEnet = AutoQEncoder(self.N_RIS, self.Nc_RIS_compressed, self.C_code_words).to(device)
-        self.optimizer = optim.Adam(self.AQEnet.parameters(), lr=trainparams['lr'])
+        self.AQEnet = AutoQEncoder(self.N_RIS, self.Nc_RIS, self.C_code_words).to(device)
+        self.optimizer = optim.Adam(self.AQEnet.parameters(), lr=trainparams['lr'], amsgrad=True)
+        # self.optimizer = optim.SGD(self.AQEnet.parameters(), lr=trainparams['lr'], momentum=0.9)
 
     def train(self, val_loader, trainparams):
 
@@ -339,9 +360,9 @@ if __name__ == "__main__":
     ####################################################################################################################
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
-                  'batch_size': 64,
-                  'lr': 1, # optimizer learning rate
-                  'epochs': 500, # total training duration
+                  'batch_size': 1024,
+                  'lr': 0.001, # optimizer learning rate
+                  'epochs': 1000, # total training duration
                   'snr_dB': -5,
                   'epoch_print': 5, # print losses on every epoch number
                   'epoch_echo': False, # flag to display epoch print losses
@@ -373,7 +394,7 @@ if __name__ == "__main__":
 
     bits = 1 # bits per Quantizer
     trainparams['C_code_words'] = 2**bits
-    trainparams['Nc_RIS'] = 10
+    trainparams['Nc_RIS'] = 16
     trainparams['Nc_RIS_compressed_ratio'] = trainparams['Nc_RIS'] / trainparams['N_RIS']
     trainparams['overall_bits'] = trainparams['Nc_RIS'] * int(round(np.log2(trainparams['C_code_words'])))
 
@@ -392,12 +413,13 @@ if __name__ == "__main__":
     val_set = []
     for i in range(0, trainparams['mc_runs']):
         theta = RISopt[i]
+        thetaGeom = np.reshape(theta, (1, sysmodelparams["Nw"], sysmodelparams["Nh"]))
         if i < num_train:
-            train_set.append([theta, theta, Hua[i], Hra[i], Hur[i]])
+            train_set.append([thetaGeom, theta, Hua[i], Hra[i], Hur[i]])
         elif i >= num_train_val:
-            test_set.append([theta, theta, Hua[i], Hra[i], Hur[i]])
+            test_set.append([thetaGeom, theta, Hua[i], Hra[i], Hur[i]])
         else:
-            val_set.append([theta, theta, Hua[i], Hra[i], Hur[i]])
+            val_set.append([thetaGeom, theta, Hua[i], Hra[i], Hur[i]])
     train_set = LoadData(train_set)
     test_set = LoadData(test_set)
     val_set = LoadData(val_set)
@@ -421,7 +443,8 @@ if __name__ == "__main__":
     # #     trainparams['snr_dB'] = snr_dB
     # P_opt, P_AQE, P_rand = trainer.evaluate(test_loader, sysmodelparams, trainparams)
     #
-    # print('C code words:', 2**bits)
+    # print("Training Model parameters:")
+    # pprint.pprint(trainparams)
     # print('Receive power (dB) using RIS phase shifts with Transmit power SNR {:.0f} dB:'.format(trainparams['snr_dB']))
     # print('optimum: ', P_opt)
     # print('AQE net: ', P_AQE)
@@ -433,7 +456,7 @@ if __name__ == "__main__":
     # Ray Tune: Hyperparameter Tuning
     ################################################################################################################
     search_space = {
-        "lr": tune.loguniform(1e-4, 1e-2),
+        "lr": tune.loguniform(1e-5, 1e-1),
         "batch_size": tune.choice([64, 128, 256, 512, 1024]),
     }
 
@@ -459,11 +482,13 @@ if __name__ == "__main__":
         max_t=10,
         grace_period=2,
     )
-
+    trials_per_device = 16
     tuner = tune.Tuner(  # ③
         tune.with_resources(
         objective,
-        resources={"gpu": 1/20} # fraction means shared between trials
+        resources={"cpu": 24/trials_per_device, "gpu": 1/trials_per_device}
+            # fraction means trials per device: fraction = device/trial,
+            # My setup: CPU has 24 cores, 1 GPU
     ),
         tune_config=tune.TuneConfig(
             metric="AQE Rx",
