@@ -224,16 +224,18 @@ class Trainer(object):
         # overall_bits = self.Nc_RIS * int(round(np.log2(self.C_code_words)))
         # print('overall bits per transmission:', overall_bits)
         self.AQEnet = AutoQEncoder(self.N_RIS, self.Nc_RIS, self.C_code_words).to(device)
-        self.optimizer = optim.Adam(self.AQEnet.parameters(), lr=trainparams['lr'], amsgrad=True)
-        # self.optimizer = optim.SGD(self.AQEnet.parameters(), lr=trainparams['lr'], momentum=0.9)
+        # self.optimizer = optim.Adam(self.AQEnet.parameters(), lr=trainparams['lr'], amsgrad=True)
+        self.optimizer = optim.SGD(self.AQEnet.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
 
     def train(self, val_loader, trainparams):
 
         val_loss_min = np.Inf
+        val_loss_min_earlystop = np.Inf
         AQEnet_validated = deepcopy(self.AQEnet) # if val loss does not decrease, return the copy of AQEnet before training
 
         train_losses = []
         val_losses = []
+        num_epochs = 0
         for epoch in tqdm(range(trainparams['epochs']), disable=DISABLE_TQDM):
             train_loss = 0.0
             val_loss = 0.0
@@ -280,23 +282,36 @@ class Trainer(object):
                     val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
 
-                if (epoch % trainparams['epoch_print'] == 0 or epoch == trainparams['epochs']-1) and trainparams['epoch_echo']:
+                if trainparams['epoch_echo']:
                     print('\nEpoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(
                         epoch, train_loss, val_loss))
 
                 # save model if validation loss has decreased
                 if val_loss <= val_loss_min:
-                    if (epoch % trainparams['epoch_print'] == 0 or epoch == trainparams['epochs']-1) and trainparams['epoch_echo']:
+                    if trainparams['epoch_echo']:
                         print('Validation loss decreased ({:.6f} --> {:.6f}). Saving model ...'.format(
                             val_loss_min, val_loss))
                     AQEnet_validated = self.AQEnet
                     val_loss_min = val_loss
+                else:
+                    if epoch % trainparams['epoch_val'] == 0:
+                        if val_loss <= val_loss_min_earlystop:
+                            if trainparams['epoch_echo']:
+                                print('Validation early stop loss decreased ({:.6f} --> {:.6f}).'.format(
+                                    val_loss_min_earlystop, val_loss))
+                            val_loss_min_earlystop = val_loss
+                        else:
+                            if trainparams['epoch_echo']:
+                                print('No Validation early stop loss decrease ({:.6f} --> {:.6f}). Early Stopping'.format(
+                                val_loss_min_earlystop, val_loss))
+                            break
 
                 train_losses.append(train_loss)
                 val_losses.append(val_loss)
+            num_epochs += 1
 
         self.AQEnet = AQEnet_validated
-        return AQEnet_validated, train_losses, val_losses
+        return AQEnet_validated, train_losses, val_losses, num_epochs
 
     def evaluate(self, test_loader, sysmodelparams, trainparams):
         N_RIS = trainparams['N_RIS']
@@ -361,13 +376,19 @@ if __name__ == "__main__":
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'batch_size': 1024,
-                  'lr': 0.001, # optimizer learning rate
-                  'epochs': 1000, # total training duration
+                  'lr': 0.0001, # optimizer learning rate
+                  'momentum': 0.9, # optimizer momentum
+                  'epochs': 200, # total training duration
                   'snr_dB': -5,
-                  'epoch_print': 5, # print losses on every epoch number
+                  'epoch_val': 25, # validate early stop every epoch number
                   'epoch_echo': False, # flag to display epoch print losses
-                  'trials': 50 # number of Raylet trials
+                  'trials': 100, # number of Ray tune trials
+                  'training_iteration': 20, # number of Ray tune training iterations
+                  'grace_period': 5, # min number of training iterations
+                  'trials_per_device': 18, # number of trials per cpu/gpu resource
                   }
+    # | bits | Optimum |     AQE |  Random | Epochs |
+    # |   16 | 23.5741 | 17.4593 | 15.4874 |    640 | params={'lr': 0.0010559272708640594, 'momentum': 0.44726446330961234, 'batch_size': 64}
 
     ####################################################################################################################
     # Load RIS data from .csv files
@@ -394,7 +415,7 @@ if __name__ == "__main__":
 
     bits = 1 # bits per Quantizer
     trainparams['C_code_words'] = 2**bits
-    trainparams['Nc_RIS'] = 16
+    trainparams['Nc_RIS'] = 32
     trainparams['Nc_RIS_compressed_ratio'] = trainparams['Nc_RIS'] / trainparams['N_RIS']
     trainparams['overall_bits'] = trainparams['Nc_RIS'] * int(round(np.log2(trainparams['C_code_words'])))
 
@@ -431,7 +452,7 @@ if __name__ == "__main__":
     # test_loader = DataLoader(test_set, batch_size=trainparams['batch_size'])
     # val_loader = DataLoader(val_set, batch_size=trainparams['batch_size'])
     # trainer = Trainer(train_loader, trainparams)
-    # AQEnet, train_losses, val_losses = trainer.train(val_loader, trainparams)
+    # AQEnet, train_losses, val_losses, num_epochs = trainer.train(val_loader, trainparams)
     # x_vals, soft_quant, hard_quant = AQEnet.quantizer_layer_plot.plot_vals()
     # # print(AQEnet)
     # fig, ax = plt.subplots()
@@ -457,54 +478,57 @@ if __name__ == "__main__":
     ################################################################################################################
     search_space = {
         "lr": tune.loguniform(1e-5, 1e-1),
-        "batch_size": tune.choice([64, 128, 256, 512, 1024]),
+        "momentum": tune.uniform(0.1, 0.99),
+        "batch_size": tune.choice([16, 32, 64, 128, 256, 512, 1024]),
     }
 
     def objective(config):
         trainparams['batch_size'] = config['batch_size']
         trainparams['lr'] = config['lr']
+        trainparams['momentum'] = config['momentum']
         train_loader = DataLoader(train_set, batch_size=int(config["batch_size"]))
         test_loader = DataLoader(test_set, batch_size=int(config["batch_size"]))
         val_loader = DataLoader(val_set, batch_size=int(config["batch_size"]))
         trainer = Trainer(train_loader, trainparams)
-        model = trainer.AQEnet
-        optimizer = torch.optim.Adam(  # Tune the optimizer
-            model.parameters(), lr=config["lr"]
-        )
-        trainer.optimizer = optimizer
+        model = deepcopy(trainer.AQEnet)
+        total_epochs = 0
         while True:
-            AQEnet, train_losses, val_losses = trainer.train(val_loader, trainparams)  # Train the model
+            AQEnet, train_losses, val_losses, num_epochs = trainer.train(val_loader, trainparams)  # Train the model
             P_opt, P_AQE, P_rand = trainer.evaluate(test_loader, sysmodelparams, trainparams)  # Compute test results
-            tune.report({"Optimum Rx": P_opt, "AQE Rx": P_AQE, "Random Rx": P_rand})  # Report to Tune
+            if np.isnan(P_AQE):
+                P_AQE = trainparams['snr_dB']
+            model = AQEnet
+            total_epochs += num_epochs
+            trainer.AQEnet = model
+            tune.report({"Optimum": P_opt, "AQE": P_AQE, "Random": P_rand, "Epochs": total_epochs})  # Report to Tune
 
     algo = OptunaSearch()  # ②
     scheduler = ASHAScheduler(
-        max_t=10,
-        grace_period=2,
+        max_t= trainparams['training_iteration'],
+        grace_period=trainparams['grace_period'],
     )
-    trials_per_device = 16
     tuner = tune.Tuner(  # ③
         tune.with_resources(
         objective,
-        resources={"cpu": 24/trials_per_device, "gpu": 1/trials_per_device}
+        resources={"cpu": 24/trainparams['trials_per_device'], "gpu": 1/trainparams['trials_per_device']}
             # fraction means trials per device: fraction = device/trial,
             # My setup: CPU has 24 cores, 1 GPU
     ),
         tune_config=tune.TuneConfig(
-            metric="AQE Rx",
+            metric="AQE",
             mode="max",
             search_alg=algo,
             scheduler=scheduler,
             num_samples=trainparams['trials']
         ),
         run_config=tune.RunConfig(
-            stop={"training_iteration": 5},
+            stop={"training_iteration": trainparams['training_iteration']},
         ),
         param_space=search_space,
     )
     results = tuner.fit()
-    results_df = results.get_dataframe().sort_values('AQE Rx',ascending=False)
-    best_result = results.get_best_result("AQE Rx", "max")
+    results_df = results.get_dataframe().sort_values('AQE',ascending=False)
+    best_result = results.get_best_result("AQE", "max")
 
     print('System Model parameters:', sysmodelparams, sep='\n')
     print("Training Model parameters:")
@@ -512,5 +536,5 @@ if __name__ == "__main__":
 
     print("Best trial config: {}".format(best_result.config))
     print("Best trial final Rx Power: {}".format(
-        best_result.metrics["AQE Rx"]))
+        best_result.metrics["AQE"]))
     print(tabulate(results_df, headers='keys', tablefmt='psql'))
