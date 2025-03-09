@@ -36,7 +36,7 @@ Code was obtained from: https://pytorch.org/tutorials/beginner/basics/quickstart
 * Files included in project:
   * [quickstart.py](quickstart.py)
 
-### Neural Network with Quantization
-Simple autoencoder that implements quantization on the encoded latent variables.
+### SISO Convolutional Neural Network AutoEncoder with Quantization
+Simple autoencoder to quantize optimal RIS phases into bits for phase shift feedback in a SISO RIS-assisted communication system model.
 * Files included in project:
   * [autoencoder_quantization.py](autoencoder_quantization.py)

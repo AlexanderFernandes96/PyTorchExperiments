@@ -249,14 +249,14 @@ class Trainer(object):
                 hur = hur.to(device)
                 inputs = inputs.to(device)
                 labels = labels.to(device)
-                self.optimizer.zero_grad()                                   # clear gradients of all variables to optimize
-                outputs = self.AQEnet(inputs)                                # forward pass inputs into AQE network
+                self.optimizer.zero_grad()                              # clear gradients of all variables to optimize
+                outputs = self.AQEnet(inputs)                           # forward pass inputs into AQE network
                 loss = Loss1(outputs, labels, hra, hur)                 # calculate batch loss
                 # loss = Loss3(outputs, labels)                           # calculate batch loss
                 loss.backward()                                         # back propagate gradients through AQE network
-                self.optimizer.step()                                        # single optimization step to update variables
-                train_loss += loss.item() * trainparams['batch_size']    # update training loss
-                train_loss /= len(self.train_loader.dataset)                 # normalize training loss
+                self.optimizer.step()                                   # single optimization step to update variables
+                train_loss += loss.item() * trainparams['batch_size']   # update training loss
+                train_loss /= len(self.train_loader.dataset)            # normalize training loss
 
 
             # Validate the model
@@ -275,7 +275,7 @@ class Trainer(object):
                     hur = hur.to(device)
                     inputs = inputs.to(device)
                     labels = labels.to(device)
-                    outputs = self.AQEnet(inputs)                            # forward pass inputs into AQE network
+                    outputs = self.AQEnet(inputs)                       # forward pass inputs into AQE network
                     loss = Loss1(outputs, labels, hra, hur)             # calculate batch loss
                     # loss = Loss3(outputs, labels)                       # calculate batch loss
                     val_loss += loss.item() * trainparams['batch_size']  # update validation loss
@@ -375,11 +375,11 @@ if __name__ == "__main__":
     ####################################################################################################################
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
-                  'batch_size': 1024,
+                  'batch_size': 1024, # batch training size
                   'lr': 0.0001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum
                   'epochs': 200, # total training duration
-                  'snr_dB': -5,
+                  'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 25, # validate early stop every epoch number
                   'epoch_echo': False, # flag to display epoch print losses
                   'trials': 100, # number of Ray tune trials
@@ -387,8 +387,15 @@ if __name__ == "__main__":
                   'grace_period': 5, # min number of training iterations
                   'trials_per_device': 18, # number of trials per cpu/gpu resource
                   }
+    search_space = { # Ray Tune Hyper parameter search space
+        "batch_size": tune.choice([16, 32, 64, 128, 256, 512, 1024]),
+        "lr": tune.loguniform(1e-5, 1e-1),
+        "momentum": tune.uniform(0.1, 0.99),
+    }
+
     # | bits | Optimum |     AQE |  Random | Epochs |
     # |   16 | 23.5741 | 17.4593 | 15.4874 |    640 | params={'lr': 0.0010559272708640594, 'momentum': 0.44726446330961234, 'batch_size': 64}
+    # |   32 | 23.5728 | 17.8364 | 15.3691 |   1625 |
 
     ####################################################################################################################
     # Load RIS data from .csv files
@@ -476,11 +483,6 @@ if __name__ == "__main__":
     ################################################################################################################
     # Ray Tune: Hyperparameter Tuning
     ################################################################################################################
-    search_space = {
-        "lr": tune.loguniform(1e-5, 1e-1),
-        "momentum": tune.uniform(0.1, 0.99),
-        "batch_size": tune.choice([16, 32, 64, 128, 256, 512, 1024]),
-    }
 
     def objective(config):
         trainparams['batch_size'] = config['batch_size']
