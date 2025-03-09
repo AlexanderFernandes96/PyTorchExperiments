@@ -386,7 +386,7 @@ if __name__ == "__main__":
                   'trials': 100, # number of Ray tune trials
                   'training_iteration': 100, # number of Ray tune training iterations
                   'grace_period': 10, # min number of training iterations
-                  'trials_per_device': 18, # number of trials per cpu/gpu resource
+                  'trials_per_device': 20, # number of trials per cpu/gpu resource
                   'Nc_RIS': 16, # number of quantizers, values that N is compresses/encoded into
                   }
     search_space = { # Ray Tune Hyper parameter search space
