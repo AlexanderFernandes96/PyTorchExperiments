@@ -36,7 +36,7 @@ class EncoderLayer(nn.Module):
         super(EncoderLayer, self).__init__()
 
         self.cnn_layer = nn.Sequential(
-            nn.Conv2d(1, 1*N_RIS,3, padding=2, padding_mode='circular'),
+            nn.Conv2d(5, 1*N_RIS,5, padding_mode='circular'),
             nn.SELU(),
             nn.BatchNorm2d(1*N_RIS),
             nn.Conv2d(1*N_RIS, 2*N_RIS,3),
@@ -52,11 +52,11 @@ class EncoderLayer(nn.Module):
             nn.Linear(Nc_RIS, Nc_RIS)
         )
 
-    def forward(self, theta):
-        theta_cnn = self.cnn_layer(theta)
-        theta_flat = torch.flatten(theta_cnn, start_dim=1)
-        theta_enc = self.linear_encoder(theta_flat)
-        return theta_enc
+    def forward(self, x):
+        x_cnn = self.cnn_layer(x)
+        x_flat = torch.flatten(x_cnn, start_dim=1)
+        x_enc = self.linear_encoder(x_flat)
+        return x_enc
 
     #     self.linear_encoder = nn.Sequential(
     #         nn.Linear(N_RIS, int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
@@ -323,49 +323,50 @@ class Trainer(object):
                                                         self.AQEnet.quantizer_layer.b,
                                                         self.AQEnet.quantizer_layer.c,
                                                         C_code_words)
-            y_opt = []
-            y_AQE = []
-            y_rand = []
+            test_size = len(test_loader.dataset.data)
+            y_opt = torch.zeros(test_size, dtype=torch.cdouble).to(device)
+            y_AQE = torch.zeros(test_size, dtype=torch.cdouble).to(device)
+            y_rand = torch.zeros(test_size, dtype=torch.cdouble).to(device)
+            test_i = 0
             for i, data in (enumerate(test_loader)):
                 inputs, theta_opt, hua, hra, hur = data
                 inputs = inputs.to(device)
-                # theta_opt = theta_opt.to(device)
-                # hua = hua.to(device)
-                # hra = hra.to(device)
-                # hur = hur.to(device)
-                theta_AQE = self.AQEnet(inputs).cpu()  # forward pass inputs into AQE network
-                theta_rand = np.random.uniform(low=-np.pi, high=+np.pi, size=(len(hua),N_RIS))
-
+                theta_opt = theta_opt.to(device)
+                hua = hua.to(device)
+                hra = hra.to(device)
+                hur = hur.to(device)
+                len_hua = len(hua)
+                theta_AQE = self.AQEnet(inputs)  # forward pass inputs into AQE network
+                theta_rand = torch.rand(size=(len_hua,N_RIS), dtype=torch.double) * 2*torch.pi - torch.pi
+                theta_rand = theta_rand.to(device)
+                x = torch.pow(10*torch.ones(1), trainparams['snr_dB']/10)
+                x = x.to(device)
                 # Transmit data with RIS phases
                 if sysmodelparams['K'] == 1 & sysmodelparams['M'] == 1: # SISO
-                    for b in range(len(hua)):
-                        hua_np = np.array(hua[b])
-                        hra_np = np.array(hra[b])
-                        hur_np = np.array(hur[b])
-                        theta_opt_np = np.array(theta_opt[b])
-                        theta_AQE_np = np.array(theta_AQE[b])
+                    for b in range(len_hua):
+                        hra_hur = torch.matmul(hra[b], torch.diag(hur[b]))
+                        y_opt_b_ = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_opt[b]))) * x
+                        y_AQE_b_ = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_AQE[b]))) * x
+                        y_rand_b_ = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_rand[b]))) * x
+                        y_opt_b = 0
+                        y_AQE_b = 0
+                        y_rand_b = 0
+                        T = 100  # transmissions
+                        for t in range(T):
+                            awgn = torch.randn(1, dtype=torch.cdouble).to(device)
+                            y_opt_b += y_opt_b_ + awgn
+                            y_AQE_b += y_AQE_b_ + awgn
+                            y_rand_b += y_rand_b_ + awgn
+                        y_opt[test_i] = y_opt_b/T
+                        y_AQE[test_i] = y_AQE_b/T
+                        y_rand[test_i] = y_rand_b/T
+                        test_i += 1
 
-                        T = 100 # transmissions
-                        awgn = np.random.randn(1,2).view(np.complex_)[0,0]
-                        y_opt_b = (hua_np + hra_np.T @ np.diag(theta_opt_np) @ hur_np) * np.power(10, trainparams['snr_dB']/10) + awgn
-                        y_AQE_b = (hua_np + hra_np.T @ np.diag(theta_AQE_np) @ hur_np) * np.power(10, trainparams['snr_dB']/10) + awgn
-                        y_rand_b = (hua_np + hra_np.T @ np.diag(theta_rand[b]) @ hur_np) * np.power(10, trainparams['snr_dB']/10) + awgn
-                        for t in range(T-1):
-                            awgn = np.random.randn(1,2).view(np.complex_)[0,0]
-                            y_opt_b += (hua_np + hra_np.T @ np.diag(theta_opt_np) @ hur_np) * np.power(10, trainparams['snr_dB']/10) + awgn
-                            y_AQE_b += (hua_np + hra_np.T @ np.diag(theta_AQE_np) @ hur_np) * np.power(10, trainparams['snr_dB']/10) + awgn
-                            y_rand_b += (hua_np + hra_np.T @ np.diag(theta_rand[b]) @ hur_np) * np.power(10, trainparams['snr_dB']/10) + awgn
-                        y_opt.append(y_opt_b/T)
-                        y_AQE.append(y_AQE_b/T)
-                        y_rand.append(y_rand_b/T)
-            y_opt = np.matrix(y_opt, dtype=np.complex_)
-            y_AQE = np.matrix(y_AQE, dtype=np.complex_)
-            y_rand = np.matrix(y_rand, dtype=np.complex_)
-
-        P_opt = 10*np.log10(np.abs(y_opt @ y_opt.H)[0, 0] / y_opt.size)
-        P_AQE = 10*np.log10(np.abs(y_AQE @ y_AQE.H)[0, 0] / y_AQE.size)
-        P_rand = 10*np.log10(np.abs(y_rand @ y_rand.H)[0, 0] / y_rand.size)
-        return P_opt, P_AQE, P_rand
+        P_opt = 10*torch.log10(torch.abs(torch.dot(y_opt, torch.conj(y_opt))) / test_size)
+        P_AQE = 10*torch.log10(torch.abs(torch.dot(y_AQE, torch.conj(y_AQE))) / test_size)
+        P_rand = 10*torch.log10(torch.abs(torch.dot(y_rand, torch.conj(y_rand))) / test_size)
+        P_AQE = torch.nan_to_num(P_AQE, nan=trainparams['snr_dB'])
+        return P_opt.item(), P_AQE.item(), P_rand.item()
 
 
 
@@ -375,32 +376,34 @@ if __name__ == "__main__":
     ####################################################################################################################
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
-                  'batch_size': 1024, # batch training size
-                  'lr': 0.0001, # optimizer learning rate
+                  'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum
-                  'epochs': 200, # total training duration
+                  'batch_size': 64, # batch training size
+                  'epochs': 50, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 25, # validate early stop every epoch number
+                  'epoch_val': 5, # validate early stop every epoch number
                   'epoch_echo': False, # flag to display epoch print losses
                   'trials': 100, # number of Ray tune trials
-                  'training_iteration': 20, # number of Ray tune training iterations
-                  'grace_period': 5, # min number of training iterations
+                  'training_iteration': 100, # number of Ray tune training iterations
+                  'grace_period': 10, # min number of training iterations
                   'trials_per_device': 18, # number of trials per cpu/gpu resource
+                  'Nc_RIS': 16, # number of quantizers, values that N is compresses/encoded into
                   }
     search_space = { # Ray Tune Hyper parameter search space
-        "batch_size": tune.choice([16, 32, 64, 128, 256, 512, 1024]),
         "lr": tune.loguniform(1e-5, 1e-1),
         "momentum": tune.uniform(0.1, 0.99),
+        "batch_size": tune.choice([16, 32, 64, 128, 256, 512, 1024]),
     }
 
+    # dataset_dir = "MATLAB/datasets/HDRISData/00/" N = 25, K = 1, M = 1
     # | bits | Optimum |     AQE |  Random | Epochs |
-    # |   16 | 23.5741 | 17.4593 | 15.4874 |    640 | params={'lr': 0.0010559272708640594, 'momentum': 0.44726446330961234, 'batch_size': 64}
-    # |   32 | 23.5728 | 17.8364 | 15.3691 |   1625 |
+    # |   16 | 23.5741 | 17.4593 | 15.4874 |    640 | {'lr': 0.0010559272708640594, 'momentum': 0.44726446330961234, 'batch_size': 64}
+    # |   32 | 23.5728 | 17.8364 | 15.3691 |   1625 | {'lr': 3.4809106969702625e-05, 'momentum': 0.7435784695410956, 'batch_size': 64}
 
     ####################################################################################################################
     # Load RIS data from .csv files
     ####################################################################################################################
-    dataset_dir = "MATLAB/datasets/HDRISData/00/"
+    dataset_dir = "MATLAB/datasets/HDRISData/03/"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
     Hur = load_complex(dataset_dir, "Hur_r", "Hur_i")
@@ -422,7 +425,6 @@ if __name__ == "__main__":
 
     bits = 1 # bits per Quantizer
     trainparams['C_code_words'] = 2**bits
-    trainparams['Nc_RIS'] = 32
     trainparams['Nc_RIS_compressed_ratio'] = trainparams['Nc_RIS'] / trainparams['N_RIS']
     trainparams['overall_bits'] = trainparams['Nc_RIS'] * int(round(np.log2(trainparams['C_code_words'])))
 
@@ -441,13 +443,16 @@ if __name__ == "__main__":
     val_set = []
     for i in range(0, trainparams['mc_runs']):
         theta = RISopt[i]
-        thetaGeom = np.reshape(theta, (1, sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        thetaIn = np.reshape(theta, (sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        HraIn = np.reshape(Hra[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        HurIn = np.reshape(Hur[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        input = np.array([thetaIn, np.abs(HraIn), np.angle(HraIn), np.abs(HurIn), np.angle(HurIn)])
         if i < num_train:
-            train_set.append([thetaGeom, theta, Hua[i], Hra[i], Hur[i]])
+            train_set.append([input, theta, Hua[i], Hra[i], Hur[i]])
         elif i >= num_train_val:
-            test_set.append([thetaGeom, theta, Hua[i], Hra[i], Hur[i]])
+            test_set.append([input, theta, Hua[i], Hra[i], Hur[i]])
         else:
-            val_set.append([thetaGeom, theta, Hua[i], Hra[i], Hur[i]])
+            val_set.append([input, theta, Hua[i], Hra[i], Hur[i]])
     train_set = LoadData(train_set)
     test_set = LoadData(test_set)
     val_set = LoadData(val_set)
@@ -462,11 +467,11 @@ if __name__ == "__main__":
     # AQEnet, train_losses, val_losses, num_epochs = trainer.train(val_loader, trainparams)
     # x_vals, soft_quant, hard_quant = AQEnet.quantizer_layer_plot.plot_vals()
     # # print(AQEnet)
-    # fig, ax = plt.subplots()
-    # ax.plot(x_vals, soft_quant, label='Soft Quantizer')
-    # ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
-    # ax.set_title("Quantizer Values: bits = " + str(bits))
-    # ax.legend()
+    # # fig, ax = plt.subplots()
+    # # ax.plot(x_vals, soft_quant, label='Soft Quantizer')
+    # # ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
+    # # ax.set_title("Quantizer Values: bits = " + str(bits))
+    # # ax.legend()
     # # for snr_dB in [-20, -10, -5, 0, 5, 10, 20]:
     # #     trainparams['snr_dB'] = snr_dB
     # P_opt, P_AQE, P_rand = trainer.evaluate(test_loader, sysmodelparams, trainparams)
@@ -477,31 +482,26 @@ if __name__ == "__main__":
     # print('optimum: ', P_opt)
     # print('AQE net: ', P_AQE)
     # print('random:  ', P_rand)
-    # plt.show(block=True)
-    # plt.interactive(False)
+    # # plt.show(block=True)
+    # # plt.interactive(False)
 
     ################################################################################################################
     # Ray Tune: Hyperparameter Tuning
     ################################################################################################################
 
     def objective(config):
-        trainparams['batch_size'] = config['batch_size']
         trainparams['lr'] = config['lr']
         trainparams['momentum'] = config['momentum']
+        trainparams['batch_size'] = config['batch_size']
         train_loader = DataLoader(train_set, batch_size=int(config["batch_size"]))
         test_loader = DataLoader(test_set, batch_size=int(config["batch_size"]))
         val_loader = DataLoader(val_set, batch_size=int(config["batch_size"]))
         trainer = Trainer(train_loader, trainparams)
-        model = deepcopy(trainer.AQEnet)
         total_epochs = 0
         while True:
             AQEnet, train_losses, val_losses, num_epochs = trainer.train(val_loader, trainparams)  # Train the model
             P_opt, P_AQE, P_rand = trainer.evaluate(test_loader, sysmodelparams, trainparams)  # Compute test results
-            if np.isnan(P_AQE):
-                P_AQE = trainparams['snr_dB']
-            model = AQEnet
             total_epochs += num_epochs
-            trainer.AQEnet = model
             tune.report({"Optimum": P_opt, "AQE": P_AQE, "Random": P_rand, "Epochs": total_epochs})  # Report to Tune
 
     algo = OptunaSearch()  # ②
