@@ -36,20 +36,31 @@ class EncoderLayer(nn.Module):
         super(EncoderLayer, self).__init__()
 
         self.cnn_layer = nn.Sequential(
-            nn.Conv2d(5, 1*N_RIS,5, padding_mode='circular'),
+            nn.Conv2d(5, N_RIS,5, padding_mode='circular'),
             nn.SELU(),
-            nn.BatchNorm2d(1*N_RIS),
-            nn.Conv2d(1*N_RIS, 2*N_RIS,3),
-            nn.ReLU(),
-            nn.Conv2d(2*N_RIS, 3*N_RIS,3),
+            nn.BatchNorm2d(N_RIS),
+            nn.Conv2d(N_RIS, N_RIS,5),
             nn.ReLU(),
             nn.MaxPool2d(2,2),
         )
 
+        # self.linear_encoder = nn.Sequential(
+        #     nn.Linear(N_RIS, Nc_RIS),
+        #     nn.Dropout(0.5),
+        #     nn.Linear(Nc_RIS, Nc_RIS)
+        # )
         self.linear_encoder = nn.Sequential(
-            nn.Linear(3*N_RIS, Nc_RIS),
-            nn.Dropout(0.5),
-            nn.Linear(Nc_RIS, Nc_RIS)
+            nn.Linear(N_RIS, int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.LeakyReLU(),
+            nn.Linear(int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.LeakyReLU(),
+            nn.Linear(int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(3*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.LeakyReLU(),
+            nn.Linear(int(3*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(2*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.LeakyReLU(),
+            nn.Linear(int(2*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(1*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.LeakyReLU(),
+            nn.Linear(int(1*(N_RIS - Nc_RIS)/6 + Nc_RIS), Nc_RIS)
         )
 
     def forward(self, x):
@@ -108,12 +119,16 @@ class QuantizerLayer(nn.Module):
                 # data=torch.from_numpy(15 / np.pi * np.ones(C_code_words - 1)),
                                         requires_grad=True)
         self.C_code_words = C_code_words
+        self.hardQ = False
 
     def forward(self, theta_enc):
         # theta_enc = matrix (number of samples of train/test dataset, Nc_RIS), in the range: [-pi, +pi)
         theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1]).to(device)
         for i in range(self.C_code_words - 1):
-            theta_qnt += self.a[i] * torch.tanh(self.c[i] * (theta_enc - self.b[i]))
+            if self.hardQ:
+                theta_qnt += self.a[i] * torch.sign(self.c[i] * (theta_enc - self.b[i]))
+            else:
+                theta_qnt += self.a[i] * torch.tanh(self.c[i] * (theta_enc - self.b[i]))
         return theta_qnt
 
     def plot_vals(self):
@@ -133,20 +148,6 @@ class QuantizerLayer(nn.Module):
             hard_quant.append(np.sum(a * np.sign(c * (x_val - b))))
         return x_vals, soft_quant, hard_quant
 
-
-class HardQuantizerLayer(nn.Module):
-    def __init__(self, a, b, c, C_code_words):
-        super(HardQuantizerLayer, self).__init__()
-        self.a = a
-        self.b = b
-        self.c = c
-        self.C_code_words = C_code_words
-
-    def forward(self, theta_enc):
-        theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1]).to(device)
-        for i in range(self.C_code_words - 1):
-            theta_qnt += self.a[i] * torch.sign(self.c[i] * (theta_enc - self.b[i]))
-        return theta_qnt
 
 class DecoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
@@ -178,14 +179,12 @@ class AutoQEncoder(nn.Module):
         self.encoder_layer = EncoderLayer(N_RIS, Nc_RIS).to(device)
         self.quantizer_layer = QuantizerLayer(C_code_words).to(device)
         self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS).to(device)
-        self.quantizer_layer_plot = self.quantizer_layer
 
     def forward(self, theta):
         theta_enc = self.encoder_layer(theta.float())
         theta_qnt = self.quantizer_layer(theta_enc)
         theta_dec = self.decoder_layer(theta_qnt)
         return theta_dec.double()
-
 
 class LoadData(Dataset):
     def __init__(self, data):
@@ -202,7 +201,8 @@ def Loss1(x, y, hra, hur):
     dist = torch.zeros(x.shape[0]).to(device)
     for n in range(x.shape[1]):
         dist += torch.square(torch.abs(hra[:,n]*hur[:,n])) * torch.square(torch.abs(torch.exp(1j*x[:,n]) - torch.exp(1j*y[:,n])))
-    return torch.mean(dist)
+        # dist += torch.square(hra[:,n]*hur[:,n] * (torch.exp(1j*x[:,n]) - torch.exp(1j*y[:,n])))
+    return torch.abs(torch.mean(dist))
 
 def Loss2(x, y):
     dist = torch.abs(torch.exp(1j*x) - torch.exp(1j*y))
@@ -211,6 +211,13 @@ def Loss2(x, y):
 def Loss3(x, y):
     dist = torch.abs(x - y)
     return torch.mean(torch.square(dist))
+
+def Loss4(x, y, hra, hur):
+    dist = 0
+    for b in range(x.shape[0]):
+        hra_hur = torch.matmul(hra[b,:], torch.diag(hur[b,:]))
+        dist += torch.matmul(hra_hur, torch.exp(1j * (x[b,:] - y[b,:])))
+    return torch.abs(dist)
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams):
@@ -231,8 +238,8 @@ class Trainer(object):
 
         val_loss_min = np.Inf
         val_loss_min_earlystop = np.Inf
-        AQEnet_validated = deepcopy(self.AQEnet) # if val loss does not decrease, return the copy of AQEnet before training
 
+        AQEnet_trained = deepcopy(self.AQEnet)  # if val loss does not decrease, return the copy of AQEnet before training
         train_losses = []
         val_losses = []
         num_epochs = 0
@@ -242,42 +249,42 @@ class Trainer(object):
 
             # Train the model
             self.AQEnet.train()
-            for i, data in (enumerate(self.train_loader)):
-                inputs, labels, hua, hra, hur = data
-                hua = hua.to(device)
-                hra = hra.to(device)
-                hur = hur.to(device)
-                inputs = inputs.to(device)
-                labels = labels.to(device)
-                self.optimizer.zero_grad()                              # clear gradients of all variables to optimize
-                outputs = self.AQEnet(inputs)                           # forward pass inputs into AQE network
-                loss = Loss1(outputs, labels, hra, hur)                 # calculate batch loss
-                # loss = Loss3(outputs, labels)                           # calculate batch loss
-                loss.backward()                                         # back propagate gradients through AQE network
-                self.optimizer.step()                                   # single optimization step to update variables
-                train_loss += loss.item() * trainparams['batch_size']   # update training loss
-                train_loss /= len(self.train_loader.dataset)            # normalize training loss
-
+            with torch.enable_grad():
+                self.AQEnet.quantizer_layer.hardQ = False
+                for i, data in (enumerate(self.train_loader)):
+                    inputs, labels, hua, hra, hur = data
+                    # hua = hua.to(device)
+                    hra = hra.to(device)
+                    hur = hur.to(device)
+                    inputs = inputs.to(device)
+                    labels = labels.to(device)
+                    self.optimizer.zero_grad()                              # clear gradients of all variables to optimize
+                    outputs = self.AQEnet(inputs)                           # forward pass inputs into AQE network
+                    # loss = Loss1(outputs, labels, hra, hur)                 # calculate batch loss
+                    # loss = Loss3(outputs, labels)                           # calculate batch loss
+                    loss = Loss4(outputs, labels, hra, hur)                 # calculate batch loss
+                    loss.backward()                                         # back propagate gradients through AQE network
+                    self.optimizer.step()                                   # single optimization step to update variables
+                    train_loss += loss.item() * trainparams['batch_size']   # update training loss
+                    train_loss /= len(self.train_loader.dataset)            # normalize training loss
 
             # Validate the model
-            AQEnet_val = self.AQEnet
-            AQEnet_val.eval()
+            self.AQEnet.eval()
             with torch.no_grad():
                 # replace trainable tanh quantization layer with proper quantization layer
-                AQEnet_val.quantizer_layer = HardQuantizerLayer(AQEnet_val.quantizer_layer.a,
-                                                                AQEnet_val.quantizer_layer.b,
-                                                                AQEnet_val.quantizer_layer.c,
-                                                                self.C_code_words)
+                self.AQEnet.quantizer_layer.hardQ = True
+
                 for i, data in (enumerate(val_loader)):
                     inputs, labels, hua, hra, hur = data
-                    hua = hua.to(device)
+                    # hua = hua.to(device)
                     hra = hra.to(device)
                     hur = hur.to(device)
                     inputs = inputs.to(device)
                     labels = labels.to(device)
                     outputs = self.AQEnet(inputs)                       # forward pass inputs into AQE network
-                    loss = Loss1(outputs, labels, hra, hur)             # calculate batch loss
+                    # loss = Loss1(outputs, labels, hra, hur)             # calculate batch loss
                     # loss = Loss3(outputs, labels)                       # calculate batch loss
+                    loss = Loss4(outputs, labels, hra, hur)             # calculate batch loss
                     val_loss += loss.item() * trainparams['batch_size']  # update validation loss
                     val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
@@ -289,40 +296,37 @@ class Trainer(object):
                 # save model if validation loss has decreased
                 if val_loss <= val_loss_min:
                     if trainparams['epoch_echo']:
-                        print('Validation loss decreased ({:.6f} --> {:.6f}). Saving model ...'.format(
+                        print('Validation loss same/decreased ({:.6f} --> {:.6f})... saving model.'.format(
                             val_loss_min, val_loss))
-                    AQEnet_validated = self.AQEnet
                     val_loss_min = val_loss
-                else:
-                    if epoch % trainparams['epoch_val'] == 0:
-                        if val_loss <= val_loss_min_earlystop:
-                            if trainparams['epoch_echo']:
-                                print('Validation early stop loss decreased ({:.6f} --> {:.6f}).'.format(
-                                    val_loss_min_earlystop, val_loss))
-                            val_loss_min_earlystop = val_loss
-                        else:
-                            if trainparams['epoch_echo']:
-                                print('No Validation early stop loss decrease ({:.6f} --> {:.6f}). Early Stopping'.format(
+                    AQEnet_trained = deepcopy(self.AQEnet) # if val loss does not decrease, return the copy of AQEnet before training
+                # else:
+                #     self.AQEnet = AQEnet_not_trained
+                if epoch % trainparams['epoch_val'] == 0:
+                    if val_loss < val_loss_min_earlystop:
+                        if trainparams['epoch_echo']:
+                            print('Validation early stop loss decreased ({:.6f} --> {:.6f}).'.format(
                                 val_loss_min_earlystop, val_loss))
-                            break
+                        val_loss_min_earlystop = val_loss
+                    else:
+                        if trainparams['epoch_echo']:
+                            print('No Validation early stop loss decrease ({:.6f} --> {:.6f}). Early Stopping'.format(
+                            val_loss_min_earlystop, val_loss))
+                        break
 
                 train_losses.append(train_loss)
                 val_losses.append(val_loss)
             num_epochs += 1
-
-        self.AQEnet = AQEnet_validated
-        return AQEnet_validated, train_losses, val_losses, num_epochs
+        self.AQEnet = AQEnet_trained
+        return self.AQEnet, train_losses, val_losses, num_epochs
 
     def evaluate(self, test_loader, sysmodelparams, trainparams):
         N_RIS = trainparams['N_RIS']
-        C_code_words = trainparams['C_code_words']
         self.AQEnet.eval()
         with torch.no_grad():
             # replace trainable tanh quantization layer with proper quantization layer
-            self.AQEnet.quantizer_layer = HardQuantizerLayer(self.AQEnet.quantizer_layer.a,
-                                                        self.AQEnet.quantizer_layer.b,
-                                                        self.AQEnet.quantizer_layer.c,
-                                                        C_code_words)
+            self.AQEnet.quantizer_layer.hardQ = True
+
             test_size = len(test_loader.dataset.data)
             y_opt = torch.zeros(test_size, dtype=torch.cdouble).to(device)
             y_AQE = torch.zeros(test_size, dtype=torch.cdouble).to(device)
@@ -374,25 +378,25 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Training trainparams
     ####################################################################################################################
-    trainparams = {'train_test_split': 0.8, # split between train/test data
-                  'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
+    trainparams = {'train_test_split': 0.9, # split between train/test data
+                  'train_val_split': 0.9,  # after the train/test split, split train data into train/val data
                   'lr': 0.001, # optimizer learning rate
-                  'momentum': 0.9, # optimizer momentum
-                  'batch_size': 64, # batch training size
-                  'epochs': 50, # total training duration
+                  'momentum': 0.9, # optimizer momentum for SGD
+                  'batch_size': 32, # batch training size
+                  'epochs': 100, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 5, # validate early stop every epoch number
-                  'epoch_echo': False, # flag to display epoch print losses
-                  'trials': 100, # number of Ray tune trials
-                  'training_iteration': 100, # number of Ray tune training iterations
-                  'grace_period': 10, # min number of training iterations
-                  'trials_per_device': 20, # number of trials per cpu/gpu resource
-                  'Nc_RIS': 16, # number of quantizers, values that N is compresses/encoded into
+                  'epoch_val': 20, # validate early stop every epoch number
+                  'epoch_echo': True, # flag to display epoch print losses
+                  'trials': 50, # number of Ray tune trials
+                  'training_iteration': 20, # number of Ray tune training iterations
+                  'grace_period': 3, # min number of training iterations
+                  'trials_per_device': 18, # number of trials per cpu/gpu resource
+                  'Nc_RIS': 128, # number of quantizers, values that N is compresses/encoded into
                   }
     search_space = { # Ray Tune Hyper parameter search space
-        "lr": tune.loguniform(1e-5, 1e-1),
+        "lr": tune.loguniform(1e-5, 1e-2),
         "momentum": tune.uniform(0.1, 0.99),
-        "batch_size": tune.choice([16, 32, 64, 128, 256, 512, 1024]),
+        "batch_size": tune.choice([16, 32, 64, 128]),
     }
 
     # dataset_dir = "MATLAB/datasets/HDRISData/00/" N = 25, K = 1, M = 1
@@ -465,13 +469,13 @@ if __name__ == "__main__":
     # val_loader = DataLoader(val_set, batch_size=trainparams['batch_size'])
     # trainer = Trainer(train_loader, trainparams)
     # AQEnet, train_losses, val_losses, num_epochs = trainer.train(val_loader, trainparams)
-    # x_vals, soft_quant, hard_quant = AQEnet.quantizer_layer_plot.plot_vals()
-    # # print(AQEnet)
-    # # fig, ax = plt.subplots()
-    # # ax.plot(x_vals, soft_quant, label='Soft Quantizer')
-    # # ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
-    # # ax.set_title("Quantizer Values: bits = " + str(bits))
-    # # ax.legend()
+    # x_vals, soft_quant, hard_quant = AQEnet.quantizer_layer.plot_vals()
+    # print(AQEnet)
+    # fig, ax = plt.subplots()
+    # ax.plot(x_vals, soft_quant, label='Soft Quantizer')
+    # ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
+    # ax.set_title("Quantizer Values: bits = " + str(bits))
+    # ax.legend()
     # # for snr_dB in [-20, -10, -5, 0, 5, 10, 20]:
     # #     trainparams['snr_dB'] = snr_dB
     # P_opt, P_AQE, P_rand = trainer.evaluate(test_loader, sysmodelparams, trainparams)
@@ -482,7 +486,7 @@ if __name__ == "__main__":
     # print('optimum: ', P_opt)
     # print('AQE net: ', P_AQE)
     # print('random:  ', P_rand)
-    # # plt.show(block=True)
+    # plt.show(block=True)
     # # plt.interactive(False)
 
     ################################################################################################################
@@ -491,7 +495,7 @@ if __name__ == "__main__":
 
     def objective(config):
         trainparams['lr'] = config['lr']
-        trainparams['momentum'] = config['momentum']
+        # trainparams['momentum'] = config['momentum']
         trainparams['batch_size'] = config['batch_size']
         train_loader = DataLoader(train_set, batch_size=int(config["batch_size"]))
         test_loader = DataLoader(test_set, batch_size=int(config["batch_size"]))
