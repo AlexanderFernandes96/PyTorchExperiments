@@ -41,7 +41,9 @@ class EncoderLayer(nn.Module):
             nn.BatchNorm2d(N_RIS),
             nn.Conv2d(N_RIS, N_RIS,5),
             nn.ReLU(),
-            nn.MaxPool2d(2,2),
+            nn.Conv2d(N_RIS, N_RIS,2),
+            nn.ReLU(),
+            # nn.MaxPool2d(2,2),
         )
 
         # self.linear_encoder = nn.Sequential(
@@ -213,11 +215,9 @@ def Loss3(x, y):
     return torch.mean(torch.square(dist))
 
 def Loss4(x, y, hra, hur):
-    dist = 0
-    for b in range(x.shape[0]):
-        hra_hur = torch.matmul(hra[b,:], torch.diag(hur[b,:]))
-        dist += torch.matmul(hra_hur, torch.exp(1j * (x[b,:] - y[b,:])))
-    return torch.abs(dist)
+    hra_hur = torch.mul(hra, hur)
+    dist = torch.abs(torch.matmul(hra_hur.transpose(0,1), torch.exp(1j*x) - torch.exp(1j*y)))
+    return torch.mean(dist)
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams):
@@ -239,7 +239,7 @@ class Trainer(object):
         val_loss_min = np.Inf
         val_loss_min_earlystop = np.Inf
 
-        AQEnet_trained = deepcopy(self.AQEnet)  # if val loss does not decrease, return the copy of AQEnet before training
+        AQEnet_validated = deepcopy(self.AQEnet)  # if val loss does not decrease, return the copy of AQEnet before training
         train_losses = []
         val_losses = []
         num_epochs = 0
@@ -299,7 +299,7 @@ class Trainer(object):
                         print('Validation loss same/decreased ({:.6f} --> {:.6f})... saving model.'.format(
                             val_loss_min, val_loss))
                     val_loss_min = val_loss
-                    AQEnet_trained = deepcopy(self.AQEnet) # if val loss does not decrease, return the copy of AQEnet before training
+                    AQEnet_validated = deepcopy(self.AQEnet) # if val loss does not decrease, return the copy of AQEnet before training
                 # else:
                 #     self.AQEnet = AQEnet_not_trained
                 if epoch % trainparams['epoch_val'] == 0:
@@ -317,7 +317,7 @@ class Trainer(object):
                 train_losses.append(train_loss)
                 val_losses.append(val_loss)
             num_epochs += 1
-        self.AQEnet = AQEnet_trained
+        self.AQEnet = AQEnet_validated
         return self.AQEnet, train_losses, val_losses, num_epochs
 
     def evaluate(self, test_loader, sysmodelparams, trainparams):
@@ -328,9 +328,9 @@ class Trainer(object):
             self.AQEnet.quantizer_layer.hardQ = True
 
             test_size = len(test_loader.dataset.data)
-            y_opt = torch.zeros(test_size, dtype=torch.cdouble).to(device)
-            y_AQE = torch.zeros(test_size, dtype=torch.cdouble).to(device)
-            y_rand = torch.zeros(test_size, dtype=torch.cdouble).to(device)
+            y_opt = torch.view_as_complex(torch.zeros(test_size,2)).to(device)
+            y_AQE = torch.view_as_complex(torch.zeros(test_size,2)).to(device)
+            y_rand = torch.view_as_complex(torch.zeros(test_size,2)).to(device)
             test_i = 0
             for i, data in (enumerate(test_loader)):
                 inputs, theta_opt, hua, hra, hur = data
@@ -349,21 +349,10 @@ class Trainer(object):
                 if sysmodelparams['K'] == 1 & sysmodelparams['M'] == 1: # SISO
                     for b in range(len_hua):
                         hra_hur = torch.matmul(hra[b], torch.diag(hur[b]))
-                        y_opt_b_ = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_opt[b]))) * x
-                        y_AQE_b_ = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_AQE[b]))) * x
-                        y_rand_b_ = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_rand[b]))) * x
-                        y_opt_b = 0
-                        y_AQE_b = 0
-                        y_rand_b = 0
-                        T = 100  # transmissions
-                        for t in range(T):
-                            awgn = torch.randn(1, dtype=torch.cdouble).to(device)
-                            y_opt_b += y_opt_b_ + awgn
-                            y_AQE_b += y_AQE_b_ + awgn
-                            y_rand_b += y_rand_b_ + awgn
-                        y_opt[test_i] = y_opt_b/T
-                        y_AQE[test_i] = y_AQE_b/T
-                        y_rand[test_i] = y_rand_b/T
+                        awgn = torch.view_as_complex(torch.randn(1,2)).to(device)
+                        y_opt[test_i] = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_opt[b]))) * x + awgn
+                        y_AQE[test_i] = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_AQE[b]))) * x + awgn
+                        y_rand[test_i] = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_rand[b]))) * x + awgn
                         test_i += 1
 
         P_opt = 10*torch.log10(torch.abs(torch.dot(y_opt, torch.conj(y_opt))) / test_size)
@@ -378,10 +367,10 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Training trainparams
     ####################################################################################################################
-    trainparams = {'train_test_split': 0.9, # split between train/test data
-                  'train_val_split': 0.9,  # after the train/test split, split train data into train/val data
-                  'lr': 0.001, # optimizer learning rate
-                  'momentum': 0.9, # optimizer momentum for SGD
+    trainparams = {'train_test_split': 0.8, # split between train/test data
+                  'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
+                  'lr': 0.0001, # optimizer learning rate
+                  'momentum': 0.5, # optimizer momentum for SGD
                   'batch_size': 32, # batch training size
                   'epochs': 100, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
@@ -391,7 +380,7 @@ if __name__ == "__main__":
                   'training_iteration': 20, # number of Ray tune training iterations
                   'grace_period': 3, # min number of training iterations
                   'trials_per_device': 18, # number of trials per cpu/gpu resource
-                  'Nc_RIS': 128, # number of quantizers, values that N is compresses/encoded into
+                  'Nc_RIS': 64, # number of quantizers, values that N is compresses/encoded into
                   }
     search_space = { # Ray Tune Hyper parameter search space
         "lr": tune.loguniform(1e-5, 1e-2),
