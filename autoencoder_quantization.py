@@ -36,14 +36,23 @@ class EncoderLayer(nn.Module):
         super(EncoderLayer, self).__init__()
 
         self.cnn_layer = nn.Sequential(
-            nn.Conv2d(5, N_RIS,5, padding_mode='circular'),
+            nn.Conv2d(5, N_RIS,8, padding=5, padding_mode='circular'),
             nn.SELU(),
             nn.BatchNorm2d(N_RIS),
-            nn.Conv2d(N_RIS, N_RIS,5),
+            nn.Conv2d(N_RIS, 2*N_RIS,5, padding=2, padding_mode='zeros'),
+            nn.SELU(),
+            nn.BatchNorm2d(2*N_RIS),
+            nn.Conv2d(2*N_RIS, 3*N_RIS,5, padding=2, padding_mode='zeros'),
+            nn.SELU(),
+            nn.BatchNorm2d(3*N_RIS),
+            nn.Conv2d(3*N_RIS, 3*N_RIS,5, padding=2, padding_mode='zeros'),
+            nn.SELU(),
+            nn.BatchNorm2d(3*N_RIS),
+            nn.Conv2d(3*N_RIS, 2*N_RIS,5),
             nn.ReLU(),
-            nn.Conv2d(N_RIS, N_RIS,2),
+            nn.Conv2d(2*N_RIS, N_RIS,2),
             nn.ReLU(),
-            # nn.MaxPool2d(2,2),
+            nn.MaxPool2d(5,5),
         )
 
         # self.linear_encoder = nn.Sequential(
@@ -389,12 +398,12 @@ if __name__ == "__main__":
                   'trials': 100, # number of Ray tune trials
                   'training_iteration': 20, # number of Ray tune training iterations
                   'grace_period': 8, # min number of training iterations
-                  'trials_per_device': 18, # number of trials per cpu/gpu resource
+                  'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'Nc_RIS': 64, # number of quantizers, values that N is compresses/encoded into
                   }
     search_space = { # Ray Tune Hyper parameter search space
-        "lr": tune.loguniform(1e-5, 1e-1),
-        "momentum": tune.uniform(0.1, 0.99),
+        "lr": tune.loguniform(1e-6, 1e-1),
+        "momentum": tune.uniform(0.01, 0.99),
         "batch_size": tune.choice([8, 16, 32, 64, 128, 256]),
     }
 
