@@ -6,7 +6,7 @@ addpath("src\")
 %% Setup system model / script parameters
 systemModelParameters
 
-dataDir = "datasets/HDRISData/04/";
+dataDir = "datasets/HDRISData/05/";
 fileSaveName = dataDir + "HDRISData";
 dfile = fileSaveName + ".txt";
 if exist(dfile, 'file') ; delete(dfile); end
