@@ -152,7 +152,7 @@ class QuantizerLayer(nn.Module):
 
 
 class DecoderLayer(nn.Module):
-    def __init__(self, N_RIS, Nc_RIS):
+    def __init__(self, N_RIS, Nc_RIS, Nw_RIS, Nh_RIS):
         super(DecoderLayer, self).__init__()
         self.linear_decoder = nn.Sequential(
             nn.Linear(Nc_RIS, int(1*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
@@ -167,20 +167,30 @@ class DecoderLayer(nn.Module):
             nn.LeakyReLU(),
             nn.Linear(int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS), N_RIS)
         )
+        self.cnn_layer = nn.Sequential(
+            # nn.Unflatten(1, unflattened_size=torch.Size([N_RIS, Nw_RIS, Nh_RIS])),
+            nn.ConvTranspose2d(1, 1, 5, padding=2),
+            nn.ReLU(),
+        )
+        self.out_layer = nn.Linear(N_RIS, N_RIS)
+        self.reshape_dim = (1, Nw_RIS, Nh_RIS)
 
     def forward(self, theta_qnt):
         theta_dec = self.linear_decoder(theta_qnt)
-        return torch.angle(torch.exp(1j * theta_dec))
+        theta_dec = theta_dec.view(theta_dec.size(0), *self.reshape_dim)
+        theta_cnn = self.cnn_layer(theta_dec)
+        theta_out = self.out_layer(torch.flatten(theta_cnn, start_dim=1))
+        return torch.angle(torch.exp(1j * theta_out))
 
 # Inspired by: N. Shlezinger and Y. C. Eldar, “Deep task-based quantization,” Entropy, vol. 23, no. 1, pp. 1–18, Jan.
 # 2021, doi: 10.3390/e23010104.
 # Code: https://github.com/arielamar123/ADC-Learning-hyperopt
 class AutoQEncoder(nn.Module):
-    def __init__(self, N_RIS, Nc_RIS, C_code_words):
+    def __init__(self, N_RIS, Nc_RIS, Nw_RIS, Nh_RIS, C_code_words):
         super(AutoQEncoder, self).__init__()
         self.encoder_layer = EncoderLayer(N_RIS, Nc_RIS).to(device)
         self.quantizer_layer = QuantizerLayer(C_code_words).to(device)
-        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS).to(device)
+        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS, Nw_RIS, Nh_RIS).to(device)
 
     def forward(self, theta):
         theta_enc = self.encoder_layer(theta.float())
@@ -230,7 +240,7 @@ class Trainer(object):
         # print('C quantization code words:', self.C_code_words)
         # overall_bits = self.Nc_RIS * int(round(np.log2(self.C_code_words)))
         # print('overall bits per transmission:', overall_bits)
-        self.AQEnet = AutoQEncoder(self.N_RIS, self.Nc_RIS, self.C_code_words).to(device)
+        self.AQEnet = AutoQEncoder(self.N_RIS, self.Nc_RIS, trainparams['Nw_RIS'], trainparams['Nh_RIS'], self.C_code_words).to(device)
         # self.optimizer = optim.Adam(self.AQEnet.parameters(), lr=trainparams['lr'], amsgrad=True)
         self.optimizer = optim.SGD(self.AQEnet.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
 
@@ -376,16 +386,16 @@ if __name__ == "__main__":
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 20, # validate early stop every epoch number
                   'epoch_echo': False, # flag to display epoch print losses
-                  'trials': 50, # number of Ray tune trials
+                  'trials': 100, # number of Ray tune trials
                   'training_iteration': 20, # number of Ray tune training iterations
-                  'grace_period': 3, # min number of training iterations
+                  'grace_period': 8, # min number of training iterations
                   'trials_per_device': 18, # number of trials per cpu/gpu resource
                   'Nc_RIS': 64, # number of quantizers, values that N is compresses/encoded into
                   }
     search_space = { # Ray Tune Hyper parameter search space
-        "lr": tune.loguniform(1e-5, 1e-2),
+        "lr": tune.loguniform(1e-5, 1e-1),
         "momentum": tune.uniform(0.1, 0.99),
-        "batch_size": tune.choice([16, 32, 64, 128]),
+        "batch_size": tune.choice([8, 16, 32, 64, 128, 256]),
     }
 
     # dataset_dir = "MATLAB/datasets/HDRISData/00/" N = 25, K = 1, M = 1
@@ -404,6 +414,8 @@ if __name__ == "__main__":
     sysmodelparams = pd.read_csv(dataset_dir + "systemModelParameters.csv").iloc[0]
     trainparams['mc_runs'] = RISopt.shape[0]
     trainparams['N_RIS'] = RISopt.shape[1]
+    trainparams['Nw_RIS'] = sysmodelparams['Nw']
+    trainparams['Nh_RIS'] = sysmodelparams['Nh']
 
     print('System Model parameters:', sysmodelparams, sep='\n')
 
