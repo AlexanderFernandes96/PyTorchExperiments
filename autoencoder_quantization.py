@@ -386,7 +386,7 @@ if __name__ == "__main__":
                   'epochs': 100, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 20, # validate early stop every epoch number
-                  'epoch_echo': True, # flag to display epoch print losses
+                  'epoch_echo': False, # flag to display epoch print losses
                   'trials': 50, # number of Ray tune trials
                   'training_iteration': 20, # number of Ray tune training iterations
                   'grace_period': 3, # min number of training iterations
