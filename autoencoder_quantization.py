@@ -45,23 +45,24 @@ class EncoderLayer(nn.Module):
             nn.Conv2d(2*N_RIS, 3*N_RIS,5, padding=2, padding_mode='zeros'),
             nn.SELU(),
             nn.BatchNorm2d(3*N_RIS),
-            nn.Conv2d(3*N_RIS, 3*N_RIS,5, padding=2, padding_mode='zeros'),
+            nn.Conv2d(3*N_RIS, 4*N_RIS,5, padding=2, padding_mode='zeros'),
             nn.SELU(),
-            nn.BatchNorm2d(3*N_RIS),
-            nn.Conv2d(3*N_RIS, 2*N_RIS,5),
+            nn.BatchNorm2d(4*N_RIS),
+            nn.Conv2d(4*N_RIS, 5*N_RIS,5),
             nn.ReLU(),
-            nn.Conv2d(2*N_RIS, N_RIS,2),
+            nn.Conv2d(5*N_RIS, 5*N_RIS,2),
             nn.ReLU(),
             nn.MaxPool2d(5,5),
         )
 
-        # self.linear_encoder = nn.Sequential(
-        #     nn.Linear(N_RIS, Nc_RIS),
-        #     nn.Dropout(0.5),
-        #     nn.Linear(Nc_RIS, Nc_RIS)
-        # )
+        self.drop_layer = nn.Sequential(
+            nn.Linear(5*N_RIS, 5*N_RIS),
+            nn.Dropout(0.2),
+            nn.Linear(5*N_RIS, 5*N_RIS)
+        )
+
         self.linear_encoder = nn.Sequential(
-            nn.Linear(N_RIS, int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.Linear(5*N_RIS, int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
             nn.LeakyReLU(),
             nn.Linear(int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
             nn.LeakyReLU(),
@@ -77,7 +78,9 @@ class EncoderLayer(nn.Module):
     def forward(self, x):
         x_cnn = self.cnn_layer(x)
         x_flat = torch.flatten(x_cnn, start_dim=1)
-        x_enc = self.linear_encoder(x_flat)
+        x_drop = (self.drop_layer(x_flat))
+        x_skip = x_drop + torch.flatten(x, start_dim=1) # addition is a skip connection
+        x_enc = self.linear_encoder(x_skip)
         return x_enc
 
     #     self.linear_encoder = nn.Sequential(
@@ -398,7 +401,7 @@ if __name__ == "__main__":
                   'trials': 100, # number of Ray tune trials
                   'training_iteration': 20, # number of Ray tune training iterations
                   'grace_period': 8, # min number of training iterations
-                  'trials_per_device': 5, # number of trials per cpu/gpu resource
+                  'trials_per_device': 8, # number of trials per cpu/gpu resource
                   'Nc_RIS': 64, # number of quantizers, values that N is compresses/encoded into
                   }
     search_space = { # Ray Tune Hyper parameter search space
