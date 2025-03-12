@@ -214,10 +214,11 @@ class AutoQEncoder(nn.Module):
 
     def forward(self, theta):
         theta_enc = self.encoder_layer(theta.float())
-        if self.quantizer_layer.hardQ: # Quantization forward
-            theta_qnt = self.quantizer_layer(theta_enc)
-        else: # During Training add a residual skip over the Quantization layer
-            theta_qnt = self.quantizer_layer(theta_enc) + theta_enc
+        # if self.quantizer_layer.hardQ: # Quantization forward
+        #     theta_qnt = self.quantizer_layer(theta_enc)
+        # else: # During Training add a residual skip over the Quantization layer
+        #     theta_qnt = self.quantizer_layer(theta_enc) + theta_enc
+        theta_qnt = self.quantizer_layer(theta_enc)
         theta_dec = self.decoder_layer(theta_qnt)
         return theta_dec.double()
 
@@ -266,7 +267,7 @@ class Trainer(object):
         self.AQEnet = AutoQEncoder(self.N_RIS, self.Nc_RIS, trainparams['Nw_RIS'], trainparams['Nh_RIS'], self.C_code_words).to(device)
         # self.optimizer = optim.Adam(self.AQEnet.parameters(), lr=trainparams['lr'], amsgrad=True)
         self.optimizer = optim.SGD(self.AQEnet.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
-        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=1e-1, steps_per_epoch=len(train_loader), epochs=trainparams['epochs'])
+        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=1e-1, steps_per_epoch=len(train_loader), epochs=trainparams['epochs']*trainparams['training_iterations'])
 
     def train(self, val_loader, trainparams):
 
@@ -408,13 +409,13 @@ if __name__ == "__main__":
                   'lr': 0.0001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 1024, # batch training size
-                  'epochs': 100, # total training duration
+                  'epochs': 10, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 100, # validate early stop every epoch number
+                  'epoch_val': 10, # validate early stop every epoch number
                   'epoch_echo': False, # flag to display epoch print losses
                   'trials': 25, # number of Ray tune trials
-                  'training_iteration': 10, # number of Ray tune training iterations
-                  'grace_period': 5, # min number of training iterations
+                  'training_iterations': 50, # number of Ray tune training iterations
+                  'grace_period': 10, # min number of training iterations
                   'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'Nc_RIS': 64, # number of quantizers, values that N is compresses/encoded into
                   'step_size': 10, # step size for scheduler optimizer
@@ -422,7 +423,7 @@ if __name__ == "__main__":
     search_space = { # Ray Tune Hyper parameter search space
         # "lr": tune.loguniform(1e-6, 1e-1),
         # "momentum": tune.uniform(0.01, 0.99),
-        "batch_size": tune.choice([8, 16, 32, 64, 128, 256]),
+        "batch_size": tune.choice([8, 16, 32, 64, 128, 256, 512, 1024]),
         # "step_size": tune.randint(5, 50),
     }
 
@@ -540,7 +541,7 @@ if __name__ == "__main__":
 
     algo = OptunaSearch()  # ②
     scheduler = ASHAScheduler(
-        max_t= trainparams['training_iteration'],
+        max_t= trainparams['training_iterations'],
         grace_period=trainparams['grace_period'],
     )
     tuner = tune.Tuner(  # ③
@@ -558,7 +559,7 @@ if __name__ == "__main__":
             num_samples=trainparams['trials']
         ),
         run_config=tune.RunConfig(
-            stop={"training_iteration": trainparams['training_iteration']},
+            stop={"training_iterations": trainparams['training_iterations']},
         ),
         param_space=search_space,
     )
