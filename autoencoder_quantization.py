@@ -35,38 +35,31 @@ class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
         self.cnn_layer = nn.Sequential(
-            nn.Conv2d(5, N_RIS,8, padding=5, padding_mode='circular'),
+            nn.Conv2d(5, N_RIS,5),
             nn.BatchNorm2d(N_RIS),
             nn.SELU(),
-            nn.Conv2d(N_RIS, 2*N_RIS,5, padding=2, padding_mode='zeros'),
-            nn.BatchNorm2d(2*N_RIS),
+        )
+        self.residual_layer = nn.Sequential(
+            nn.Conv2d(N_RIS, N_RIS, 5, padding=2, padding_mode='zeros'),
+            nn.BatchNorm2d(N_RIS),
             nn.SELU(),
-            nn.Conv2d(2*N_RIS, 3*N_RIS,5, padding=2, padding_mode='zeros'),
-            nn.BatchNorm2d(3*N_RIS),
+            nn.Conv2d(N_RIS, N_RIS, 5, padding=2, padding_mode='zeros'),
+            nn.BatchNorm2d(N_RIS),
             nn.SELU(),
-            nn.Conv2d(3*N_RIS, 4*N_RIS,5, padding=2, padding_mode='zeros'),
-            nn.BatchNorm2d(4*N_RIS),
+            nn.Conv2d(N_RIS, N_RIS, 5, padding=2, padding_mode='zeros'),
+            nn.BatchNorm2d(N_RIS),
             nn.SELU(),
-            nn.Conv2d(4*N_RIS, 5*N_RIS,5),
-            nn.BatchNorm2d(5*N_RIS),
-            nn.SELU(),
-            nn.Conv2d(5*N_RIS, 5*N_RIS,2),
-            nn.BatchNorm2d(5*N_RIS),
-            nn.SELU(),
-            nn.MaxPool2d(5,5),
+            nn.MaxPool2d(2, 2),
         )
 
-
         self.drop_layer = nn.Sequential(
-            nn.Linear(5*N_RIS, 5*N_RIS),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(5*N_RIS, 5*N_RIS),
+            nn.Dropout(0.5),
+            nn.Linear(9*N_RIS, N_RIS),
             nn.ReLU(),
         )
 
         self.linear_encoder = nn.Sequential(
-            nn.Linear(5*N_RIS, int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.Linear(N_RIS, int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
             nn.LeakyReLU(),
             nn.Linear(int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
             nn.LeakyReLU(),
@@ -81,10 +74,12 @@ class EncoderLayer(nn.Module):
 
     def forward(self, x):
         x_cnn = self.cnn_layer(x)
-        x_flat = torch.flatten(x_cnn, start_dim=1)
+        x_res = self.residual_layer(x_cnn)
+        for r in range(10): # addition is a residual layer skip connection
+            x_res = self.residual_layer(x_res) + x_res
+        x_flat = torch.flatten(x_res, start_dim=1)
         x_drop = (self.drop_layer(x_flat))
-        x_skip = x_drop + torch.flatten(x, start_dim=1) # addition is a skip connection
-        x_enc = self.linear_encoder(x_skip)
+        x_enc = self.linear_encoder(x_drop)
         return x_enc
 
     #     self.linear_encoder = nn.Sequential(
@@ -416,7 +411,7 @@ if __name__ == "__main__":
                   'trials': 25, # number of Ray tune trials
                   'training_iterations': 50, # number of Ray tune training iterations
                   'grace_period': 10, # min number of training iterations
-                  'trials_per_device': 5, # number of trials per cpu/gpu resource
+                  'trials_per_device': 12, # number of trials per cpu/gpu resource
                   'Nc_RIS': 64, # number of quantizers, values that N is compresses/encoded into
                   'step_size': 10, # step size for scheduler optimizer
                   }
@@ -559,7 +554,7 @@ if __name__ == "__main__":
             num_samples=trainparams['trials']
         ),
         run_config=tune.RunConfig(
-            stop={"training_iterations": trainparams['training_iterations']},
+            stop={"training_iteration": trainparams['training_iterations']},
         ),
         param_space=search_space,
     )
