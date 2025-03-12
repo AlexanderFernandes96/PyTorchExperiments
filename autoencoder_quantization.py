@@ -34,31 +34,35 @@ def load_complex(dataset_dir, variable_name_real, variable_name_imag):
 class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
-
         self.cnn_layer = nn.Sequential(
             nn.Conv2d(5, N_RIS,8, padding=5, padding_mode='circular'),
-            nn.SELU(),
             nn.BatchNorm2d(N_RIS),
+            nn.SELU(),
             nn.Conv2d(N_RIS, 2*N_RIS,5, padding=2, padding_mode='zeros'),
-            nn.SELU(),
             nn.BatchNorm2d(2*N_RIS),
+            nn.SELU(),
             nn.Conv2d(2*N_RIS, 3*N_RIS,5, padding=2, padding_mode='zeros'),
-            nn.SELU(),
             nn.BatchNorm2d(3*N_RIS),
-            nn.Conv2d(3*N_RIS, 4*N_RIS,5, padding=2, padding_mode='zeros'),
             nn.SELU(),
+            nn.Conv2d(3*N_RIS, 4*N_RIS,5, padding=2, padding_mode='zeros'),
             nn.BatchNorm2d(4*N_RIS),
+            nn.SELU(),
             nn.Conv2d(4*N_RIS, 5*N_RIS,5),
-            nn.ReLU(),
+            nn.BatchNorm2d(5*N_RIS),
+            nn.SELU(),
             nn.Conv2d(5*N_RIS, 5*N_RIS,2),
-            nn.ReLU(),
+            nn.BatchNorm2d(5*N_RIS),
+            nn.SELU(),
             nn.MaxPool2d(5,5),
         )
 
+
         self.drop_layer = nn.Sequential(
             nn.Linear(5*N_RIS, 5*N_RIS),
+            nn.ReLU(),
             nn.Dropout(0.2),
-            nn.Linear(5*N_RIS, 5*N_RIS)
+            nn.Linear(5*N_RIS, 5*N_RIS),
+            nn.ReLU(),
         )
 
         self.linear_encoder = nn.Sequential(
@@ -112,7 +116,7 @@ class QuantizerLayer(nn.Module):
         # where theta_n is a scalar value: [-pi, +pi) and z is the quantized theta_n
         self.a = torch.nn.Parameter(
             data=torch.from_numpy(
-                np.ones(C_code_words-1) * np.pi / (C_code_words - 1)
+                np.ones(C_code_words-1)
             ), requires_grad=False)
         spacing = np.linspace(-1, 1, C_code_words + 1) * np.pi
         self.b = torch.nn.Parameter(
@@ -177,21 +181,26 @@ class DecoderLayer(nn.Module):
             nn.LeakyReLU(),
             nn.Linear(int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
             nn.LeakyReLU(),
-            nn.Linear(int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS), N_RIS)
+            nn.Linear(int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS), N_RIS),
+            nn.LeakyReLU(),
         )
         self.cnn_layer = nn.Sequential(
             # nn.Unflatten(1, unflattened_size=torch.Size([N_RIS, Nw_RIS, Nh_RIS])),
             nn.ConvTranspose2d(1, 1, 5, padding=2),
             nn.ReLU(),
         )
-        self.out_layer = nn.Linear(N_RIS, N_RIS)
+        self.out_layer = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
+            nn.Tanh(),
+        )
         self.reshape_dim = (1, Nw_RIS, Nh_RIS)
 
     def forward(self, theta_qnt):
         theta_dec = self.linear_decoder(theta_qnt)
         theta_cnn = self.cnn_layer(theta_dec.view(theta_dec.size(0), *self.reshape_dim))
         theta_out = self.out_layer(torch.flatten(theta_cnn, start_dim=1) + theta_dec) # skip connection over cnn
-        return torch.angle(torch.exp(1j * theta_out))
+        return theta_out
+        # return torch.angle(torch.exp(1j * theta_out))
 
 # Inspired by: N. Shlezinger and Y. C. Eldar, “Deep task-based quantization,” Entropy, vol. 23, no. 1, pp. 1–18, Jan.
 # 2021, doi: 10.3390/e23010104.
@@ -205,7 +214,10 @@ class AutoQEncoder(nn.Module):
 
     def forward(self, theta):
         theta_enc = self.encoder_layer(theta.float())
-        theta_qnt = self.quantizer_layer(theta_enc)
+        if self.quantizer_layer.hardQ: # Quantization forward
+            theta_qnt = self.quantizer_layer(theta_enc)
+        else: # During Training add a residual skip over the Quantization layer
+            theta_qnt = self.quantizer_layer(theta_enc) + theta_enc
         theta_dec = self.decoder_layer(theta_qnt)
         return theta_dec.double()
 
@@ -254,6 +266,7 @@ class Trainer(object):
         self.AQEnet = AutoQEncoder(self.N_RIS, self.Nc_RIS, trainparams['Nw_RIS'], trainparams['Nh_RIS'], self.C_code_words).to(device)
         # self.optimizer = optim.Adam(self.AQEnet.parameters(), lr=trainparams['lr'], amsgrad=True)
         self.optimizer = optim.SGD(self.AQEnet.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
+        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=1e-1, steps_per_epoch=len(train_loader), epochs=trainparams['epochs'])
 
     def train(self, val_loader, trainparams):
 
@@ -286,8 +299,10 @@ class Trainer(object):
                     loss = Loss4(outputs, labels, hra, hur)                 # calculate batch loss
                     loss.backward()                                         # back propagate gradients through AQE network
                     self.optimizer.step()                                   # single optimization step to update variables
+                    self.scheduler.step()                                   # adjust learning rate each step
                     train_loss += loss.item() * trainparams['batch_size']   # update training loss
                     train_loss /= len(self.train_loader.dataset)            # normalize training loss
+
 
             # Validate the model
             self.AQEnet.eval()
@@ -391,22 +406,24 @@ if __name__ == "__main__":
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.0001, # optimizer learning rate
-                  'momentum': 0.5, # optimizer momentum for SGD
-                  'batch_size': 32, # batch training size
+                  'momentum': 0.9, # optimizer momentum for SGD
+                  'batch_size': 1024, # batch training size
                   'epochs': 100, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 20, # validate early stop every epoch number
+                  'epoch_val': 100, # validate early stop every epoch number
                   'epoch_echo': False, # flag to display epoch print losses
-                  'trials': 100, # number of Ray tune trials
-                  'training_iteration': 20, # number of Ray tune training iterations
-                  'grace_period': 8, # min number of training iterations
+                  'trials': 25, # number of Ray tune trials
+                  'training_iteration': 10, # number of Ray tune training iterations
+                  'grace_period': 5, # min number of training iterations
                   'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'Nc_RIS': 64, # number of quantizers, values that N is compresses/encoded into
+                  'step_size': 10, # step size for scheduler optimizer
                   }
     search_space = { # Ray Tune Hyper parameter search space
-        "lr": tune.loguniform(1e-6, 1e-1),
-        "momentum": tune.uniform(0.01, 0.99),
+        # "lr": tune.loguniform(1e-6, 1e-1),
+        # "momentum": tune.uniform(0.01, 0.99),
         "batch_size": tune.choice([8, 16, 32, 64, 128, 256]),
+        # "step_size": tune.randint(5, 50),
     }
 
     # dataset_dir = "MATLAB/datasets/HDRISData/00/" N = 25, K = 1, M = 1
@@ -506,9 +523,10 @@ if __name__ == "__main__":
     ################################################################################################################
 
     def objective(config):
-        trainparams['lr'] = config['lr']
+        # trainparams['lr'] = config['lr']
         # trainparams['momentum'] = config['momentum']
         trainparams['batch_size'] = config['batch_size']
+        # trainparams['step_size'] = config['step_size']
         train_loader = DataLoader(train_set, batch_size=int(config["batch_size"]))
         test_loader = DataLoader(test_set, batch_size=int(config["batch_size"]))
         val_loader = DataLoader(val_set, batch_size=int(config["batch_size"]))
