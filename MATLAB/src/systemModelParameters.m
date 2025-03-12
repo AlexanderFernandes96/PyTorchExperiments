@@ -1,5 +1,5 @@
 %% Parameters
-mc_runs = 50000;
+mc_runs = 100;
 % M = 8;  % AP
 % K = 6;  % Users
 % Nw = 8;
@@ -10,8 +10,10 @@ mc_runs = 50000;
 % K = 3;  % Users
 M = 1;  % AP
 K = 1;  % Users
-Nw = 10;
-Nh = 10;
+% Nw = 10;
+% Nh = 10;
+Nw = 25;
+Nh = 25;
 N = Nw*Nh; % Number of RIS elements
 LOS = 2; % Number of LOS paths
 B = N+1; % Number of RIS transmission blocks
