@@ -35,18 +35,18 @@ class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
         self.cnn_layer = nn.Sequential(
-            nn.Conv2d(5, N_RIS,5),
+            nn.Conv2d(5, N_RIS,8, padding=2, padding_mode='circular'),
             nn.BatchNorm2d(N_RIS),
             nn.SELU(),
         )
         self.residual_layer = nn.Sequential(
-            nn.Conv2d(N_RIS, N_RIS, 5, padding=2, padding_mode='zeros'),
+            nn.Conv2d(N_RIS, N_RIS, 3, padding=1, padding_mode='zeros'),
             nn.BatchNorm2d(N_RIS),
             nn.SELU(),
-            nn.Conv2d(N_RIS, N_RIS, 5, padding=2, padding_mode='zeros'),
+            nn.Conv2d(N_RIS, N_RIS, 3, padding=1, padding_mode='zeros'),
             nn.BatchNorm2d(N_RIS),
             nn.SELU(),
-            nn.Conv2d(N_RIS, N_RIS, 5, padding=2, padding_mode='zeros'),
+            nn.Conv2d(N_RIS, N_RIS, 3, padding=1, padding_mode='zeros'),
             nn.BatchNorm2d(N_RIS),
             nn.SELU(),
             nn.MaxPool2d(2, 2),
