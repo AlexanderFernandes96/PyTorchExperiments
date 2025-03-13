@@ -35,8 +35,8 @@ class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
         self.cnn_layer = nn.Sequential(
-            nn.Conv2d(5, 20,3, stride=2, padding=1, padding_mode='circular'),
-            nn.BatchNorm2d(20, affine=False),
+            nn.Conv2d(5, 5*N_RIS,3, stride=2, padding=1, padding_mode='circular'),
+            nn.BatchNorm2d(5*N_RIS, affine=False),
             nn.SELU(),
             nn.MaxPool2d(4, 4),
         )
@@ -58,7 +58,7 @@ class EncoderLayer(nn.Module):
         # )
 
         self.linear_encoder = nn.Sequential(
-            nn.Linear(20, Nc_RIS),
+            nn.Linear(5*N_RIS, Nc_RIS),
             nn.LeakyReLU(),
             nn.Linear(Nc_RIS, Nc_RIS),
             nn.LeakyReLU(),
@@ -67,7 +67,7 @@ class EncoderLayer(nn.Module):
     def forward(self, x):
         x_cnn = self.cnn_layer(x)
         # x_cnn = self.residual_layer1(x_cnn)
-        x_flat = torch.flatten(x_cnn, start_dim=1)
+        x_flat = torch.flatten(x_cnn, start_dim=1) + torch.flatten(x, start_dim=1) # residual skip layer over cnn
         # x_drop = (self.drop_layer(x_flat))
         x_enc = self.linear_encoder(x_flat)
         return x_enc
@@ -115,13 +115,13 @@ class QuantizerLayer(nn.Module):
                 # data=torch.from_numpy((15 / np.mean(np.diff(self.b.data.numpy()))) * np.ones(C_code_words - 1)),
                 data=torch.from_numpy((c_slope * 2 * np.pi / np.mean(np.diff(self.b.data.numpy())) ) * np.ones(C_code_words - 1)),
                 # data=torch.from_numpy(0.9 * np.ones(C_code_words - 1)),
-            requires_grad=False)
+                requires_grad=False)
         else:
             self.b = torch.nn.Parameter(data=torch.from_numpy(np.zeros(C_code_words - 1)), requires_grad=True)
             self.c = torch.nn.Parameter(
                 data=torch.from_numpy(c_slope * np.ones(C_code_words - 1)),
                 # data=torch.from_numpy(15 / np.pi * np.ones(C_code_words - 1)),
-                                        requires_grad=False)
+                requires_grad=False)
         self.C_code_words = C_code_words
         self.hardQ = False
 
@@ -367,14 +367,14 @@ class Trainer(object):
                 theta_rand = theta_rand.to(device)
                 x = torch.pow(10*torch.ones(1), trainparams['snr_dB']/10)
                 x = x.to(device)
+                hra_hur = torch.mul(hra, hur)
                 # Transmit data with RIS phases
                 if sysmodelparams['K'] == 1 & sysmodelparams['M'] == 1: # SISO
                     for b in range(len_hua):
-                        hra_hur = torch.matmul(hra[b], torch.diag(hur[b]))
                         awgn = torch.view_as_complex(torch.randn(1,2)).to(device)
-                        y_opt[test_i] = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_opt[b]))) * x + awgn
-                        y_AQE[test_i] = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_AQE[b]))) * x + awgn
-                        y_rand[test_i] = (hua[b] + torch.matmul(hra_hur, torch.exp(1j*theta_rand[b]))) * x + awgn
+                        y_opt[test_i] = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_opt[b]))) * x + awgn
+                        y_AQE[test_i] = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_AQE[b]))) * x + awgn
+                        y_rand[test_i] = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_rand[b]))) * x + awgn
                         test_i += 1
 
         P_opt = 10*torch.log10(torch.abs(torch.dot(y_opt, torch.conj(y_opt))) / test_size)
@@ -394,7 +394,7 @@ if __name__ == "__main__":
                   'lr': 0.0001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 1024, # batch training size
-                  'epochs': 200, # total training duration
+                  'epochs': 500, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 25, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
@@ -403,8 +403,8 @@ if __name__ == "__main__":
                   'grace_period': 30, # min number of training iterations
                   'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'step_size': 10, # step size for scheduler optimizer
-                  'Nc_RIS': 64, # number of quantizers, values that N is compresses/encoded into
-                  'Q_bits': 2, # number of bits of a quantizer
+                  'Nc_RIS': 16, # number of quantizers, values that N is compresses/encoded into
+                  'Q_bits': 1, # number of bits of a quantizer
                   }
     search_space = { # Ray Tune Hyper parameter search space
         # "lr": tune.loguniform(1e-6, 1e-1),
