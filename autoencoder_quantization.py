@@ -35,8 +35,8 @@ class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
         self.cnn_layer = nn.Sequential(
-            nn.Conv2d(5, 5*N_RIS,3, stride=2, padding=1, padding_mode='circular'),
-            nn.BatchNorm2d(5*N_RIS, affine=False),
+            nn.Conv2d(7, 7*N_RIS,3, stride=2, padding=1, padding_mode='circular'),
+            nn.BatchNorm2d(7*N_RIS, affine=False),
             nn.SELU(),
             nn.MaxPool2d(4, 4),
         )
@@ -51,24 +51,17 @@ class EncoderLayer(nn.Module):
         #     nn.MaxPool2d(2, 2),
         # )
 
-        # self.drop_layer = nn.Sequential(
-        #     nn.Dropout(0.5),
-        #     nn.Linear(400, N_RIS),
-        #     nn.ReLU(),
-        # )
-
         self.linear_encoder = nn.Sequential(
-            nn.Linear(5*N_RIS, Nc_RIS),
-            nn.LeakyReLU(),
-            nn.Linear(Nc_RIS, Nc_RIS),
+            nn.Dropout(1 - Nc_RIS/(N_RIS)),
+            nn.Linear(7*N_RIS, Nc_RIS),
             nn.LeakyReLU(),
         )
 
     def forward(self, x):
         x_cnn = self.cnn_layer(x)
         # x_cnn = self.residual_layer1(x_cnn)
-        x_flat = torch.flatten(x_cnn, start_dim=1) + torch.flatten(x, start_dim=1) # residual skip layer over cnn
-        # x_drop = (self.drop_layer(x_flat))
+        x_flat = torch.flatten(x_cnn, start_dim=1)
+        x_flat += torch.flatten(x, start_dim=1) # residual skip layer over cnn
         x_enc = self.linear_encoder(x_flat)
         return x_enc
 
@@ -194,10 +187,6 @@ class AutoQEncoder(nn.Module):
 
     def forward(self, theta):
         theta_enc = self.encoder_layer(theta.float())
-        # if self.quantizer_layer.hardQ: # Quantization forward
-        #     theta_qnt = self.quantizer_layer(theta_enc)
-        # else: # During Training add a residual skip over the Quantization layer
-        #     theta_qnt = self.quantizer_layer(theta_enc) + theta_enc
         theta_qnt = self.quantizer_layer(theta_enc)
         theta_dec = self.decoder_layer(theta_qnt)
         return theta_dec.double()
@@ -216,9 +205,9 @@ class LoadData(Dataset):
 def Loss1(x, y, hra, hur):
     dist = torch.zeros(x.shape[0]).to(device)
     for n in range(x.shape[1]):
-        dist += torch.square(torch.abs(hra[:,n]*hur[:,n])) * torch.square(torch.abs(torch.exp(1j*x[:,n]) - torch.exp(1j*y[:,n])))
-        # dist += torch.square(hra[:,n]*hur[:,n] * (torch.exp(1j*x[:,n]) - torch.exp(1j*y[:,n])))
-    return torch.abs(torch.mean(dist))
+        # dist += torch.square(torch.abs(hra[:,n]*hur[:,n])) * torch.square(torch.abs(torch.exp(1j*x[:,n]) - torch.exp(1j*y[:,n])))
+        dist += torch.square(torch.abs(hra[:,n] * (torch.exp(1j*x[:,n]) - torch.exp(1j*y[:,n])) * hur[:,n]))
+    return torch.mean(dist)
 
 def Loss2(x, y):
     dist = torch.abs(torch.exp(1j*x) - torch.exp(1j*y))
@@ -230,9 +219,11 @@ def Loss3(x, y):
 
 def Loss4(x, y, hra, hur):
     diff = torch.exp(1j*x) - torch.exp(1j*y)
-    hra_hur = torch.mul(hra, hur)
-    dist = torch.abs(torch.matmul(hra_hur, diff.transpose(0,1)))
+    mul = hra * diff * hur
+    dist = torch.sum(torch.square(torch.abs(mul)), 1)
     return torch.mean(dist)
+
+
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams):
@@ -403,7 +394,7 @@ if __name__ == "__main__":
                   'grace_period': 30, # min number of training iterations
                   'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'step_size': 10, # step size for scheduler optimizer
-                  'Nc_RIS': 16, # number of quantizers, values that N is compresses/encoded into
+                  'Nc_RIS': 64, # number of quantizers, values that N is compresses/encoded into
                   'Q_bits': 1, # number of bits of a quantizer
                   }
     search_space = { # Ray Tune Hyper parameter search space
@@ -464,9 +455,12 @@ if __name__ == "__main__":
     for i in range(0, trainparams['mc_runs']):
         theta = RISopt[i]
         thetaIn = np.reshape(theta, (sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        ft = np.fft.ifftshift(thetaIn)
+        ft = np.fft.fft2(ft)
+        thetaInfft = np.fft.fftshift(ft)
         HraIn = np.reshape(Hra[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
         HurIn = np.reshape(Hur[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
-        input = np.array([thetaIn, np.abs(HraIn), np.angle(HraIn), np.abs(HurIn), np.angle(HurIn)])
+        input = np.array([thetaIn, np.abs(thetaInfft), np.angle(thetaInfft), np.abs(HraIn), np.angle(HraIn), np.abs(HurIn), np.angle(HurIn)])
         if i < num_train:
             train_set.append([input, theta, Hua[i], Hra[i], Hur[i]])
         elif i >= num_train_val:
