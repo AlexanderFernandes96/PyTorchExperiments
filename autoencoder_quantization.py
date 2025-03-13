@@ -14,8 +14,8 @@ from ray.tune.search.optuna import OptunaSearch
 from ray.tune.schedulers import ASHAScheduler
 import pprint
 
-# DISABLE_TQDM = False
-DISABLE_TQDM = True
+DISABLE_TQDM = False
+# DISABLE_TQDM = True
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -35,51 +35,41 @@ class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
         self.cnn_layer = nn.Sequential(
-            nn.Conv2d(5, N_RIS,8, padding=2, padding_mode='circular'),
-            nn.BatchNorm2d(N_RIS),
+            nn.Conv2d(5, 20,3, stride=2, padding=1, padding_mode='circular'),
+            nn.BatchNorm2d(20, affine=False),
             nn.SELU(),
-        )
-        self.residual_layer = nn.Sequential(
-            nn.Conv2d(N_RIS, N_RIS, 3, padding=1, padding_mode='zeros'),
-            nn.BatchNorm2d(N_RIS),
-            nn.SELU(),
-            nn.Conv2d(N_RIS, N_RIS, 3, padding=1, padding_mode='zeros'),
-            nn.BatchNorm2d(N_RIS),
-            nn.SELU(),
-            nn.Conv2d(N_RIS, N_RIS, 3, padding=1, padding_mode='zeros'),
-            nn.BatchNorm2d(N_RIS),
-            nn.SELU(),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(4, 4),
         )
 
-        self.drop_layer = nn.Sequential(
-            nn.Dropout(0.5),
-            nn.Linear(9*N_RIS, N_RIS),
-            nn.ReLU(),
-        )
+        # self.residual_layer1 = nn.Sequential(
+        #     nn.Conv2d(10, 10, 3, padding=3, padding_mode='zeros'),
+        #     nn.BatchNorm2d(10),
+        #     nn.SELU(),
+        #     nn.Conv2d(10, 10, 3, padding=3, padding_mode='zeros'),
+        #     nn.BatchNorm2d(10),
+        #     nn.SELU(),
+        #     nn.MaxPool2d(2, 2),
+        # )
+
+        # self.drop_layer = nn.Sequential(
+        #     nn.Dropout(0.5),
+        #     nn.Linear(400, N_RIS),
+        #     nn.ReLU(),
+        # )
 
         self.linear_encoder = nn.Sequential(
-            nn.Linear(N_RIS, int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.Linear(20, Nc_RIS),
             nn.LeakyReLU(),
-            nn.Linear(int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.Linear(Nc_RIS, Nc_RIS),
             nn.LeakyReLU(),
-            nn.Linear(int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(3*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
-            nn.LeakyReLU(),
-            nn.Linear(int(3*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(2*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
-            nn.LeakyReLU(),
-            nn.Linear(int(2*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(1*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
-            nn.LeakyReLU(),
-            nn.Linear(int(1*(N_RIS - Nc_RIS)/6 + Nc_RIS), Nc_RIS)
         )
 
     def forward(self, x):
         x_cnn = self.cnn_layer(x)
-        x_res = self.residual_layer(x_cnn)
-        for r in range(10): # addition is a residual layer skip connection
-            x_res = self.residual_layer(x_res) + x_res
-        x_flat = torch.flatten(x_res, start_dim=1)
-        x_drop = (self.drop_layer(x_flat))
-        x_enc = self.linear_encoder(x_drop)
+        # x_cnn = self.residual_layer1(x_cnn)
+        x_flat = torch.flatten(x_cnn, start_dim=1)
+        # x_drop = (self.drop_layer(x_flat))
+        x_enc = self.linear_encoder(x_flat)
         return x_enc
 
     #     self.linear_encoder = nn.Sequential(
@@ -119,18 +109,19 @@ class QuantizerLayer(nn.Module):
                 np.delete(spacing,[0,-1])
                 # np.random.rand(C_code_words - 1, 1) * 2 * np.pi - 3 * np.pi),
             ), requires_grad=True)
+        c_slope = 0.7
         if len(self.b) > 1:
             self.c = torch.nn.Parameter(
                 # data=torch.from_numpy((15 / np.mean(np.diff(self.b.data.numpy()))) * np.ones(C_code_words - 1)),
-                data=torch.from_numpy((0.9 * 2 * np.pi / np.mean(np.diff(self.b.data.numpy())) ) * np.ones(C_code_words - 1)),
+                data=torch.from_numpy((c_slope * 2 * np.pi / np.mean(np.diff(self.b.data.numpy())) ) * np.ones(C_code_words - 1)),
                 # data=torch.from_numpy(0.9 * np.ones(C_code_words - 1)),
-            requires_grad = True)
+            requires_grad=False)
         else:
             self.b = torch.nn.Parameter(data=torch.from_numpy(np.zeros(C_code_words - 1)), requires_grad=True)
             self.c = torch.nn.Parameter(
-                data=torch.from_numpy(0.9 * np.ones(C_code_words - 1)),
+                data=torch.from_numpy(c_slope * np.ones(C_code_words - 1)),
                 # data=torch.from_numpy(15 / np.pi * np.ones(C_code_words - 1)),
-                                        requires_grad=True)
+                                        requires_grad=False)
         self.C_code_words = C_code_words
         self.hardQ = False
 
@@ -166,34 +157,28 @@ class DecoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS, Nw_RIS, Nh_RIS):
         super(DecoderLayer, self).__init__()
         self.linear_decoder = nn.Sequential(
-            nn.Linear(Nc_RIS, int(1*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
+            nn.Linear(Nc_RIS, Nc_RIS),
             nn.LeakyReLU(),
-            nn.Linear(int(1*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(2*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
-            nn.LeakyReLU(),
-            nn.Linear(int(2*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(3*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
-            nn.LeakyReLU(),
-            nn.Linear(int(3*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
-            nn.LeakyReLU(),
-            nn.Linear(int(4*(N_RIS - Nc_RIS)/6 + Nc_RIS), int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS)),
-            nn.LeakyReLU(),
-            nn.Linear(int(5*(N_RIS - Nc_RIS)/6 + Nc_RIS), N_RIS),
-            nn.LeakyReLU(),
-        )
-        self.cnn_layer = nn.Sequential(
-            # nn.Unflatten(1, unflattened_size=torch.Size([N_RIS, Nw_RIS, Nh_RIS])),
-            nn.ConvTranspose2d(1, 1, 5, padding=2),
-            nn.ReLU(),
-        )
-        self.out_layer = nn.Sequential(
-            nn.Linear(N_RIS, N_RIS),
+            nn.Linear(Nc_RIS, N_RIS),
+            # nn.LeakyReLU(),
             nn.Tanh(),
         )
-        self.reshape_dim = (1, Nw_RIS, Nh_RIS)
+        # self.cnn_layer = nn.Sequential(
+        #     # nn.Unflatten(1, unflattened_size=torch.Size([N_RIS, Nw_RIS, Nh_RIS])),
+        #     nn.ConvTranspose2d(1, 1, 5, padding=2),
+        #     nn.ReLU(),
+        # )
+        # self.out_layer = nn.Sequential(
+        #     nn.Linear(N_RIS, N_RIS),
+        #     nn.Tanh(),
+        # )
+        # self.reshape_dim = (1, Nw_RIS, Nh_RIS)
 
     def forward(self, theta_qnt):
-        theta_dec = self.linear_decoder(theta_qnt)
-        theta_cnn = self.cnn_layer(theta_dec.view(theta_dec.size(0), *self.reshape_dim))
-        theta_out = self.out_layer(torch.flatten(theta_cnn, start_dim=1) + theta_dec) # skip connection over cnn
+        theta_out = self.linear_decoder(theta_qnt)
+        # theta_cnn = self.cnn_layer(theta_dec.view(theta_dec.size(0), *self.reshape_dim))
+        # theta_cnn = torch.flatten(theta_cnn, start_dim=1) # residual skip connection over cnn by adding this layer
+        # theta_out = self.out_layer(theta_dec)
         return theta_out
         # return torch.angle(torch.exp(1j * theta_out))
 
@@ -244,8 +229,9 @@ def Loss3(x, y):
     return torch.mean(torch.square(dist))
 
 def Loss4(x, y, hra, hur):
+    diff = torch.exp(1j*x) - torch.exp(1j*y)
     hra_hur = torch.mul(hra, hur)
-    dist = torch.abs(torch.matmul(hra_hur.transpose(0,1), torch.exp(1j*x) - torch.exp(1j*y)))
+    dist = torch.abs(torch.matmul(hra_hur, diff.transpose(0,1)))
     return torch.mean(dist)
 
 class Trainer(object):
@@ -262,7 +248,8 @@ class Trainer(object):
         self.AQEnet = AutoQEncoder(self.N_RIS, self.Nc_RIS, trainparams['Nw_RIS'], trainparams['Nh_RIS'], self.C_code_words).to(device)
         # self.optimizer = optim.Adam(self.AQEnet.parameters(), lr=trainparams['lr'], amsgrad=True)
         self.optimizer = optim.SGD(self.AQEnet.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
-        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=1e-1, steps_per_epoch=len(train_loader), epochs=trainparams['epochs']*trainparams['training_iterations'])
+        # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.1, steps_per_epoch=len(train_loader), pct_start=0.1, epochs=trainparams['epochs']*trainparams['training_iterations'])
+        # self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
 
     def train(self, val_loader, trainparams):
 
@@ -295,7 +282,7 @@ class Trainer(object):
                     loss = Loss4(outputs, labels, hra, hur)                 # calculate batch loss
                     loss.backward()                                         # back propagate gradients through AQE network
                     self.optimizer.step()                                   # single optimization step to update variables
-                    self.scheduler.step()                                   # adjust learning rate each step
+                    # self.scheduler.step()                                   # adjust learning rate each step
                     train_loss += loss.item() * trainparams['batch_size']   # update training loss
                     train_loss /= len(self.train_loader.dataset)            # normalize training loss
 
@@ -320,6 +307,9 @@ class Trainer(object):
                     val_loss += loss.item() * trainparams['batch_size']  # update validation loss
                     val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
+                # before_lr = self.optimizer.param_groups[0]['lr']
+                # after_lr = self.optimizer.param_groups[0]['lr']
+                # print('\n', before_lr, '->', after_lr)
 
                 if trainparams['epoch_echo']:
                     print('\nEpoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(
@@ -404,16 +394,17 @@ if __name__ == "__main__":
                   'lr': 0.0001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 1024, # batch training size
-                  'epochs': 10, # total training duration
+                  'epochs': 200, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 10, # validate early stop every epoch number
-                  'epoch_echo': False, # flag to display epoch print losses
+                  'epoch_val': 25, # validate early stop every epoch number
+                  'epoch_echo': True, # flag to display epoch print losses
                   'trials': 25, # number of Ray tune trials
-                  'training_iterations': 50, # number of Ray tune training iterations
-                  'grace_period': 10, # min number of training iterations
-                  'trials_per_device': 12, # number of trials per cpu/gpu resource
-                  'Nc_RIS': 64, # number of quantizers, values that N is compresses/encoded into
+                  'training_iterations': 1, # number of Ray tune training iterations
+                  'grace_period': 30, # min number of training iterations
+                  'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'step_size': 10, # step size for scheduler optimizer
+                  'Nc_RIS': 64, # number of quantizers, values that N is compresses/encoded into
+                  'Q_bits': 2, # number of bits of a quantizer
                   }
     search_space = { # Ray Tune Hyper parameter search space
         # "lr": tune.loguniform(1e-6, 1e-1),
@@ -430,7 +421,7 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Load RIS data from .csv files
     ####################################################################################################################
-    dataset_dir = "MATLAB/datasets/HDRISData/03/"
+    dataset_dir = "MATLAB/datasets/HDRISData/04/"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
     Hur = load_complex(dataset_dir, "Hur_r", "Hur_i")
@@ -452,10 +443,10 @@ if __name__ == "__main__":
     # for b, bits in enumerate(bits_list):
     # print(b, bits)
 
-    bits = 1 # bits per Quantizer
+    bits = trainparams['Q_bits'] # bits per Quantizer
     trainparams['C_code_words'] = 2**bits
     trainparams['Nc_RIS_compressed_ratio'] = trainparams['Nc_RIS'] / trainparams['N_RIS']
-    trainparams['overall_bits'] = trainparams['Nc_RIS'] * int(round(np.log2(trainparams['C_code_words'])))
+    trainparams['overall_bits'] = trainparams['Nc_RIS'] * bits
 
     print("Training Model parameters:")
     pprint.pprint(trainparams)
@@ -486,87 +477,92 @@ if __name__ == "__main__":
     test_set = LoadData(test_set)
     val_set = LoadData(val_set)
 
-    # ################################################################################################################
-    # # Train & Test model with specific hyperparameters
-    # ################################################################################################################
-    # train_loader = DataLoader(train_set, batch_size=trainparams['batch_size'])
-    # test_loader = DataLoader(test_set, batch_size=trainparams['batch_size'])
-    # val_loader = DataLoader(val_set, batch_size=trainparams['batch_size'])
-    # trainer = Trainer(train_loader, trainparams)
-    # AQEnet, train_losses, val_losses, num_epochs = trainer.train(val_loader, trainparams)
-    # x_vals, soft_quant, hard_quant = AQEnet.quantizer_layer.plot_vals()
-    # print(AQEnet)
-    # fig, ax = plt.subplots()
-    # ax.plot(x_vals, soft_quant, label='Soft Quantizer')
-    # ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
-    # ax.set_title("Quantizer Values: bits = " + str(bits))
-    # ax.legend()
-    # # for snr_dB in [-20, -10, -5, 0, 5, 10, 20]:
-    # #     trainparams['snr_dB'] = snr_dB
-    # P_opt, P_AQE, P_rand = trainer.evaluate(test_loader, sysmodelparams, trainparams)
-    #
-    # print("Training Model parameters:")
-    # pprint.pprint(trainparams)
-    # print('Receive power (dB) using RIS phase shifts with Transmit power SNR {:.0f} dB:'.format(trainparams['snr_dB']))
-    # print('optimum: ', P_opt)
-    # print('AQE net: ', P_AQE)
-    # print('random:  ', P_rand)
-    # plt.show(block=True)
-    # # plt.interactive(False)
-
     ################################################################################################################
-    # Ray Tune: Hyperparameter Tuning
+    # Train & Test model with specific hyperparameters
     ################################################################################################################
+    train_loader = DataLoader(train_set, batch_size=trainparams['batch_size'])
+    test_loader = DataLoader(test_set, batch_size=trainparams['batch_size'])
+    val_loader = DataLoader(val_set, batch_size=trainparams['batch_size'])
+    trainer = Trainer(train_loader, trainparams)
+    print(trainer.AQEnet)
+    total_params = sum(p.numel() for p in trainer.AQEnet.parameters())
+    print('Number of parameters:', total_params)
+    AQEnet, train_losses, val_losses, num_epochs = trainer.train(val_loader, trainparams)
+    x_vals, soft_quant, hard_quant = AQEnet.quantizer_layer.plot_vals()
+    print(AQEnet)
+    total_params = sum(p.numel() for p in AQEnet.parameters())
+    print('Number of parameters:', total_params)
+    fig, ax = plt.subplots()
+    ax.plot(x_vals, soft_quant, label='Soft Quantizer')
+    ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
+    ax.set_title("Quantizer Values: bits = " + str(bits))
+    ax.legend()
+    # for snr_dB in [-20, -10, -5, 0, 5, 10, 20]:
+    #     trainparams['snr_dB'] = snr_dB
+    P_opt, P_AQE, P_rand = trainer.evaluate(test_loader, sysmodelparams, trainparams)
 
-    def objective(config):
-        # trainparams['lr'] = config['lr']
-        # trainparams['momentum'] = config['momentum']
-        trainparams['batch_size'] = config['batch_size']
-        # trainparams['step_size'] = config['step_size']
-        train_loader = DataLoader(train_set, batch_size=int(config["batch_size"]))
-        test_loader = DataLoader(test_set, batch_size=int(config["batch_size"]))
-        val_loader = DataLoader(val_set, batch_size=int(config["batch_size"]))
-        trainer = Trainer(train_loader, trainparams)
-        total_epochs = 0
-        while True:
-            AQEnet, train_losses, val_losses, num_epochs = trainer.train(val_loader, trainparams)  # Train the model
-            P_opt, P_AQE, P_rand = trainer.evaluate(test_loader, sysmodelparams, trainparams)  # Compute test results
-            total_epochs += num_epochs
-            tune.report({"Optimum": P_opt, "AQE": P_AQE, "Random": P_rand, "Epochs": total_epochs})  # Report to Tune
-
-    algo = OptunaSearch()  # ②
-    scheduler = ASHAScheduler(
-        max_t= trainparams['training_iterations'],
-        grace_period=trainparams['grace_period'],
-    )
-    tuner = tune.Tuner(  # ③
-        tune.with_resources(
-        objective,
-        resources={"cpu": 24/trainparams['trials_per_device'], "gpu": 1/trainparams['trials_per_device']}
-            # fraction means trials per device: fraction = device/trial,
-            # My setup: CPU has 24 cores, 1 GPU
-    ),
-        tune_config=tune.TuneConfig(
-            metric="AQE",
-            mode="max",
-            search_alg=algo,
-            scheduler=scheduler,
-            num_samples=trainparams['trials']
-        ),
-        run_config=tune.RunConfig(
-            stop={"training_iteration": trainparams['training_iterations']},
-        ),
-        param_space=search_space,
-    )
-    results = tuner.fit()
-    results_df = results.get_dataframe().sort_values('AQE',ascending=False)
-    best_result = results.get_best_result("AQE", "max")
-
-    print('System Model parameters:', sysmodelparams, sep='\n')
     print("Training Model parameters:")
     pprint.pprint(trainparams)
+    print('Receive power (dB) using RIS phase shifts with Transmit power SNR {:.0f} dB:'.format(trainparams['snr_dB']))
+    print('optimum: ', P_opt)
+    print('AQE net: ', P_AQE)
+    print('random:  ', P_rand)
+    plt.show(block=True)
+    # plt.interactive(False)
 
-    print("Best trial config: {}".format(best_result.config))
-    print("Best trial final Rx Power: {}".format(
-        best_result.metrics["AQE"]))
-    print(tabulate(results_df, headers='keys', tablefmt='psql'))
+    # ################################################################################################################
+    # # Ray Tune: Hyperparameter Tuning
+    # ################################################################################################################
+    #
+    # def objective(config):
+    #     # trainparams['lr'] = config['lr']
+    #     # trainparams['momentum'] = config['momentum']
+    #     trainparams['batch_size'] = config['batch_size']
+    #     # trainparams['step_size'] = config['step_size']
+    #     train_loader = DataLoader(train_set, batch_size=int(config["batch_size"]))
+    #     test_loader = DataLoader(test_set, batch_size=int(config["batch_size"]))
+    #     val_loader = DataLoader(val_set, batch_size=int(config["batch_size"]))
+    #     trainer = Trainer(train_loader, trainparams)
+    #     total_epochs = 0
+    #     while True:
+    #         AQEnet, train_losses, val_losses, num_epochs = trainer.train(val_loader, trainparams)  # Train the model
+    #         P_opt, P_AQE, P_rand = trainer.evaluate(test_loader, sysmodelparams, trainparams)  # Compute test results
+    #         total_epochs += num_epochs
+    #         tune.report({"Optimum": P_opt, "AQE": P_AQE, "Random": P_rand, "Epochs": total_epochs})  # Report to Tune
+    #
+    # algo = OptunaSearch()  # ②
+    # scheduler = ASHAScheduler(
+    #     max_t= trainparams['training_iterations'],
+    #     grace_period=trainparams['grace_period'],
+    # )
+    # tuner = tune.Tuner(  # ③
+    #     tune.with_resources(
+    #     objective,
+    #     resources={"cpu": 24/trainparams['trials_per_device'], "gpu": 1/trainparams['trials_per_device']}
+    #         # fraction means trials per device: fraction = device/trial,
+    #         # My setup: CPU has 24 cores, 1 GPU
+    # ),
+    #     tune_config=tune.TuneConfig(
+    #         metric="AQE",
+    #         mode="max",
+    #         search_alg=algo,
+    #         scheduler=scheduler,
+    #         num_samples=trainparams['trials']
+    #     ),
+    #     run_config=tune.RunConfig(
+    #         stop={"training_iteration": trainparams['training_iterations']},
+    #     ),
+    #     param_space=search_space,
+    # )
+    # results = tuner.fit()
+    # results_df = results.get_dataframe().sort_values('AQE',ascending=False)
+    # best_result = results.get_best_result("AQE", "max")
+    #
+    # print('System Model parameters:', sysmodelparams, sep='\n')
+    # print("Training Model parameters:")
+    # pprint.pprint(trainparams)
+    #
+    # print("Best trial config: {}".format(best_result.config))
+    # print("Best trial final Rx Power: {}".format(
+    #     best_result.metrics["AQE"]))
+    # print(tabulate(results_df, headers='keys', tablefmt='psql'))
