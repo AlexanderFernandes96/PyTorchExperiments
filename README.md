@@ -26,6 +26,7 @@ MATLAB (version 2022a) is used to generate a dataset for a simulated RIS communi
   * Run this MATLAB script to generate data for a Half-Duplex RIS model
 * [src/](MATLAB/src/)
   * directory containing MATLAB scripts and functions to generate RIS data
+  * To change the parameters of the system model change contents of: [src/systemModelParameters.m](MATLAB/src/systemModelParameters.m)
 * [datasets/](MATLAB/datasets/)
   * directory to store the generated datasets.
   * for Python scripts use the .csv files from this directory to easily load the datasets into a numpy array.
