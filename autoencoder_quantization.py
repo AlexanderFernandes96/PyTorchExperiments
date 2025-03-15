@@ -14,8 +14,8 @@ from ray.tune.search.optuna import OptunaSearch
 from ray.tune.schedulers import ASHAScheduler
 import pprint
 
-# DISABLE_TQDM = False
-DISABLE_TQDM = True
+DISABLE_TQDM = False
+# DISABLE_TQDM = True
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -315,8 +315,8 @@ class Trainer(object):
 
     def train(self, val_loader, trainparams):
 
-        val_loss_min = np.Inf
-        val_loss_min_earlystop = np.Inf
+        val_loss_min = np.inf
+        val_loss_min_earlystop = np.inf
 
         model_validated = deepcopy(self.model)  # if val loss does not decrease, return the copy of AQEnet before training
         train_losses = []
@@ -479,7 +479,7 @@ if __name__ == "__main__":
                   'lr': 0.0001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 512, # batch training size
-                  'epochs': 500, # total training duration
+                  'epochs': 1, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 500, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
@@ -615,17 +615,24 @@ if __name__ == "__main__":
         R_linQ_array[i] = R_linQ
         R_rand_array[i] = R_rand
 
-    fig, ax = plt.subplots()
-    ax.plot(Nc_array, R_opt_array, label='P_opt')
-    ax.plot(Nc_array, R_AQE_array, label='P_AQE')
-    ax.plot(Nc_array, R_linQ_array, label='P_linQ')
-    ax.plot(Nc_array, R_rand_array, label='P_rand')
-    ax.set_xlabel('Nc')
-    ax.set_ylabel('Receive Power (dB)')
-    ax.set_xscale('log', base=2)
-    ax.legend()
-    plt.show(block=True)
-    # plt.interactive(False)
+    print('Quantizer bits:', trainparams['Q_bits'])
+    print('Nc nodes per Quantizer:', Nc_array)
+    print('Rate optimal phases:   ', R_opt_array)
+    print('Rate AQEnet phases:    ', R_AQE_array)
+    print('Rate linear Quantizer: ', R_linQ_array)
+    print('Rate random phases:    ', R_rand_array)
+
+    # fig, ax = plt.subplots()
+    # ax.plot(Nc_array, R_opt_array, label='P_opt')
+    # ax.plot(Nc_array, R_AQE_array, label='P_AQE')
+    # ax.plot(Nc_array, R_linQ_array, label='P_linQ')
+    # ax.plot(Nc_array, R_rand_array, label='P_rand')
+    # ax.set_xlabel('Nc')
+    # ax.set_ylabel('Receive Power (dB)')
+    # ax.set_xscale('log', base=2)
+    # ax.legend()
+    # plt.show(block=True)
+    # # plt.interactive(False)
 
 
     # ################################################################################################################
