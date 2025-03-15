@@ -12,6 +12,11 @@ Run the following commands in the terminal to install PyTorch libraries to the l
 pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 pip install "ray[tune]" torch torchvision
 pip install optuna
+pip install numpy
+pip install pandas
+pip install tabulate
+pip install tqdm
+pip install matplotlib
 ```
 
 ### Test Run
