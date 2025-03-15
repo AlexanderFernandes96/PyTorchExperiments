@@ -475,14 +475,14 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Training trainparams
     ####################################################################################################################
-    trainparams = {'train_test_split': 0.99, # split between train/test data
-                  'train_val_split': 0.99,  # after the train/test split, split train data into train/val data
+    trainparams = {'train_test_split': 0.8, # split between train/test data
+                  'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.0001, # optimizer learning rate
-                  'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 512, # batch training size
-                  'epochs': 0, # total training duration
+                  'momentum': 0.8, # optimizer momentum for SGD
+                  'batch_size': 64, # batch training size
+                  'epochs': 500, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 500, # validate early stop every epoch number
+                  'epoch_val': 50, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
                   'trials': 500, # number of Ray tune trials
                   'training_iterations': 50, # number of Ray tune training iterations
