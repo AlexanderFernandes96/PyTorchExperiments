@@ -6,7 +6,8 @@ addpath("src\")
 %% Setup system model / script parameters
 systemModelParameters
 
-dataDir = "datasets/HDRISData/05/";
+dataDir = "datasets/HDRISData/07/";
+mkdir(dataDir);
 fileSaveName = dataDir + "HDRISData";
 dfile = fileSaveName + ".txt";
 if exist(dfile, 'file') ; delete(dfile); end
@@ -141,7 +142,7 @@ Tab.Properties.VariableNames(1:length(A)) = ...
     {'LOS', 'B', 'L', 'T', 'K', 'M', 'N', 'Nw', 'Nh', 'mc_runs'};
 writetable(Tab,dataDir + "systemModelParameters.csv")
 
-% Save channels
+% Save channels into a single csv file
 % real
 writematrix(real(Hur_mc), dataDir + "Hur_r.csv") 
 writematrix(real(Hra_mc), dataDir + "Hra_r.csv")
@@ -150,9 +151,32 @@ writematrix(real(Hua_mc), dataDir + "Hua_r.csv")
 writematrix(imag(Hur_mc), dataDir + "Hur_i.csv") 
 writematrix(imag(Hra_mc), dataDir + "Hra_i.csv")
 writematrix(imag(Hua_mc), dataDir + "Hua_i.csv")
-
 % Save optimal RIS phase shifts (-pi <= theta < pi)
 writematrix(theta_mc, dataDir + "RISopt.csv")
+
+% % Save channels into seperate csv files
+% mkdir(dataDir + "Hur/");
+% mkdir(dataDir + "Hra/")
+% mkdir(dataDir + "Hua/")
+% mkdir(dataDir + "RISopt/")
+% fprintf('Monte Carlo Run: ');
+% num_files = mc_runs/10000;
+% for n = 0:num_files-1
+% if mod(n,num_files/25) == 0
+%     fprintf('%i ', n);
+% end
+% % real
+% writematrix(real(Hur_mc(n*10000+1:(n+1)*10000-1,:)), dataDir + "Hur/Hur_r" + num2str(n, '%03.f') + ".csv") 
+% writematrix(real(Hra_mc(n*10000+1:(n+1)*10000-1,:)), dataDir + "Hra/Hra_r" + num2str(n, '%03.f') + ".csv")
+% writematrix(real(Hua_mc(n*10000+1:(n+1)*10000-1,:)), dataDir + "Hua/Hua_r" + num2str(n, '%03.f') + ".csv")
+% % imaginary
+% writematrix(imag(Hur_mc(n*10000+1:(n+1)*10000-1,:)), dataDir + "Hur/Hur_i" + num2str(n, '%03.f') + ".csv") 
+% writematrix(imag(Hra_mc(n*10000+1:(n+1)*10000-1,:)), dataDir + "Hra/Hra_i" + num2str(n, '%03.f') + ".csv")
+% writematrix(imag(Hua_mc(n*10000+1:(n+1)*10000-1,:)), dataDir + "Hua/Hua_i" + num2str(n, '%03.f') + ".csv")
+% % Save optimal RIS phase shifts (-pi <= theta < pi)
+% writematrix(theta_mc(n*10000+1:(n+1)*10000-1), dataDir + "RISopt/RISopt" + num2str(n, '%03.f') + ".csv")
+% end
+
 
 delete(gcp('nocreate'))
 fprintf("Script Execution time:\n")
