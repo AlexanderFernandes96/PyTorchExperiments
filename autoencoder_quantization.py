@@ -1,5 +1,6 @@
 from copy import deepcopy
 import numpy as np
+import pandas
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
@@ -315,8 +316,8 @@ class Trainer(object):
 
     def train(self, val_loader, trainparams):
 
-        val_loss_min = np.Inf
-        val_loss_min_earlystop = np.Inf
+        val_loss_min = np.inf
+        val_loss_min_earlystop = np.inf
 
         model_validated = deepcopy(self.model)  # if val loss does not decrease, return the copy of AQEnet before training
         train_losses = []
@@ -474,12 +475,12 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Training trainparams
     ####################################################################################################################
-    trainparams = {'train_test_split': 0.8, # split between train/test data
-                  'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
+    trainparams = {'train_test_split': 0.99, # split between train/test data
+                  'train_val_split': 0.99,  # after the train/test split, split train data into train/val data
                   'lr': 0.0001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 512, # batch training size
-                  'epochs': 500, # total training duration
+                  'epochs': 0, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 500, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
@@ -502,6 +503,8 @@ if __name__ == "__main__":
     }
 
     Nc_array = 2**np.array(range(1,8))
+
+    results_file = 'logs/SISO_AcheivableRateExperiments/results00.csv'
 
     # dataset_dir = "MATLAB/datasets/HDRISData/03/" N = 100, K = 1, M = 1
     # | total bits | Optimum |     AQE |  Random | Epochs |   config/lr |   config/momentum |   config/batch_size |
@@ -615,17 +618,25 @@ if __name__ == "__main__":
         R_linQ_array[i] = R_linQ
         R_rand_array[i] = R_rand
 
-    fig, ax = plt.subplots()
-    ax.plot(Nc_array, R_opt_array, label='P_opt')
-    ax.plot(Nc_array, R_AQE_array, label='P_AQE')
-    ax.plot(Nc_array, R_linQ_array, label='P_linQ')
-    ax.plot(Nc_array, R_rand_array, label='P_rand')
-    ax.set_xlabel('Nc')
-    ax.set_ylabel('Receive Power (dB)')
-    ax.set_xscale('log', base=2)
-    ax.legend()
-    plt.show(block=True)
-    # plt.interactive(False)
+    d = {'Nc': Nc_array, 'R_opt': R_opt_array, 'R_AQE': R_AQE_array, 'R_linQ': R_linQ_array, 'R_rand': R_rand_array}
+    results_df = pandas.DataFrame(d)
+    print('Total bits:', trainparams['overall_bits'])
+    print(results_df)
+    print('Saving to:', results_file)
+
+    results_df.to_csv(results_file, sep='\t', encoding='utf-8', index=False, header=True)
+
+    # fig, ax = plt.subplots()
+    # ax.plot(Nc_array, R_opt_array, label='P_opt')
+    # ax.plot(Nc_array, R_AQE_array, label='P_AQE')
+    # ax.plot(Nc_array, R_linQ_array, label='P_linQ')
+    # ax.plot(Nc_array, R_rand_array, label='P_rand')
+    # ax.set_xlabel('Nc')
+    # ax.set_ylabel('Receive Power (dB)')
+    # ax.set_xscale('log', base=2)
+    # ax.legend()
+    # plt.show(block=True)
+    # # plt.interactive(False)
 
 
     # ################################################################################################################
