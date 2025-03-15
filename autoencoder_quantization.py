@@ -14,8 +14,8 @@ from ray.tune.search.optuna import OptunaSearch
 from ray.tune.schedulers import ASHAScheduler
 import pprint
 
-# DISABLE_TQDM = False
-DISABLE_TQDM = True
+DISABLE_TQDM = False
+# DISABLE_TQDM = True
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -292,7 +292,7 @@ def Loss5(x, y, hra, hur, hua):
     hra_hur = torch.mul(hra, hur)
     x_rec = torch.square(torch.abs(hua + torch.matmul(hra_hur, torch.exp(1j*x.transpose(0,1)))))
     # y_rec = torch.square(torch.abs(hua + torch.matmul(hra_hur, torch.exp(1j*y.transpose(0,1)))))
-    return -torch.mean(torch.log2(1 + x_rec))
+    return -1000*torch.mean(torch.log2(1 + x_rec))
 
 
 class Trainer(object):
@@ -315,8 +315,8 @@ class Trainer(object):
 
     def train(self, val_loader, trainparams):
 
-        val_loss_min = np.Inf
-        val_loss_min_earlystop = np.Inf
+        val_loss_min = np.inf
+        val_loss_min_earlystop = np.inf
 
         model_validated = deepcopy(self.model)  # if val loss does not decrease, return the copy of AQEnet before training
         train_losses = []
@@ -477,11 +477,11 @@ if __name__ == "__main__":
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.0001, # optimizer learning rate
-                  'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 512, # batch training size
-                  'epochs': 500, # total training duration
+                  'momentum': 0.8, # optimizer momentum for SGD
+                  'batch_size': 64, # batch training size
+                  'epochs': 1000, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 500, # validate early stop every epoch number
+                  'epoch_val': 50, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
                   'trials': 500, # number of Ray tune trials
                   'training_iterations': 50, # number of Ray tune training iterations
