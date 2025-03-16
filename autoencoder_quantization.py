@@ -38,27 +38,27 @@ class EncoderLayer(nn.Module):
 
         # N = 100
         self.cnn_layer = nn.Sequential(
-            nn.Conv2d(5, 64, 3, padding=1, padding_mode='circular'),
+            nn.Conv2d(5, 32, 3, padding=1, padding_mode='circular'),
+            nn.BatchNorm2d(32),
+            nn.LeakyReLU(),
+            nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(64),
             nn.LeakyReLU(),
             nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(128),
             nn.LeakyReLU(),
-            nn.Conv2d(128, 256, 3, stride=1, padding=0, padding_mode='zeros'),
-            nn.BatchNorm2d(256),
+            nn.Conv2d(128, 128, 3, stride=1, padding=0, padding_mode='zeros'),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(),
-            nn.Conv2d(256, 512, 3, stride=1, padding=0, padding_mode='zeros'),
-            nn.BatchNorm2d(512),
-            nn.LeakyReLU(),
-            nn.Conv2d(512, 1024, 3, stride=1, padding=0, padding_mode='zeros'),
-            nn.BatchNorm2d(1024),
+            nn.Conv2d(128, 128, 3, stride=1, padding=0, padding_mode='zeros'),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(),
             nn.MaxPool2d(2, 2),
         )
 
         self.linear_encoder = nn.Sequential(
             nn.Dropout(0.5),
-            nn.Linear(1024, Nc_RIS),
+            nn.Linear(128, Nc_RIS),
             nn.LeakyReLU(),
         )
 
@@ -212,9 +212,9 @@ class DecoderLayer(nn.Module):
             nn.LeakyReLU(),
             nn.Linear(N_RIS, N_RIS),
             nn.LeakyReLU(),
-            nn.Linear(N_RIS, 1024),
+            nn.Linear(N_RIS, 128),
             nn.LeakyReLU(),
-            nn.Linear(1024, 1024),
+            nn.Linear(128, 128),
             # nn.LeakyReLU(),
             nn.Tanh(),
         )
@@ -223,23 +223,23 @@ class DecoderLayer(nn.Module):
             # nn.ConvTranspose2d(64, 64, 3, padding=1),
             # nn.ReLU(),
             # nn.BatchNorm2d(64),
-            nn.ConvTranspose2d(1024, 512, 3, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(512),
-            nn.ConvTranspose2d(512, 256, 3, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(256),
-            nn.ConvTranspose2d(256, 128, 3, padding=1),
+            nn.ConvTranspose2d(128, 128, 3, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(128),
-            nn.ConvTranspose2d(128, 64, 3, padding=0),
+            nn.ConvTranspose2d(128, 128, 3, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(128),
+            nn.ConvTranspose2d(128, 64, 3, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(64),
-            nn.ConvTranspose2d(64, 1, 3, padding=0),
+            nn.ConvTranspose2d(64, 32, 3, padding=0),
+            nn.ReLU(),
+            nn.BatchNorm2d(32),
+            nn.ConvTranspose2d(32, 1, 3, padding=0),
             nn.ReLU(),
             nn.BatchNorm2d(1),
         )
-        self.reshape_dim = (1024, 1, 1)
+        self.reshape_dim = (128, 1, 1)
 
         # self.cnn_layer = nn.Sequential(
         #     nn.Conv2d(5, 28, 3, stride=1, padding=0, padding_mode='circular'),
@@ -518,9 +518,9 @@ if __name__ == "__main__":
                   'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 512, # batch training size
-                  'epochs': 500, # total training duration
+                  'epochs': 1000, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 50, # validate early stop every epoch number
+                  'epoch_val': 500, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
                   'trials': 500, # number of Ray tune trials
                   'training_iterations': 50, # number of Ray tune training iterations
@@ -552,7 +552,7 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Load RIS data from .csv files
     ####################################################################################################################
-    dataset_dir = "MATLAB/datasets/HDRISData/03/"
+    dataset_dir = "MATLAB/datasets/HDRISData/08/"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
     Hur = load_complex(dataset_dir, "Hur_r", "Hur_i")
