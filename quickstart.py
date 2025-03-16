@@ -1,8 +1,22 @@
+from copy import deepcopy
+import numpy as np
+import pandas
 import torch
 from torch import nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
+import torch.optim as optim
+from tqdm import tqdm
+import pandas as pd
+from tabulate import tabulate
+import matplotlib.pyplot as plt
+import torch
+from ray import tune
+from ray.tune.search.optuna import OptunaSearch
+from ray.tune.schedulers import ASHAScheduler
+import pprint
 from torchvision import datasets
 from torchvision.transforms import ToTensor
+
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -101,7 +115,7 @@ if __name__ == "__main__":
     optimizer = torch.optim.SGD(model.parameters(), lr=1e-3)
 
     epochs = 10
-    for t in range(epochs):
+    for t in tqdm(range(epochs)):
         print(f"Epoch {t + 1}\n-------------------------------")
         train(train_dataloader, model, loss_fn, optimizer)
         test(test_dataloader, model, loss_fn)
