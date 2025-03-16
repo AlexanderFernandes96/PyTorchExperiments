@@ -15,8 +15,8 @@ from ray.tune.search.optuna import OptunaSearch
 from ray.tune.schedulers import ASHAScheduler
 import pprint
 
-# DISABLE_TQDM = False
-DISABLE_TQDM = True
+DISABLE_TQDM = False
+# DISABLE_TQDM = True
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -36,38 +36,61 @@ class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
 
-        # # N = 100
-        # self.cnn_layer = nn.Sequential(
-        #     nn.Conv2d(5, 64, 3, stride=2, padding=1, padding_mode='circular'),
-        #     nn.BatchNorm2d(64),
-        #     nn.LeakyReLU(),
-        #     nn.MaxPool2d(4, 4),
-        # )
-
-        # self.linear_encoder = nn.Sequential(
-        #     nn.Dropout(0.5),
-        #     nn.Linear(64, Nc_RIS),
-        #     nn.LeakyReLU(),
-        # )
-
-        # N = 64
+        # N = 100
         self.cnn_layer = nn.Sequential(
-            nn.Conv2d(5, 28, 3, stride=1, padding=0, padding_mode='circular'),
-            nn.BatchNorm2d(28),
+            nn.Conv2d(5, 64, 3, padding=1, padding_mode='circular'),
+            nn.BatchNorm2d(64),
             nn.LeakyReLU(),
-            nn.Conv2d(28, 32, 3, stride=1, padding=0, padding_mode='circular'),
-            nn.BatchNorm2d(32),
+            nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
+            nn.BatchNorm2d(128),
             nn.LeakyReLU(),
-            nn.MaxPool2d(4, 4),
+            nn.Conv2d(128, 256, 3, stride=1, padding=0, padding_mode='zeros'),
+            nn.BatchNorm2d(256),
+            nn.LeakyReLU(),
+            nn.Conv2d(256, 512, 3, stride=1, padding=0, padding_mode='zeros'),
+            nn.BatchNorm2d(512),
+            nn.LeakyReLU(),
+            nn.Conv2d(512, 1024, 3, stride=1, padding=0, padding_mode='zeros'),
+            nn.BatchNorm2d(1024),
+            nn.LeakyReLU(),
+            nn.MaxPool2d(2, 2),
         )
 
         self.linear_encoder = nn.Sequential(
-            nn.Dropout(0.2),
-            # nn.Linear(32, 32),
-            # nn.LeakyReLU(),
-            nn.Linear(32, Nc_RIS),
+            nn.Dropout(0.5),
+            nn.Linear(1024, Nc_RIS),
             nn.LeakyReLU(),
         )
+
+        # # N = 64
+        # self.cnn_layer = nn.Sequential(
+        #     nn.Conv2d(5, 28, 3, stride=1, padding=0, padding_mode='circular'),
+        #     nn.BatchNorm2d(28),
+        #     nn.LeakyReLU(),
+        #     nn.Conv2d(28, 32, 3, stride=1, padding=1, padding_mode='zeros'),
+        #     nn.BatchNorm2d(32),
+        #     nn.LeakyReLU(),
+        #     nn.Conv2d(32, 64, 3, stride=1, padding=1, padding_mode='zeros'),
+        #     nn.BatchNorm2d(64),
+        #     nn.LeakyReLU(),
+        #     # nn.Conv2d(64, 64, 3, stride=1, padding=1, padding_mode='zeros'),
+        #     # nn.BatchNorm2d(64),
+        #     # nn.LeakyReLU(),
+        #     nn.MaxPool2d(4, 4),
+        # )
+        #
+        # self.linear_encoder = nn.Sequential(
+        #     # nn.Dropout(0.5),
+        #     nn.Linear(64, 64),
+        #     nn.LeakyReLU(),
+        #     nn.Linear(64, 64),
+        #     nn.LeakyReLU(),
+        #     nn.Linear(64, N_RIS),
+        #     nn.LeakyReLU(),
+        #     nn.Linear(N_RIS, Nc_RIS),
+        #     nn.LeakyReLU(),
+        # )
+
 
         # # N = 25
         # self.cnn_layer = nn.Sequential(
@@ -185,24 +208,38 @@ class DecoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS, Nw_RIS, Nh_RIS):
         super(DecoderLayer, self).__init__()
         self.linear_decoder = nn.Sequential(
-            # nn.Linear(Nc_RIS, Nc_RIS),
-            # nn.LeakyReLU(),
             nn.Linear(Nc_RIS, N_RIS),
+            nn.LeakyReLU(),
+            nn.Linear(N_RIS, N_RIS),
+            nn.LeakyReLU(),
+            nn.Linear(N_RIS, 1024),
+            nn.LeakyReLU(),
+            nn.Linear(1024, 1024),
             # nn.LeakyReLU(),
             nn.Tanh(),
         )
         self.cnn_layer = nn.Sequential(
-            # nn.Unflatten(1, unflattened_size=torch.Size([N_RIS, Nw_RIS, Nh_RIS])),
-            nn.ConvTranspose2d(1, 5, 3, padding=1),
-            nn.ReLU(),
-            # nn.ConvTranspose2d(5, 5, 3, padding=1),
+            nn.Upsample(scale_factor=4),
+            # nn.ConvTranspose2d(64, 64, 3, padding=1),
             # nn.ReLU(),
-            # nn.ConvTranspose2d(5, 5, 3, padding=1),
-            # nn.ReLU(),
-            nn.ConvTranspose2d(5, 1, 3, padding=1),
+            # nn.BatchNorm2d(64),
+            nn.ConvTranspose2d(1024, 512, 3, padding=1),
             nn.ReLU(),
+            nn.BatchNorm2d(512),
+            nn.ConvTranspose2d(512, 256, 3, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(256),
+            nn.ConvTranspose2d(256, 128, 3, padding=1),
+            nn.ReLU(),
+            nn.BatchNorm2d(128),
+            nn.ConvTranspose2d(128, 64, 3, padding=0),
+            nn.ReLU(),
+            nn.BatchNorm2d(64),
+            nn.ConvTranspose2d(64, 1, 3, padding=0),
+            nn.ReLU(),
+            nn.BatchNorm2d(1),
         )
-        self.reshape_dim = (1, Nw_RIS, Nh_RIS)
+        self.reshape_dim = (1024, 1, 1)
 
         # self.cnn_layer = nn.Sequential(
         #     nn.Conv2d(5, 28, 3, stride=1, padding=0, padding_mode='circular'),
@@ -215,7 +252,7 @@ class DecoderLayer(nn.Module):
         # )
 
         self.out_layer = nn.Sequential(
-            nn.Linear(N_RIS, N_RIS),
+            nn.Linear(64, N_RIS),
             nn.Tanh(),
         )
 
@@ -312,7 +349,7 @@ class Trainer(object):
         self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
         # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.01, steps_per_epoch=len(train_loader),
         #                                                      pct_start=0.1, epochs=trainparams['epochs']*trainparams['grace_period'])
-        # self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min')
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', patience=int(trainparams['epoch_val']/2))
 
     def train(self, val_loader, trainparams):
 
@@ -373,9 +410,10 @@ class Trainer(object):
                     val_loss += loss.item() * trainparams['batch_size']  # update validation loss
                     val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
-                # before_lr = self.optimizer.param_groups[0]['lr']
-                # after_lr = self.optimizer.param_groups[0]['lr']
-                # print('\n', before_lr, '->', after_lr)
+                before_lr = self.optimizer.param_groups[0]['lr']
+                self.scheduler.step(val_loss)                                   # adjust learning rate each step
+                after_lr = self.optimizer.param_groups[0]['lr']
+                print('\n', before_lr, '->', after_lr)
 
                 if trainparams['epoch_echo']:
                     print('\nEpoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(
@@ -477,9 +515,9 @@ if __name__ == "__main__":
     ####################################################################################################################
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
-                  'lr': 0.0001, # optimizer learning rate
-                  'momentum': 0.8, # optimizer momentum for SGD
-                  'batch_size': 64, # batch training size
+                  'lr': 0.001, # optimizer learning rate
+                  'momentum': 0.9, # optimizer momentum for SGD
+                  'batch_size': 512, # batch training size
                   'epochs': 500, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 50, # validate early stop every epoch number
@@ -502,9 +540,9 @@ if __name__ == "__main__":
         # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     }
 
-    Nc_array = 2**np.array(range(1,8))
+    Nc_array = 2**np.array(range(6,7))
 
-    results_file = 'logs/SISO_AcheivableRateExperiments/results00.csv'
+    results_file = 'logs/SISO_AchievableRateExperiments/results00.csv'
 
     # dataset_dir = "MATLAB/datasets/HDRISData/03/" N = 100, K = 1, M = 1
     # | total bits | Optimum |     AQE |  Random | Epochs |   config/lr |   config/momentum |   config/batch_size |
@@ -514,7 +552,7 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Load RIS data from .csv files
     ####################################################################################################################
-    dataset_dir = "MATLAB/datasets/HDRISData/07/"
+    dataset_dir = "MATLAB/datasets/HDRISData/03/"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
     Hur = load_complex(dataset_dir, "Hur_r", "Hur_i")
