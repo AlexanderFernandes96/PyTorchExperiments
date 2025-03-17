@@ -37,32 +37,39 @@ class EncoderLayer(nn.Module):
         super(EncoderLayer, self).__init__()
 
         # N = 100
+        self.reshape_dim = (5,10,10)
         self.cnn_layer = nn.Sequential(
             nn.Conv2d(5, 32, 3, padding=1, padding_mode='circular'),
             nn.BatchNorm2d(32),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(64),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(128),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(128, 128, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(128),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(128, 128, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(128),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
-
         self.linear_encoder = nn.Sequential(
             nn.Dropout(0.5),
-            nn.Linear(128, Nc_RIS),
+            nn.Linear(128, 128),
+            nn.LeakyReLU(),
+            nn.Linear(128, N_RIS),
+            nn.LeakyReLU(),
+            nn.Linear(N_RIS, N_RIS),
+            nn.LeakyReLU(),
+            nn.Linear(N_RIS, Nc_RIS),
             nn.LeakyReLU(),
         )
 
         # # N = 64
+        # self.reshape_dim = (5,8,8)
         # self.cnn_layer = nn.Sequential(
         #     nn.Conv2d(5, 28, 3, stride=1, padding=0, padding_mode='circular'),
         #     nn.BatchNorm2d(28),
@@ -93,6 +100,7 @@ class EncoderLayer(nn.Module):
 
 
         # # N = 25
+        # self.reshape_dim = (5,5,5)
         # self.cnn_layer = nn.Sequential(
         #     nn.Conv2d(5, 64, 3, padding=1, padding_mode='circular'),
         #     nn.BatchNorm2d(64),
@@ -117,7 +125,7 @@ class EncoderLayer(nn.Module):
         # )
 
     def forward(self, x):
-        x_cnn = self.cnn_layer(x)
+        x_cnn = self.cnn_layer(x.view(x.size(0), *self.reshape_dim))
         # x_res = self.residual_layer1(x_cnn)
         # x_cnn = x
         x_flat = torch.flatten(x_cnn, start_dim=1)
@@ -194,9 +202,9 @@ class QuantizerLayer(nn.Module):
         print(a,b,c)
         if len(b) > 1:
             bdiff = np.max(np.diff(b))
-            x_vals = np.linspace(np.min(b) - bdiff, np.max(b) + bdiff, 1000)
+            x_vals = np.linspace(np.min(b) - bdiff, np.max(b) + bdiff, 10000)
         else:
-            x_vals = np.linspace(np.min(b) - np.pi, np.max(b) + np.pi, 1000)
+            x_vals = np.linspace(np.min(b) - np.pi, np.max(b) + np.pi, 10000)
         soft_quant = []
         hard_quant = []
         for x_val in x_vals:
@@ -215,8 +223,8 @@ class DecoderLayer(nn.Module):
             nn.Linear(N_RIS, 128),
             nn.LeakyReLU(),
             nn.Linear(128, 128),
-            # nn.LeakyReLU(),
-            nn.Tanh(),
+            nn.LeakyReLU(),
+            # nn.Tanh(),
         )
         self.cnn_layer = nn.Sequential(
             nn.Upsample(scale_factor=4),
@@ -253,7 +261,8 @@ class DecoderLayer(nn.Module):
 
         self.out_layer = nn.Sequential(
             nn.Linear(64, N_RIS),
-            nn.Tanh(),
+            nn.LeakyReLU(),
+            # nn.Tanh(),
         )
 
     def forward(self, theta_qnt):
@@ -261,8 +270,8 @@ class DecoderLayer(nn.Module):
         theta_cnn = self.cnn_layer(theta_dec.view(theta_dec.size(0), *self.reshape_dim))
         theta_cnn = torch.flatten(theta_cnn, start_dim=1)
         theta_out = self.out_layer(theta_cnn)
-        # return theta_out
-        return torch.angle(torch.exp(1j * theta_out))
+        return theta_out
+        # return torch.angle(torch.exp(1j * theta_out))
 
 # Inspired by: N. Shlezinger and Y. C. Eldar, “Deep task-based quantization,” Entropy, vol. 23, no. 1, pp. 1–18, Jan.
 # 2021, doi: 10.3390/e23010104.
@@ -286,9 +295,13 @@ class LinearQuantizer(nn.Module):
         self.encoder_layer = nn.Linear(N_RIS, Nc_RIS).to(device)
         self.quantizer_layer = QuantizerLayer(C_code_words).to(device)
         self.decoder_layer = nn.Linear(Nc_RIS, N_RIS).to(device)
+        # self.encoder_layer = nn.Identity(N_RIS, Nc_RIS).to(device)
+        # self.quantizer_layer = QuantizerLayer(C_code_words).to(device)
+        # self.decoder_layer = nn.Identity(Nc_RIS, N_RIS).to(device)
 
     def forward(self, theta):
-        theta = torch.flatten(theta[:,1,:,:], start_dim=1) # get only the theta values
+        # theta = torch.flatten(theta[:,0,:,:], start_dim=1) # get only the theta values
+        theta = theta[:,0,:] # get only the theta values
         theta_enc = self.encoder_layer(theta.float())
         theta_qnt = self.quantizer_layer(theta_enc)
         theta_dec = self.decoder_layer(theta_qnt)
@@ -328,10 +341,16 @@ def Loss4(x, y, hra, hur):
 
 def Loss5(x, y, hra, hur, hua):
     hra_hur = torch.mul(hra, hur)
-    x_rec = torch.square(torch.abs(hua + torch.matmul(hra_hur, torch.exp(1j*x.transpose(0,1)))))
+    # x_rec = torch.square(torch.abs(hua + torch.matmul(hra_hur, torch.exp(1j*x.transpose(0,1)))))
     # y_rec = torch.square(torch.abs(hua + torch.matmul(hra_hur, torch.exp(1j*y.transpose(0,1)))))
-    return -torch.mean(torch.log2(1 + x_rec))
-
+    # return -torch.mean(torch.log2(1 + x_rec))
+    x = torch.exp(1j*x)
+    # R = torch.zeros(x.size(0)).to(device)
+    # for b in range(x.size(0)):
+    #     R[b] = torch.dot(hra_hur[b], x[b])
+    R = torch.matmul(hra_hur, x.transpose(0,1))
+    R = torch.log2( 1 + torch.square(torch.abs(hua + R )) )
+    return -torch.mean(R)
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams, model):
@@ -345,8 +364,8 @@ class Trainer(object):
         # overall_bits = self.Nc_RIS * int(round(np.log2(self.C_code_words)))
         # print('overall bits per transmission:', overall_bits)
         self.model = model.to(device)
-        # self.optimizer = optim.Adam(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
-        self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
+        self.optimizer = optim.Adam(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
+        # self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
         # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.01, steps_per_epoch=len(train_loader),
         #                                                      pct_start=0.1, epochs=trainparams['epochs']*trainparams['grace_period'])
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', patience=int(trainparams['epoch_val']/2))
@@ -416,13 +435,13 @@ class Trainer(object):
                 print('\n', before_lr, '->', after_lr)
 
                 if trainparams['epoch_echo']:
-                    print('\nEpoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(
+                    print('\nEpoch: {} \tTraining Loss: {:.10f} \tValidation Loss: {:.10f}'.format(
                         epoch, train_loss, val_loss))
 
                 # save model if validation loss has decreased
                 if val_loss <= val_loss_min:
                     if trainparams['epoch_echo']:
-                        print('Validation loss same/decreased ({:.6f} --> {:.6f})... saving model.'.format(
+                        print('Validation loss same/decreased ({:.10f} --> {:.10f})... saving model.'.format(
                             val_loss_min, val_loss))
                     val_loss_min = val_loss
                     model_validated = deepcopy(self.model) # if val loss does not decrease, return the copy of AQEnet before training
@@ -432,12 +451,12 @@ class Trainer(object):
                 if epoch % trainparams['epoch_val'] == trainparams['epoch_val']-1:
                     if running_loss < val_loss_min_earlystop:
                         if trainparams['epoch_echo']:
-                            print('Validation early stop running loss decreased ({:.6f} --> {:.6f}).'.format(
+                            print('Validation early stop running loss decreased ({:.10f} --> {:.10f}).'.format(
                                 val_loss_min_earlystop, running_loss))
                         val_loss_min_earlystop = running_loss
                     else:
                         if trainparams['epoch_echo']:
-                            print('No Validation early stop loss decrease ({:.6f} --> {:.6f}). Early Stopping'.format(
+                            print('No Validation early stop loss decrease ({:.10f} --> {:.10f}). Early Stopping'.format(
                             val_loss_min_earlystop, running_loss))
                         break
                     running_loss = 0.0
@@ -471,7 +490,7 @@ class Trainer(object):
                 hra = hra.to(device)
                 hur = hur.to(device)
                 len_hua = len(hua)
-                theta_AQE = self.model(inputs)  # forward pass inputs into AQE network
+                theta_model = self.model(inputs)  # forward pass inputs into AQE network
                 theta_rand = torch.rand(size=(len_hua,N_RIS), dtype=torch.double) * 2*torch.pi - torch.pi
                 theta_rand = theta_rand.to(device)
                 x = torch.pow(10*torch.ones(1), trainparams['snr_dB']/10)
@@ -484,12 +503,12 @@ class Trainer(object):
                         # # Power
                         # awgn = torch.view_as_complex(torch.randn(1,2)).to(device)
                         # y_opt[test_i]  = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_opt[b])))  * x + awgn
-                        # y[test_i]      = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_AQE[b])))  * x + awgn
+                        # y[test_i]      = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_model[b])))  * x + awgn
                         # y_rand[test_i] = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_rand[b]))) * x + awgn
 
                         # Achievable Rate
                         R_opt[test_i]  = torch.log2( 1 + torch.square(torch.abs(hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_opt[b])))) * x )
-                        R[test_i]      = torch.log2( 1 + torch.square(torch.abs(hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_AQE[b])))) * x )
+                        R[test_i]      = torch.log2( 1 + torch.square(torch.abs(hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_model[b])))) * x )
                         R_rand[test_i] = torch.log2( 1 + torch.square(torch.abs(hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_rand[b])))) * x )
                         test_i += 1
 
@@ -518,17 +537,17 @@ if __name__ == "__main__":
                   'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 512, # batch training size
-                  'epochs': 1000, # total training duration
+                  'epochs': 10, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 500, # validate early stop every epoch number
+                  'epoch_val': 10, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
                   'trials': 500, # number of Ray tune trials
                   'training_iterations': 50, # number of Ray tune training iterations
                   'grace_period': 20, # min number of training iterations
                   'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'step_size': 10, # step size for scheduler optimizer
-                  'Nc_RIS': 16, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 1, # number of bits of a quantizer
+                  'Nc_RIS': 32, # number of quantizers, values that N is compressed/encoded into
+                  'Q_bits': 10, # number of bits of a quantizer
                   }
 
     search_space = { # Ray Tune Hyper parameter search space
@@ -540,7 +559,7 @@ if __name__ == "__main__":
         # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     }
 
-    Nc_array = 2**np.array(range(6,7))
+    Nc_array = 2**np.array(range(7,8))
 
     results_file = 'logs/SISO_AchievableRateExperiments/results00.csv'
 
@@ -552,7 +571,7 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Load RIS data from .csv files
     ####################################################################################################################
-    dataset_dir = "MATLAB/datasets/HDRISData/08/"
+    dataset_dir = "MATLAB/datasets/HDRISData/03/"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
     Hur = load_complex(dataset_dir, "Hur_r", "Hur_i")
@@ -580,14 +599,15 @@ if __name__ == "__main__":
     val_set = []
     for i in range(0, trainparams['mc_runs']):
         theta = RISopt[i]
-        thetaIn = np.reshape(theta, (sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        # thetaIn = np.reshape(theta, (sysmodelparams["Nw"], sysmodelparams["Nh"]))
         # ft = np.fft.ifftshift(thetaIn)
         # ft = np.fft.fft2(ft)
         # thetaInfft = np.fft.fftshift(ft)
-        HraIn = np.reshape(Hra[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
-        HurIn = np.reshape(Hur[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        # HraIn = np.reshape(Hra[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        # HurIn = np.reshape(Hur[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
         # input = np.array([thetaIn, np.abs(thetaInfft), np.angle(thetaInfft), np.abs(HraIn), np.angle(HraIn), np.abs(HurIn), np.angle(HurIn)])
-        input = np.array([thetaIn, np.real(HraIn), np.imag(HraIn), np.real(HurIn), np.imag(HurIn)])
+        # input = np.array([thetaIn, np.real(HraIn), np.imag(HraIn), np.real(HurIn), np.imag(HurIn)])
+        input = np.array([theta, np.real(Hra[i]), np.imag(Hra[i]), np.real(Hur[i]), np.imag(Hur[i])])
         if i < num_train:
             train_set.append([input, theta, Hua[i], Hra[i], Hur[i]])
         elif i >= num_train_val:
@@ -632,17 +652,10 @@ if __name__ == "__main__":
         total_params = sum(p.numel() for p in AQEnet.parameters())
         print('Number of parameters:', total_params)
 
-        # x_vals, soft_quant, hard_quant = AQEnet.quantizer_layer.plot_vals()
-        # fig, ax = plt.subplots()
-        # ax.plot(x_vals, soft_quant, label='Soft Quantizer')
-        # ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
-        # ax.set_title("Quantizer Values: bits = " + str(bits))
-        # ax.legend()
-        # plt.show(block=True)
-        # # plt.interactive(False)
 
         R_opt, R_AQE, R_rand = AQEtrainer.evaluate(test_loader, sysmodelparams, trainparams)
         R_opt, R_linQ, R_rand = linQtrainer.evaluate(test_loader, sysmodelparams, trainparams)
+
 
         print("Training Model parameters:")
         pprint.pprint(trainparams)
@@ -655,6 +668,15 @@ if __name__ == "__main__":
         R_AQE_array[i] = R_AQE
         R_linQ_array[i] = R_linQ
         R_rand_array[i] = R_rand
+
+        x_vals, soft_quant, hard_quant = linQ.quantizer_layer.plot_vals()
+        fig, ax = plt.subplots()
+        ax.plot(x_vals, soft_quant, label='Soft Quantizer')
+        ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
+        ax.set_title("Quantizer Values: bits = " + str(bits))
+        ax.legend()
+        plt.show(block=True)
+        # plt.interactive(False)
 
     d = {'Nc': Nc_array, 'R_opt': R_opt_array, 'R_AQE': R_AQE_array, 'R_linQ': R_linQ_array, 'R_rand': R_rand_array}
     results_df = pandas.DataFrame(d)
