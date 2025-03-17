@@ -546,8 +546,8 @@ if __name__ == "__main__":
                   'grace_period': 20, # min number of training iterations
                   'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'step_size': 10, # step size for scheduler optimizer
-                  'Nc_RIS': 32, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 10, # number of bits of a quantizer
+                  'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
+                  'Q_bits': 6, # number of bits of a quantizer
                   }
 
     search_space = { # Ray Tune Hyper parameter search space
@@ -559,7 +559,9 @@ if __name__ == "__main__":
         # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     }
 
-    Nc_array = 2**np.array(range(7,8))
+    # Nc_array = 2**np.array(range(7,8))
+
+    Nc_array = [100]
 
     results_file = 'logs/SISO_AchievableRateExperiments/results00.csv'
 
