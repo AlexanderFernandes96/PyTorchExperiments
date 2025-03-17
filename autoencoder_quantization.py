@@ -548,7 +548,7 @@ if __name__ == "__main__":
                   'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'step_size': 10, # step size for scheduler optimizer
                   'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 3, # number of bits of a quantizer
+                  'Q_bits': 1, # number of bits of a quantizer
                   }
 
     search_space = { # Ray Tune Hyper parameter search space
@@ -560,9 +560,9 @@ if __name__ == "__main__":
         # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     }
 
-    # Nc_array = 2**np.array(range(7,8))
+    Nc_array = 2**np.array(range(1,8))
 
-    Nc_array = [32]
+    # Nc_array = [32]
 
     results_file = 'logs/SISO_AchievableRateExperiments/results00.csv'
 
@@ -574,7 +574,7 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Load RIS data from .csv files
     ####################################################################################################################
-    dataset_dir = "MATLAB/datasets/HDRISData/03/"
+    dataset_dir = "MATLAB/datasets/HDRISData/08/"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
     Hur = load_complex(dataset_dir, "Hur_r", "Hur_i")
