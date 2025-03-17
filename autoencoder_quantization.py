@@ -169,7 +169,7 @@ class QuantizerLayer(nn.Module):
                 np.delete(spacing,[0,-1])
                 # np.random.rand(C_code_words - 1, 1) * 2 * np.pi - 3 * np.pi),
             ), requires_grad=True)
-        c_slope = 0.7
+        c_slope = 0.5
         if len(self.b) > 1:
             self.c = torch.nn.Parameter(
                 # data=torch.from_numpy((15 / np.mean(np.diff(self.b.data.numpy()))) * np.ones(C_code_words - 1)),
@@ -350,7 +350,8 @@ def Loss5(x, y, hra, hur, hua):
     #     R[b] = torch.dot(hra_hur[b], x[b])
     R = torch.matmul(hra_hur, x.transpose(0,1))
     R = torch.log2( 1 + torch.square(torch.abs(hua + R )) )
-    return -torch.mean(R)
+    dist = torch.abs(torch.angle(torch.exp(1j * x)) - torch.angle(torch.exp(1j * y)))
+    return torch.mean(torch.square(dist)) - torch.mean(R)
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams, model):
@@ -537,9 +538,9 @@ if __name__ == "__main__":
                   'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 512, # batch training size
-                  'epochs': 10, # total training duration
+                  'epochs': 500, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 10, # validate early stop every epoch number
+                  'epoch_val': 100, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
                   'trials': 500, # number of Ray tune trials
                   'training_iterations': 50, # number of Ray tune training iterations
@@ -547,7 +548,7 @@ if __name__ == "__main__":
                   'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'step_size': 10, # step size for scheduler optimizer
                   'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 6, # number of bits of a quantizer
+                  'Q_bits': 3, # number of bits of a quantizer
                   }
 
     search_space = { # Ray Tune Hyper parameter search space
@@ -561,7 +562,7 @@ if __name__ == "__main__":
 
     # Nc_array = 2**np.array(range(7,8))
 
-    Nc_array = [100]
+    Nc_array = [32]
 
     results_file = 'logs/SISO_AchievableRateExperiments/results00.csv'
 
