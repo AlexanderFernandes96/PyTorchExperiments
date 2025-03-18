@@ -538,7 +538,7 @@ if __name__ == "__main__":
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 64, # batch training size
+                  'batch_size': 256, # batch training size
                   'epochs': 500, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 100, # validate early stop every epoch number
@@ -675,14 +675,14 @@ if __name__ == "__main__":
         R_linQ_array[i] = R_linQ
         R_rand_array[i] = R_rand
 
-        x_vals, soft_quant, hard_quant = linQ.quantizer_layer.plot_vals()
-        fig, ax = plt.subplots()
-        ax.plot(x_vals, soft_quant, label='Soft Quantizer')
-        ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
-        ax.set_title("Quantizer Values: bits = " + str(bits))
-        ax.legend()
-        plt.show(block=True)
-        # plt.interactive(False)
+        # x_vals, soft_quant, hard_quant = linQ.quantizer_layer.plot_vals()
+        # fig, ax = plt.subplots()
+        # ax.plot(x_vals, soft_quant, label='Soft Quantizer')
+        # ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
+        # ax.set_title("Quantizer Values: bits = " + str(bits))
+        # ax.legend()
+        # plt.show(block=True)
+        # # plt.interactive(False)
 
     d = {'Nc': Nc_array, 'R_opt': R_opt_array, 'R_AQE': R_AQE_array, 'R_linQ': R_linQ_array, 'R_rand': R_rand_array}
     results_df = pandas.DataFrame(d)
