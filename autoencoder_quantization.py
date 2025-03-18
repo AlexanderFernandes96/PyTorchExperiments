@@ -10,9 +10,9 @@ import pandas as pd
 from tabulate import tabulate
 import matplotlib.pyplot as plt
 import torch
-from ray import tune
-from ray.tune.search.optuna import OptunaSearch
-from ray.tune.schedulers import ASHAScheduler
+# from ray import tune
+# from ray.tune.search.optuna import OptunaSearch
+# from ray.tune.schedulers import ASHAScheduler
 import pprint
 
 DISABLE_TQDM = False
@@ -540,23 +540,23 @@ if __name__ == "__main__":
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 100, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
-                  'trials': 500, # number of Ray tune trials
-                  'training_iterations': 50, # number of Ray tune training iterations
-                  'grace_period': 20, # min number of training iterations
-                  'trials_per_device': 5, # number of trials per cpu/gpu resource
+                  # 'trials': 500, # number of Ray tune trials
+                  # 'training_iterations': 50, # number of Ray tune training iterations
+                  # 'grace_period': 20, # min number of training iterations
+                  # 'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'step_size': 10, # step size for scheduler optimizer
                   'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
                   'Q_bits': 1, # number of bits of a quantizer
                   }
 
-    search_space = { # Ray Tune Hyper parameter search space
-        "lr": tune.loguniform(1e-5, 1e-1),
-        "momentum": tune.uniform(0.1, 0.99),
-        "batch_size": tune.choice([16, 32, 64, 128, 256, 512]),
-        # "Nc_RIS": tune.randint(5, 100),
-        # "step_size": tune.randint(5, 50),
-        # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
-    }
+    # search_space = { # Ray Tune Hyper parameter search space
+    #     "lr": tune.loguniform(1e-5, 1e-1),
+    #     "momentum": tune.uniform(0.1, 0.99),
+    #     "batch_size": tune.choice([16, 32, 64, 128, 256, 512]),
+    #     # "Nc_RIS": tune.randint(5, 100),
+    #     # "step_size": tune.randint(5, 50),
+    #     # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
+    # }
 
     Nc_array = 2**np.array(range(1,8))
 
