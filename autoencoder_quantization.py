@@ -576,7 +576,7 @@ if __name__ == "__main__":
     # Load RIS data from .csv files
     ####################################################################################################################
     # path_dir = "/home/alex96/scratch/"
-    path_dir = ""
+    path_dir = "MATLAB/"
     dataset_dir = path_dir + "datasets/HDRISData/08/"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
