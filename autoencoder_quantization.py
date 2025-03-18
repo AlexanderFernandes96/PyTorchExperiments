@@ -365,7 +365,8 @@ class Trainer(object):
         # overall_bits = self.Nc_RIS * int(round(np.log2(self.C_code_words)))
         # print('overall bits per transmission:', overall_bits)
         self.model = model.to(device)
-        self.optimizer = optim.Adam(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
+        # self.optimizer = optim.Adam(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
+        self.optimizer = optim.AdamW(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
         # self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
         # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.01, steps_per_epoch=len(train_loader),
         #                                                      pct_start=0.1, epochs=trainparams['epochs']*trainparams['grace_period'])
@@ -537,7 +538,7 @@ if __name__ == "__main__":
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 512, # batch training size
+                  'batch_size': 64, # batch training size
                   'epochs': 500, # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 100, # validate early stop every epoch number
