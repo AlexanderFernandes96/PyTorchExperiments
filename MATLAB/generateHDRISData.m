@@ -2,7 +2,7 @@
 % RIS-assisted communication system
 clear all; close all; delete(gcp('nocreate')); clc; 
 TSTART = tic;
-addpath("src\")
+addpath("src")
 %% Setup system model / script parameters
 systemModelParameters
 
