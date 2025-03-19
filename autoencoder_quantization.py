@@ -14,6 +14,7 @@ import torch
 # from ray.tune.search.optuna import OptunaSearch
 # from ray.tune.schedulers import ASHAScheduler
 import pprint
+import sys
 
 DISABLE_TQDM = False
 # DISABLE_TQDM = True
@@ -26,7 +27,7 @@ device = (
     if torch.backends.mps.is_available()
     else "cpu"
 )
-print(f"Using {device} device")
+print(f"Using {device} device", flush=True)
 
 def load_complex(dataset_dir, variable_name_real, variable_name_imag):
     return (np.loadtxt(dataset_dir + variable_name_real + ".csv", delimiter=',') +
@@ -196,7 +197,7 @@ class QuantizerLayer(nn.Module):
         a = np.array(self.a.cpu().detach().numpy())
         b = np.array(self.b.cpu().detach().numpy())
         c = np.array(self.c.cpu().detach().numpy())
-        print(a,b,c)
+        print(a,b,c, flush=True)
         if len(b) > 1:
             bdiff = np.max(np.diff(b))
             x_vals = np.linspace(np.min(b) - bdiff, np.max(b) + bdiff, 10000)
@@ -356,11 +357,11 @@ class Trainer(object):
         self.N_RIS = trainparams['N_RIS']
         self.Nc_RIS = int(self.N_RIS * trainparams['Nc_RIS_compressed_ratio'])
         self.C_code_words = trainparams['C_code_words']
-        # print('N RIS elements:', self.N_RIS)
-        # print('Nc RIS compressed:', self.Nc_RIS)
-        # print('C quantization code words:', self.C_code_words)
+        # print('N RIS elements:', self.N_RIS, flush=True)
+        # print('Nc RIS compressed:', self.Nc_RIS, flush=True)
+        # print('C quantization code words:', self.C_code_words, flush=True)
         # overall_bits = self.Nc_RIS * int(round(np.log2(self.C_code_words)))
-        # print('overall bits per transmission:', overall_bits)
+        # print('overall bits per transmission:', overall_bits, flush=True)
         self.model = model.to(device)
         # self.optimizer = optim.Adam(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
         self.optimizer = optim.AdamW(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
@@ -431,17 +432,17 @@ class Trainer(object):
                 before_lr = self.optimizer.param_groups[0]['lr']
                 self.scheduler.step(val_loss)                                   # adjust learning rate each step
                 after_lr = self.optimizer.param_groups[0]['lr']
-                print('\n', before_lr, '->', after_lr)
+                print('\n', before_lr, '->', after_lr, flush=True)
 
                 if trainparams['epoch_echo']:
                     print('\nEpoch: {} \tTraining Loss: {:.10f} \tValidation Loss: {:.10f}'.format(
-                        epoch, train_loss, val_loss))
+                        epoch, train_loss, val_loss), flush=True)
 
                 # save model if validation loss has decreased
                 if val_loss <= val_loss_min:
                     if trainparams['epoch_echo']:
                         print('Validation loss same/decreased ({:.10f} --> {:.10f})... saving model.'.format(
-                            val_loss_min, val_loss))
+                            val_loss_min, val_loss), flush=True)
                     val_loss_min = val_loss
                     model_validated = deepcopy(self.model) # if val loss does not decrease, return the copy of AQEnet before training
                 # else:
@@ -451,12 +452,12 @@ class Trainer(object):
                     if running_loss < val_loss_min_earlystop:
                         if trainparams['epoch_echo']:
                             print('Validation early stop running loss decreased ({:.10f} --> {:.10f}).'.format(
-                                val_loss_min_earlystop, running_loss))
+                                val_loss_min_earlystop, running_loss), flush=True)
                         val_loss_min_earlystop = running_loss
                     else:
                         if trainparams['epoch_echo']:
                             print('No Validation early stop loss decrease ({:.10f} --> {:.10f}). Early Stopping'.format(
-                            val_loss_min_earlystop, running_loss))
+                            val_loss_min_earlystop, running_loss), flush=True)
                         break
                     running_loss = 0.0
 
@@ -585,9 +586,9 @@ if __name__ == "__main__":
     trainparams['Nw_RIS'] = sysmodelparams['Nw']
     trainparams['Nh_RIS'] = sysmodelparams['Nh']
 
-    print('System Model parameters:', sysmodelparams, sep='\n')
+    print('System Model parameters:', sysmodelparams, sep='\n', flush=True)
 
-    print("Training Model parameters:")
+    print("Training Model parameters:", flush=True)
     pprint.pprint(trainparams)
 
     ################################################################################################################
@@ -643,30 +644,30 @@ if __name__ == "__main__":
         linQ = LinearQuantizer(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['C_code_words'])
         AQEtrainer = Trainer(train_loader, trainparams, AQEnet)
         linQtrainer = Trainer(train_loader, trainparams, linQ)
-        print(AQEtrainer.model)
+        print(AQEtrainer.model, flush=True)
         total_params = sum(p.numel() for p in AQEtrainer.model.parameters())
-        print('Number of parameters:', total_params)
-        print(linQtrainer.model)
+        print('Number of parameters:', total_params, flush=True)
+        print(linQtrainer.model, flush=True)
         total_params = sum(p.numel() for p in linQtrainer.model.parameters())
-        print('Number of parameters:', total_params)
+        print('Number of parameters:', total_params, flush=True)
         AQEnet, AQEnet_train_losses, AQEnet_val_losses, num_epochs = AQEtrainer.train(val_loader, trainparams)
         linQ, AQEnet_train_losses, AQEnet_val_losses, num_epochs = linQtrainer.train(val_loader, trainparams)
-        print(AQEnet)
+        print(AQEnet, flush=True)
         total_params = sum(p.numel() for p in AQEnet.parameters())
-        print('Number of parameters:', total_params)
+        print('Number of parameters:', total_params, flush=True)
 
 
         R_opt, R_AQE, R_rand = AQEtrainer.evaluate(test_loader, sysmodelparams, trainparams)
         R_opt, R_linQ, R_rand = linQtrainer.evaluate(test_loader, sysmodelparams, trainparams)
 
 
-        print("Training Model parameters:")
+        print("Training Model parameters:", flush=True)
         pprint.pprint(trainparams)
-        print('Achievable Rate (bps/Hz) using RIS phase shifts with Transmit power SNR {:.0f} dB:'.format(trainparams['snr_dB']))
-        print('optimum: ', R_opt)
-        print('AQE net: ', R_AQE)
-        print('lin Q:   ', R_linQ)
-        print('random:  ', R_rand)
+        print('Achievable Rate (bps/Hz) using RIS phase shifts with Transmit power SNR {:.0f} dB:'.format(trainparams['snr_dB']), flush=True)
+        print('optimum: ', R_opt, flush=True)
+        print('AQE net: ', R_AQE, flush=True)
+        print('lin Q:   ', R_linQ, flush=True)
+        print('random:  ', R_rand, flush=True)
         R_opt_array[i] = R_opt
         R_AQE_array[i] = R_AQE
         R_linQ_array[i] = R_linQ
@@ -683,9 +684,9 @@ if __name__ == "__main__":
 
     d = {'Nc': Nc_array, 'R_opt': R_opt_array, 'R_AQE': R_AQE_array, 'R_linQ': R_linQ_array, 'R_rand': R_rand_array}
     results_df = pandas.DataFrame(d)
-    print('Total bits:', trainparams['overall_bits'])
-    print(results_df)
-    print('Saving to:', results_file)
+    print('Total bits:', trainparams['overall_bits'], flush=True)
+    print(results_df, flush=True)
+    print('Saving to:', results_file, flush=True)
 
     results_df.to_csv(results_file, sep='\t', encoding='utf-8', index=False, header=True)
 
@@ -764,11 +765,11 @@ if __name__ == "__main__":
     # results_df = results.get_dataframe().sort_values('AQE',ascending=False)
     # best_result = results.get_best_result("AQE", "max")
     #
-    # print('System Model parameters:', sysmodelparams, sep='\n')
-    # print("Training Model parameters:")
+    # print('System Model parameters:', sysmodelparams, sep='\n', flush=True)
+    # print("Training Model parameters:", flush=True)
     # pprint.pprint(trainparams)
     #
-    # print("Best trial config: {}".format(best_result.config))
+    # print("Best trial config: {}".format(best_result.config), flush=True)
     # print("Best trial final Rx Power: {}".format(
-    #     best_result.metrics["AQE"]))
-    # print(tabulate(results_df, headers='keys', tablefmt='psql'))
+    #     best_result.metrics["AQE"]), flush=True)
+    # print(tabulate(results_df, headers='keys', tablefmt='psql'), flush=True)
