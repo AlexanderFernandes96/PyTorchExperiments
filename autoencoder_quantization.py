@@ -20,15 +20,15 @@ import sys
 DISABLE_TQDM = False
 # DISABLE_TQDM = True
 
-results_dir = "logs/SISO_AchievableRateExperiments/"
+results_dir = "logs/SISO_AchievableRateExperiments/00/"
 
 # Make print statements go to file instead of stdout:
 orig_stdout = sys.stdout
+orig_stderr = sys.stderr
 f_python_output = open(results_dir + "python_log.out", 'w')
+f_python_error = open(results_dir + "python_log.err", 'w')
 sys.stdout = f_python_output
-
-for i in range(2):
-    print('i = ', i)
+sys.stderr = f_python_error
 
 
 # Get cpu, gpu or mps device for training.
@@ -541,6 +541,9 @@ class Trainer(object):
 
 
 if __name__ == "__main__":
+    print('------------')
+    print('Start Script')
+    print('------------')
     ####################################################################################################################
     # Training trainparams
     ####################################################################################################################
@@ -584,10 +587,13 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Load RIS data from .csv files
     ####################################################################################################################
-    # path_dir = "/home/alex96/scratch/"
-    path_dir = "MATLAB/"
+    print('---------')
+    print('Load Data')
+    print('---------')
+    path_dir = "/home/alex96/scratch/"
+    # path_dir = "MATLAB/"
     dataset_dir = path_dir + "datasets/HDRISData/08/"
-    results_file = "results00.csv"
+    results_file = "results.csv"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
     Hur = load_complex(dataset_dir, "Hur_r", "Hur_i")
@@ -606,6 +612,9 @@ if __name__ == "__main__":
     ################################################################################################################
     # Create the Torch Dataset
     ################################################################################################################
+    print('--------------')
+    print('Create Dataset')
+    print('--------------')
     num_train_val = int(trainparams['train_test_split'] * trainparams['mc_runs'])
     num_test = trainparams['mc_runs'] - num_train_val
     num_train = int(trainparams['train_val_split'] * num_train_val)
@@ -637,6 +646,9 @@ if __name__ == "__main__":
     ################################################################################################################
     # Train & Test model with specific hyperparameters
     ################################################################################################################
+    print('------------')
+    print('Train & Test')
+    print('------------')
 
     # bits_array = np.array([1, 2, 3, 4])
     R_opt_array = np.zeros(len(Nc_array))
@@ -789,5 +801,10 @@ if __name__ == "__main__":
     ################################################################################################################
     # END PYTHON SCRIPT
     ################################################################################################################
+    print('----------')
+    print('End Script')
+    print('----------')
     sys.stdout = orig_stdout
     f_python_output.close()
+    sys.stderr = orig_stderr
+    f_python_error.close()
