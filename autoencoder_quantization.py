@@ -16,8 +16,20 @@ import torch
 import pprint
 import sys
 
+# Disable the loading bars:
 DISABLE_TQDM = False
 # DISABLE_TQDM = True
+
+results_dir = "logs/SISO_AchievableRateExperiments/"
+
+# Make print statements go to file instead of stdout:
+orig_stdout = sys.stdout
+f_python_output = open(results_dir + "python_log.out", 'w')
+sys.stdout = f_python_output
+
+for i in range(2):
+    print('i = ', i)
+
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -537,7 +549,7 @@ if __name__ == "__main__":
                   'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 256, # batch training size
-                  'epochs': 500, # total training duration
+                  'epochs': 10,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 100, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
@@ -563,7 +575,6 @@ if __name__ == "__main__":
 
     # Nc_array = [32]
 
-    results_file = 'logs/SISO_AchievableRateExperiments/results00.csv'
 
     # dataset_dir = "MATLAB/datasets/HDRISData/03/" N = 100, K = 1, M = 1
     # | total bits | Optimum |     AQE |  Random | Epochs |   config/lr |   config/momentum |   config/batch_size |
@@ -576,6 +587,7 @@ if __name__ == "__main__":
     # path_dir = "/home/alex96/scratch/"
     path_dir = "MATLAB/"
     dataset_dir = path_dir + "datasets/HDRISData/08/"
+    results_file = "results00.csv"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
     Hur = load_complex(dataset_dir, "Hur_r", "Hur_i")
@@ -686,9 +698,9 @@ if __name__ == "__main__":
     results_df = pandas.DataFrame(d)
     print('Total bits:', trainparams['overall_bits'], flush=True)
     print(results_df, flush=True)
-    print('Saving to:', results_file, flush=True)
+    print('Saving to:', results_dir + results_file, flush=True)
 
-    results_df.to_csv(results_file, sep='\t', encoding='utf-8', index=False, header=True)
+    results_df.to_csv(results_dir + results_file, sep='\t', encoding='utf-8', index=False, header=True)
 
     # fig, ax = plt.subplots()
     # ax.plot(Nc_array, R_opt_array, label='P_opt')
@@ -773,3 +785,9 @@ if __name__ == "__main__":
     # print("Best trial final Rx Power: {}".format(
     #     best_result.metrics["AQE"]), flush=True)
     # print(tabulate(results_df, headers='keys', tablefmt='psql'), flush=True)
+
+    ################################################################################################################
+    # END PYTHON SCRIPT
+    ################################################################################################################
+    sys.stdout = orig_stdout
+    f_python_output.close()
