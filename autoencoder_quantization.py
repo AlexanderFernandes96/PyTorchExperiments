@@ -20,7 +20,8 @@ import sys
 DISABLE_TQDM = False
 # DISABLE_TQDM = True
 
-results_dir = "logs/SISO_AchievableRateExperiments/00/"
+path_dir = "/home/alex96/scratch/"
+results_dir = path_dir + "logs/SISO_AchievableRateExperiments/00/"
 
 # Make print statements go to file instead of stdout:
 orig_stdout = sys.stdout
@@ -590,7 +591,6 @@ if __name__ == "__main__":
     print('---------')
     print('Load Data')
     print('---------')
-    path_dir = "/home/alex96/scratch/"
     # path_dir = "MATLAB/"
     dataset_dir = path_dir + "datasets/HDRISData/08/"
     results_file = "results.csv"
