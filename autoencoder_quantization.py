@@ -574,7 +574,7 @@ if __name__ == "__main__":
     #     # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     # }
 
-    Nc_array = 2**np.array(range(1,8))
+    Nc_array = 2**np.array(range(7,8))
 
     # Nc_array = [32]
 
