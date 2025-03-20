@@ -15,13 +15,16 @@ import torch
 # from ray.tune.schedulers import ASHAScheduler
 import pprint
 import sys
+from pathlib import Path
 
 # Disable the loading bars:
 DISABLE_TQDM = False
 # DISABLE_TQDM = True
 
 path_dir = "/home/alex96/scratch/"
+Path(path_dir).mkdir(parents=True, exist_ok=True)
 results_dir = path_dir + "logs/SISO_AchievableRateExperiments/00/"
+Path(results_dir).mkdir(parents=True, exist_ok=True)
 
 # Make print statements go to file instead of stdout:
 orig_stdout = sys.stdout
