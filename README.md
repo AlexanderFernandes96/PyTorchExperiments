@@ -47,4 +47,5 @@ Code was obtained from: https://pytorch.org/tutorials/beginner/basics/quickstart
 ### SISO Convolutional Neural Network AutoEncoder with Quantization
 Simple autoencoder to quantize optimal RIS phases into bits for phase shift feedback in a SISO RIS-assisted communication system model.
 * Files included in project:
-  * [autoencoder_quantization.py](autoencoder_quantization.py)
+  * [autoencoder_quantization.py](autoencoder_quantization.py) (run on local machine with 1 gpu max)
+  * [autoencoder_quantization_multigpu.py](autoencoder_quantization_multigpu.py) (run on server with multiple gpus)
