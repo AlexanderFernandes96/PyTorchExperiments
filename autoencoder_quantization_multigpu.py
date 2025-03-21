@@ -197,7 +197,7 @@ class QuantizerLayer(nn.Module):
 
     def forward(self, theta_enc):
         # theta_enc = matrix (number of samples of train/test dataset, Nc_RIS), in the range: [-pi, +pi)
-        theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1])
+        theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1]).to(device)
         for i in range(self.C_code_words - 1):
             if self.hardQ:
                 theta_qnt += self.a[i] * torch.sign(self.c[i] * (theta_enc - self.b[i]))
@@ -289,9 +289,9 @@ class DecoderLayer(nn.Module):
 class AutoQEncoder(nn.Module):
     def __init__(self, N_RIS, Nc_RIS, Nw_RIS, Nh_RIS, C_code_words):
         super(AutoQEncoder, self).__init__()
-        self.encoder_layer = EncoderLayer(N_RIS, Nc_RIS)
-        self.quantizer_layer = QuantizerLayer(C_code_words)
-        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS, Nw_RIS, Nh_RIS)
+        self.encoder_layer = EncoderLayer(N_RIS, Nc_RIS).to(device)
+        self.quantizer_layer = QuantizerLayer(C_code_words).to(device)
+        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS, Nw_RIS, Nh_RIS).to(device)
 
     def forward(self, theta):
         theta_enc = self.encoder_layer(theta.float())
@@ -302,12 +302,12 @@ class AutoQEncoder(nn.Module):
 class LinearQuantizer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS, C_code_words):
         super(LinearQuantizer, self).__init__()
-        self.encoder_layer = nn.Linear(N_RIS, Nc_RIS)
-        self.quantizer_layer = QuantizerLayer(C_code_words)
-        self.decoder_layer = nn.Linear(Nc_RIS, N_RIS)
-        # self.encoder_layer = nn.Identity(N_RIS, Nc_RIS)
-        # self.quantizer_layer = QuantizerLayer(C_code_words)
-        # self.decoder_layer = nn.Identity(Nc_RIS, N_RIS)
+        self.encoder_layer = nn.Linear(N_RIS, Nc_RIS).to(device)
+        self.quantizer_layer = QuantizerLayer(C_code_words).to(device)
+        self.decoder_layer = nn.Linear(Nc_RIS, N_RIS).to(device)
+        # self.encoder_layer = nn.Identity(N_RIS, Nc_RIS).to(device)
+        # self.quantizer_layer = QuantizerLayer(C_code_words).to(device)
+        # self.decoder_layer = nn.Identity(Nc_RIS, N_RIS).to(device)
 
     def forward(self, theta):
         # theta = torch.flatten(theta[:,0,:,:], start_dim=1) # get only the theta values
@@ -329,7 +329,7 @@ class LoadData(Dataset):
         return self.data[idx]
 
 def Loss1(x, y, hra, hur):
-    dist = torch.zeros(x.shape[0])
+    dist = torch.zeros(x.shape[0]).to(device)
     for n in range(x.shape[1]):
         # dist += torch.square(torch.abs(hra[:,n]*hur[:,n])) * torch.square(torch.abs(torch.exp(1j*x[:,n]) - torch.exp(1j*y[:,n])))
         dist += torch.square(torch.abs(hra[:,n] * (torch.exp(1j*x[:,n]) - torch.exp(1j*y[:,n])) * hur[:,n]))
@@ -355,7 +355,7 @@ def Loss5(x, y, hra, hur, hua):
     # y_rec = torch.square(torch.abs(hua + torch.matmul(hra_hur, torch.exp(1j*y.transpose(0,1)))))
     # return -torch.mean(torch.log2(1 + x_rec))
     x = torch.exp(1j*x)
-    # R = torch.zeros(x.size(0))
+    # R = torch.zeros(x.size(0)).to(device)
     # for b in range(x.size(0)):
     #     R[b] = torch.dot(hra_hur[b], x[b])
     R = torch.matmul(hra_hur, x.transpose(0,1))
@@ -374,14 +374,7 @@ class Trainer(object):
         # print('C quantization code words:', self.C_code_words, flush=True)
         # overall_bits = self.Nc_RIS * int(round(np.log2(self.C_code_words)))
         # print('overall bits per transmission:', overall_bits, flush=True)
-        self.model = model
-        if torch.cuda.device_count() > 1:
-            print("Using", torch.cuda.device_count(), "GPUs!")
-            # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
-            self.model = nn.DataParallel(self.model)
-
-        self.model.to(device)
-
+        self.model = model.to(device)
         # self.optimizer = optim.Adam(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
         self.optimizer = optim.AdamW(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
         # self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
@@ -408,12 +401,12 @@ class Trainer(object):
             with torch.enable_grad():
                 self.model.quantizer_layer.hardQ = False
                 for i, data in (enumerate(self.train_loader)):
-                    inputs, labels, hua, hra, hur = data.to(device)
-                    hua = hua
-                    hra = hra
-                    hur = hur
-                    inputs = inputs
-                    labels = labels
+                    inputs, labels, hua, hra, hur = data
+                    hua = hua.to(device)
+                    hra = hra.to(device)
+                    hur = hur.to(device)
+                    inputs = inputs.to(device)
+                    labels = labels.to(device)
                     self.optimizer.zero_grad()                              # clear gradients of all variables to optimize
                     outputs = self.model(inputs)                           # forward pass inputs into AQE network
                     # loss = Loss1(outputs, labels, hra, hur)                 # calculate batch loss
@@ -434,12 +427,12 @@ class Trainer(object):
                 self.model.quantizer_layer.hardQ = True
 
                 for i, data in (enumerate(val_loader)):
-                    inputs, labels, hua, hra, hur = data.to(device)
-                    hua = hua
-                    hra = hra
-                    hur = hur
-                    inputs = inputs
-                    labels = labels
+                    inputs, labels, hua, hra, hur = data
+                    hua = hua.to(device)
+                    hra = hra.to(device)
+                    hur = hur.to(device)
+                    inputs = inputs.to(device)
+                    labels = labels.to(device)
                     outputs = self.model(inputs)                       # forward pass inputs into AQE network
                     # loss = Loss1(outputs, labels, hra, hur)             # calculate batch loss
                     # loss = Loss3(outputs, labels)                       # calculate batch loss
@@ -494,33 +487,33 @@ class Trainer(object):
             self.model.quantizer_layer.hardQ = True
 
             test_size = len(test_loader.dataset.data)
-            # y_opt = torch.view_as_complex(torch.zeros(test_size,2))
-            # y = torch.view_as_complex(torch.zeros(test_size,2))
-            # y_rand = torch.view_as_complex(torch.zeros(test_size,2))
-            R_opt = torch.zeros(test_size)
-            R = torch.zeros(test_size)
-            R_rand = torch.zeros(test_size)
+            # y_opt = torch.view_as_complex(torch.zeros(test_size,2)).to(device)
+            # y = torch.view_as_complex(torch.zeros(test_size,2)).to(device)
+            # y_rand = torch.view_as_complex(torch.zeros(test_size,2)).to(device)
+            R_opt = torch.zeros(test_size).to(device)
+            R = torch.zeros(test_size).to(device)
+            R_rand = torch.zeros(test_size).to(device)
             test_i = 0
             for i, data in (enumerate(test_loader)):
                 inputs, theta_opt, hua, hra, hur = data
-                inputs = inputs
-                theta_opt = theta_opt
-                hua = hua
-                hra = hra
-                hur = hur
+                inputs = inputs.to(device)
+                theta_opt = theta_opt.to(device)
+                hua = hua.to(device)
+                hra = hra.to(device)
+                hur = hur.to(device)
                 len_hua = len(hua)
                 theta_model = self.model(inputs)  # forward pass inputs into AQE network
                 theta_rand = torch.rand(size=(len_hua,N_RIS), dtype=torch.double) * 2*torch.pi - torch.pi
-                theta_rand = theta_rand
+                theta_rand = theta_rand.to(device)
                 x = torch.pow(10*torch.ones(1), trainparams['snr_dB']/10)
-                x = x
+                x = x.to(device)
                 hra_hur = torch.mul(hra, hur)
                 # Transmit data with RIS phases
                 if sysmodelparams['K'] == 1 & sysmodelparams['M'] == 1: # SISO
                     for b in range(len_hua):
 
                         # # Power
-                        # awgn = torch.view_as_complex(torch.randn(1,2))
+                        # awgn = torch.view_as_complex(torch.randn(1,2)).to(device)
                         # y_opt[test_i]  = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_opt[b])))  * x + awgn
                         # y[test_i]      = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_model[b])))  * x + awgn
                         # y_rand[test_i] = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_rand[b]))) * x + awgn
