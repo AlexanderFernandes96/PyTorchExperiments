@@ -30,9 +30,8 @@ Path(results_dir).mkdir(parents=True, exist_ok=True)
 orig_stdout = sys.stdout
 orig_stderr = sys.stderr
 f_python_output = open(results_dir + "python_log.out", 'w')
-f_python_error = open(results_dir + "python_log.err", 'w')
 sys.stdout = f_python_output
-sys.stderr = f_python_error
+sys.stderr = f_python_output
 
 
 # Get cpu, gpu or mps device for training.
@@ -556,7 +555,7 @@ if __name__ == "__main__":
                   'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 256, # batch training size
-                  'epochs': 10,  # total training duration
+                  'epochs': 500,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 100, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
@@ -566,7 +565,7 @@ if __name__ == "__main__":
                   # 'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'step_size': 10, # step size for scheduler optimizer
                   'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 1, # number of bits of a quantizer
+                  'Q_bits': 3, # number of bits of a quantizer
                   }
 
     # search_space = { # Ray Tune Hyper parameter search space
@@ -578,7 +577,7 @@ if __name__ == "__main__":
     #     # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     # }
 
-    Nc_array = 2**np.array(range(7,8))
+    Nc_array = 2**np.array(range(1,8))
 
     # Nc_array = [32]
 
@@ -810,4 +809,3 @@ if __name__ == "__main__":
     sys.stdout = orig_stdout
     f_python_output.close()
     sys.stderr = orig_stderr
-    f_python_error.close()
