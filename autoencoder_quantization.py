@@ -596,8 +596,8 @@ if __name__ == "__main__":
     print('---------')
     print('Load Data')
     print('---------')
-    # dataset_dir = path_dir + "datasets/HDRISData/08/"
-    dataset_dir = path_dir + "datasets/HDRISData/03/"
+    dataset_dir = path_dir + "datasets/HDRISData/08/"
+    # dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_file = "results.csv"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
