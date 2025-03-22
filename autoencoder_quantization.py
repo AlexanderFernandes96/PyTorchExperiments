@@ -21,17 +21,20 @@ from pathlib import Path
 DISABLE_TQDM = False
 # DISABLE_TQDM = True
 
-path_dir = "/home/alex96/scratch/"
+# path_dir = "/home/alex96/scratch/"
+path_dir = "MATLAB/"
+
 Path(path_dir).mkdir(parents=True, exist_ok=True)
 results_dir = path_dir + "logs/SISO_AchievableRateExperiments/00/"
 Path(results_dir).mkdir(parents=True, exist_ok=True)
 
 # Make print statements go to file instead of stdout:
-orig_stdout = sys.stdout
-orig_stderr = sys.stderr
-f_python_output = open(results_dir + "python_log.out", 'w')
-sys.stdout = f_python_output
-sys.stderr = f_python_output
+if path_dir == "/home/alex96/scratch/":
+    orig_stdout = sys.stdout
+    orig_stderr = sys.stderr
+    f_python_output = open(results_dir + "python_log.out", 'w')
+    sys.stdout = f_python_output
+    sys.stderr = f_python_output
 
 
 # Get cpu, gpu or mps device for training.
@@ -55,19 +58,19 @@ class EncoderLayer(nn.Module):
         # N = 100
         self.reshape_dim = (5,10,10)
         self.cnn_layer = nn.Sequential(
-            nn.Conv2d(5, 32, 3, padding=1, padding_mode='circular'),
+            nn.Conv2d(5, 32, 5, padding=1, padding_mode='circular'),
             nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
+            nn.Conv2d(32, 64, 5, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(128, 128, 3, stride=1, padding=0, padding_mode='zeros'),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(4, 4),
+            # nn.Conv2d(128, 128, 3, stride=1, padding=0, padding_mode='zeros'),
+            # nn.BatchNorm2d(128),
+            # nn.ReLU(),
+            nn.MaxPool2d(2, 2),
         )
         self.linear_encoder = nn.Sequential(
             nn.Dropout(0.5),
@@ -240,23 +243,23 @@ class DecoderLayer(nn.Module):
             # nn.Tanh(),
         )
         self.cnn_layer = nn.Sequential(
-            nn.Upsample(scale_factor=4),
+            nn.Upsample(scale_factor=2),
             # nn.ConvTranspose2d(64, 64, 3, padding=1),
             # nn.ReLU(),
             # nn.BatchNorm2d(64),
             # nn.ConvTranspose2d(128, 128, 3, padding=1),
             # nn.ReLU(),
             # nn.BatchNorm2d(128),
-            nn.ConvTranspose2d(128, 128, 3, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(128),
-            nn.ConvTranspose2d(128, 64, 3, padding=1),
+            # nn.ConvTranspose2d(128, 128, 3, padding=1),
+            # nn.ReLU(),
+            # nn.BatchNorm2d(128),
+            nn.ConvTranspose2d(128, 64, 3, padding=0),
             nn.ReLU(),
             nn.BatchNorm2d(64),
-            nn.ConvTranspose2d(64, 32, 3, padding=0),
+            nn.ConvTranspose2d(64, 32, 5, padding=0),
             nn.ReLU(),
             nn.BatchNorm2d(32),
-            nn.ConvTranspose2d(32, 1, 3, padding=0),
+            nn.ConvTranspose2d(32, 1, 5, padding=1),
             nn.ReLU(),
             nn.BatchNorm2d(1),
         )
@@ -273,9 +276,9 @@ class DecoderLayer(nn.Module):
         # )
 
         self.out_layer = nn.Sequential(
-            nn.Linear(64, N_RIS),
-            nn.LeakyReLU(),
-            # nn.Tanh(),
+            nn.Linear(100, N_RIS),
+            # nn.LeakyReLU(),
+            nn.Tanh(),
         )
 
     def forward(self, theta_qnt):
@@ -552,7 +555,7 @@ if __name__ == "__main__":
     ####################################################################################################################
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
-                  'lr': 0.001, # optimizer learning rate
+                  'lr': 0.0001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 256, # batch training size
                   'epochs': 500,  # total training duration
@@ -593,8 +596,8 @@ if __name__ == "__main__":
     print('---------')
     print('Load Data')
     print('---------')
-    # path_dir = "MATLAB/"
-    dataset_dir = path_dir + "datasets/HDRISData/08/"
+    # dataset_dir = path_dir + "datasets/HDRISData/08/"
+    dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_file = "results.csv"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
@@ -806,6 +809,8 @@ if __name__ == "__main__":
     print('----------')
     print('End Script')
     print('----------')
-    sys.stdout = orig_stdout
-    f_python_output.close()
-    sys.stderr = orig_stderr
+
+    if path_dir == "/home/alex96/scratch/":
+        sys.stdout = orig_stdout
+        f_python_output.close()
+        sys.stderr = orig_stderr
