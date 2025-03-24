@@ -589,7 +589,7 @@ if __name__ == "__main__":
                   'lr': 0.0001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 512, # batch training size
-                  'epochs': 100,  # total training duration
+                  'epochs': 500,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 100, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
