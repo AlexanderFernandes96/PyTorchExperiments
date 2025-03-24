@@ -57,7 +57,7 @@ class EncoderLayer(nn.Module):
 
         # N = 100
         self.reshape_dim = (5,10,10)
-        self.cnn_layer = nn.Sequential(
+        self.cnn_layer1 = nn.Sequential(
             nn.Conv2d(5, 32, 5, padding=1, padding_mode='circular'),
             nn.BatchNorm2d(32),
             nn.ReLU(),
@@ -72,8 +72,20 @@ class EncoderLayer(nn.Module):
             # nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
+        self.cnn_layer2 = nn.Sequential(
+            nn.Conv2d(5, 32, 8, padding=2, padding_mode='circular'),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+        )
         self.linear_encoder = nn.Sequential(
-            nn.Dropout(0.5),
+            nn.Dropout(0.7),
             # nn.Linear(128, 128),
             # nn.LeakyReLU(),
             nn.Linear(128, N_RIS),
@@ -141,10 +153,9 @@ class EncoderLayer(nn.Module):
         # )
 
     def forward(self, x):
-        x_cnn = self.cnn_layer(x.view(x.size(0), *self.reshape_dim))
-        # x_res = self.residual_layer1(x_cnn)
-        # x_cnn = x
-        x_flat = torch.flatten(x_cnn, start_dim=1)
+        x_cnn1 = self.cnn_layer1(x.view(x.size(0), *self.reshape_dim))
+        x_cnn2 = self.cnn_layer2(x.view(x.size(0), *self.reshape_dim))
+        x_flat = torch.flatten(x_cnn1 + x_cnn2, start_dim=1)
         x_enc = self.linear_encoder(x_flat)
         return x_enc
 
@@ -557,7 +568,7 @@ if __name__ == "__main__":
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.0001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 256, # batch training size
+                  'batch_size': 512, # batch training size
                   'epochs': 500,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 100, # validate early stop every epoch number
@@ -580,7 +591,7 @@ if __name__ == "__main__":
     #     # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     # }
 
-    Nc_array = 2**np.array(range(1,8))
+    Nc_array = 2**np.array(range(7,8))
 
     # Nc_array = [32]
 
@@ -596,8 +607,8 @@ if __name__ == "__main__":
     print('---------')
     print('Load Data')
     print('---------')
-    dataset_dir = path_dir + "datasets/HDRISData/08/"
-    # dataset_dir = path_dir + "datasets/HDRISData/03/"
+    # dataset_dir = path_dir + "datasets/HDRISData/08/"
+    dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_file = "results.csv"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
