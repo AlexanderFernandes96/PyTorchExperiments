@@ -21,21 +21,6 @@ from pathlib import Path
 DISABLE_TQDM = False
 # DISABLE_TQDM = True
 
-# path_dir = "/home/alex96/scratch/"
-path_dir = "MATLAB/"
-
-Path(path_dir).mkdir(parents=True, exist_ok=True)
-results_dir = path_dir + "logs/SISO_AchievableRateExperiments/00/"
-Path(results_dir).mkdir(parents=True, exist_ok=True)
-
-# Make print statements go to file instead of stdout:
-if path_dir == "/home/alex96/scratch/":
-    orig_stdout = sys.stdout
-    orig_stderr = sys.stderr
-    f_python_output = open(results_dir + "python_log.out", 'w')
-    sys.stdout = f_python_output
-    sys.stderr = f_python_output
-
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -64,6 +49,7 @@ class EncoderLayer(nn.Module):
             nn.Conv2d(32, 64, 5, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(64),
             nn.ReLU(),
+            nn.Dropout(0.1),
             nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(128),
             nn.ReLU(),
@@ -79,19 +65,35 @@ class EncoderLayer(nn.Module):
             nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(64),
             nn.ReLU(),
+            nn.Dropout(0.1),
             nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
+        self.cnn_layer3 = nn.Sequential(
+            nn.Conv2d(5, 32, 3, padding=0, padding_mode='circular'),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(4, 4),
+        )
         self.linear_encoder = nn.Sequential(
-            nn.Dropout(0.7),
+            nn.Dropout(0.2),
             # nn.Linear(128, 128),
             # nn.LeakyReLU(),
             nn.Linear(128, N_RIS),
             nn.LeakyReLU(),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
             nn.LeakyReLU(),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
             nn.LeakyReLU(),
         )
@@ -155,7 +157,8 @@ class EncoderLayer(nn.Module):
     def forward(self, x):
         x_cnn1 = self.cnn_layer1(x.view(x.size(0), *self.reshape_dim))
         x_cnn2 = self.cnn_layer2(x.view(x.size(0), *self.reshape_dim))
-        x_flat = torch.flatten(x_cnn1 + x_cnn2, start_dim=1)
+        x_cnn3 = self.cnn_layer3(x.view(x.size(0), *self.reshape_dim))
+        x_flat = torch.flatten(x_cnn1 + x_cnn2 + x_cnn3, start_dim=1)
         x_enc = self.linear_encoder(x_flat)
         return x_enc
 
@@ -561,6 +564,23 @@ if __name__ == "__main__":
     print('------------')
     print('Start Script')
     print('------------')
+
+    # path_dir = "/home/alex96/scratch/"
+    path_dir = "MATLAB/"
+    results_dir = path_dir + "logs/SISO_AchievableRateExperiments/01/"
+
+    print("make directory:", results_dir)
+    Path(path_dir).mkdir(parents=True, exist_ok=True)
+    Path(results_dir).mkdir(parents=True, exist_ok=True)
+
+    # Make print statements go to file instead of stdout:
+    if path_dir == "/home/alex96/scratch/":
+        orig_stdout = sys.stdout
+        orig_stderr = sys.stderr
+        f_python_output = open(results_dir + "python_log.out", 'w')
+        sys.stdout = f_python_output
+        sys.stderr = f_python_output
+
     ####################################################################################################################
     # Training trainparams
     ####################################################################################################################
@@ -569,7 +589,7 @@ if __name__ == "__main__":
                   'lr': 0.0001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 512, # batch training size
-                  'epochs': 500,  # total training duration
+                  'epochs': 100,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 100, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
@@ -591,7 +611,7 @@ if __name__ == "__main__":
     #     # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     # }
 
-    Nc_array = 2**np.array(range(7,8))
+    Nc_array = 2**np.array(range(0,8))
 
     # Nc_array = [32]
 
@@ -607,8 +627,8 @@ if __name__ == "__main__":
     print('---------')
     print('Load Data')
     print('---------')
-    # dataset_dir = path_dir + "datasets/HDRISData/08/"
-    dataset_dir = path_dir + "datasets/HDRISData/03/"
+    dataset_dir = path_dir + "datasets/HDRISData/08/"
+    # dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_file = "results.csv"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
@@ -692,15 +712,15 @@ if __name__ == "__main__":
         print('Number of parameters:', total_params, flush=True)
         AQEnet, AQEnet_train_losses, AQEnet_val_losses, num_epochs = AQEtrainer.train(val_loader, trainparams)
         linQ, AQEnet_train_losses, AQEnet_val_losses, num_epochs = linQtrainer.train(val_loader, trainparams)
-        print(AQEnet, flush=True)
-        total_params = sum(p.numel() for p in AQEnet.parameters())
-        print('Number of parameters:', total_params, flush=True)
+        # print(AQEnet, flush=True)
+        # total_params = sum(p.numel() for p in AQEnet.parameters())
+        # print('Number of parameters:', total_params, flush=True)
 
 
         R_opt, R_AQE, R_rand = AQEtrainer.evaluate(test_loader, sysmodelparams, trainparams)
         R_opt, R_linQ, R_rand = linQtrainer.evaluate(test_loader, sysmodelparams, trainparams)
 
-
+        print("--------------------------------------------------------------------------------------------------------")
         print("Training Model parameters:", flush=True)
         pprint.pprint(trainparams)
         print('Achievable Rate (bps/Hz) using RIS phase shifts with Transmit power SNR {:.0f} dB:'.format(trainparams['snr_dB']), flush=True)
@@ -708,6 +728,7 @@ if __name__ == "__main__":
         print('AQE net: ', R_AQE, flush=True)
         print('lin Q:   ', R_linQ, flush=True)
         print('random:  ', R_rand, flush=True)
+        print("--------------------------------------------------------------------------------------------------------\n\n")
         R_opt_array[i] = R_opt
         R_AQE_array[i] = R_AQE
         R_linQ_array[i] = R_linQ
