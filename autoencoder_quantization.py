@@ -42,10 +42,15 @@ class EncoderLayer(nn.Module):
 
         # N = 100
         self.reshape_dim = (5,10,10)
+        self.cnn_layer0 = nn.Sequential(
+            nn.Conv2d(5, 1, 1),
+            nn.ReLU(),
+        )
         self.cnn_layer1 = nn.Sequential(
             nn.Conv2d(5, 32, 5, padding=1, padding_mode='circular'),
             nn.BatchNorm2d(32),
             nn.ReLU(),
+            nn.Dropout(0.1),
             nn.Conv2d(32, 64, 5, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(64),
             nn.ReLU(),
@@ -62,6 +67,7 @@ class EncoderLayer(nn.Module):
             nn.Conv2d(5, 32, 8, padding=2, padding_mode='circular'),
             nn.BatchNorm2d(32),
             nn.ReLU(),
+            nn.Dropout(0.1),
             nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(64),
             nn.ReLU(),
@@ -75,6 +81,7 @@ class EncoderLayer(nn.Module):
             nn.Conv2d(5, 32, 3, padding=0, padding_mode='circular'),
             nn.BatchNorm2d(32),
             nn.ReLU(),
+            nn.Dropout(0.1),
             nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
             nn.BatchNorm2d(64),
             nn.ReLU(),
@@ -88,7 +95,7 @@ class EncoderLayer(nn.Module):
             nn.Dropout(0.2),
             # nn.Linear(128, 128),
             # nn.LeakyReLU(),
-            nn.Linear(128, N_RIS),
+            nn.Linear(484, N_RIS),
             nn.LeakyReLU(),
             nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
@@ -155,11 +162,12 @@ class EncoderLayer(nn.Module):
         # )
 
     def forward(self, x):
-        x_cnn1 = self.cnn_layer1(x.view(x.size(0), *self.reshape_dim))
-        x_cnn2 = self.cnn_layer2(x.view(x.size(0), *self.reshape_dim))
-        x_cnn3 = self.cnn_layer3(x.view(x.size(0), *self.reshape_dim))
-        x_flat = torch.flatten(x_cnn1 + x_cnn2 + x_cnn3, start_dim=1)
-        x_enc = self.linear_encoder(x_flat)
+        x_cnn0 = torch.flatten(self.cnn_layer0(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
+        x_cnn1 = torch.flatten(self.cnn_layer1(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
+        x_cnn2 = torch.flatten(self.cnn_layer2(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
+        x_cnn3 = torch.flatten(self.cnn_layer3(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
+        x_cat = torch.cat((x_cnn0, x_cnn1, x_cnn2, x_cnn3), 1)
+        x_enc = self.linear_encoder(x_cat)
         return x_enc
 
     #     self.linear_encoder = nn.Sequential(
@@ -627,7 +635,8 @@ if __name__ == "__main__":
     print('---------')
     print('Load Data')
     print('---------')
-    dataset_dir = path_dir + "datasets/HDRISData/08/"
+    # dataset_dir = path_dir + "datasets/HDRISData/08/"
+    dataset_dir = path_dir + "datasets/HDRISData/04/"
     # dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_file = "results.csv"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
