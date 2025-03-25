@@ -40,62 +40,62 @@ class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
 
-        # N = 100
-        self.reshape_dim = (5,10,10)
-        self.cnn_layer0 = nn.Sequential(
-            nn.Conv2d(5, 1, 1),
-            nn.ReLU(),
-        )
-        self.cnn_layer1 = nn.Sequential(
-            nn.Conv2d(5, 32, 5, padding=1, padding_mode='circular'),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Conv2d(32, 64, 5, stride=1, padding=0, padding_mode='zeros'),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            # nn.Conv2d(128, 128, 3, stride=1, padding=0, padding_mode='zeros'),
-            # nn.BatchNorm2d(128),
-            # nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        self.cnn_layer2 = nn.Sequential(
-            nn.Conv2d(5, 32, 8, padding=2, padding_mode='circular'),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        self.cnn_layer3 = nn.Sequential(
-            nn.Conv2d(5, 32, 3, padding=0, padding_mode='circular'),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Dropout(0.1),
-            nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(4, 4),
-        )
+        # # N = 100
+        # self.reshape_dim = (5,10,10)
+        # self.cnn_layer0 = nn.Sequential(
+        #     nn.Conv2d(5, 1, 1),
+        #     nn.ReLU(),
+        # )
+        # self.cnn_layer1 = nn.Sequential(
+        #     nn.Conv2d(5, 32, 5, padding=1, padding_mode='circular'),
+        #     nn.BatchNorm2d(32),
+        #     nn.ReLU(),
+        #     nn.Dropout(0.1),
+        #     nn.Conv2d(32, 64, 5, stride=1, padding=0, padding_mode='zeros'),
+        #     nn.BatchNorm2d(64),
+        #     nn.ReLU(),
+        #     nn.Dropout(0.1),
+        #     nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
+        #     nn.BatchNorm2d(128),
+        #     nn.ReLU(),
+        #     # nn.Conv2d(128, 128, 3, stride=1, padding=0, padding_mode='zeros'),
+        #     # nn.BatchNorm2d(128),
+        #     # nn.ReLU(),
+        #     nn.MaxPool2d(2, 2),
+        # )
+        # self.cnn_layer2 = nn.Sequential(
+        #     nn.Conv2d(5, 32, 8, padding=2, padding_mode='circular'),
+        #     nn.BatchNorm2d(32),
+        #     nn.ReLU(),
+        #     nn.Dropout(0.1),
+        #     nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
+        #     nn.BatchNorm2d(64),
+        #     nn.ReLU(),
+        #     nn.Dropout(0.1),
+        #     nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
+        #     nn.BatchNorm2d(128),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2, 2),
+        # )
+        # self.cnn_layer3 = nn.Sequential(
+        #     nn.Conv2d(5, 32, 3, padding=0, padding_mode='circular'),
+        #     nn.BatchNorm2d(32),
+        #     nn.ReLU(),
+        #     nn.Dropout(0.1),
+        #     nn.Conv2d(32, 64, 3, stride=1, padding=0, padding_mode='zeros'),
+        #     nn.BatchNorm2d(64),
+        #     nn.ReLU(),
+        #     nn.Dropout(0.1),
+        #     nn.Conv2d(64, 128, 3, stride=1, padding=0, padding_mode='zeros'),
+        #     nn.BatchNorm2d(128),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(4, 4),
+        # )
         self.linear_encoder = nn.Sequential(
-            nn.Dropout(0.2),
+            # nn.Dropout(0.2),
             # nn.Linear(128, 128),
             # nn.LeakyReLU(),
-            nn.Linear(484, N_RIS),
+            nn.Linear(500, N_RIS),
             nn.LeakyReLU(),
             nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
@@ -162,12 +162,13 @@ class EncoderLayer(nn.Module):
         # )
 
     def forward(self, x):
-        x_cnn0 = torch.flatten(self.cnn_layer0(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
-        x_cnn1 = torch.flatten(self.cnn_layer1(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
-        x_cnn2 = torch.flatten(self.cnn_layer2(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
-        x_cnn3 = torch.flatten(self.cnn_layer3(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
-        x_cat = torch.cat((x_cnn0, x_cnn1, x_cnn2, x_cnn3), 1)
-        x_enc = self.linear_encoder(x_cat)
+        x_in = torch.flatten(x, start_dim=1)
+        # x_cnn0 = torch.flatten(self.cnn_layer0(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
+        # x_cnn1 = torch.flatten(self.cnn_layer1(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
+        # x_cnn2 = torch.flatten(self.cnn_layer2(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
+        # x_cnn3 = torch.flatten(self.cnn_layer3(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
+        # x_cat = torch.cat((x_in, x_cnn0, x_cnn1, x_cnn2, x_cnn3), 1)
+        x_enc = self.linear_encoder(x_in)
         return x_enc
 
     #     self.linear_encoder = nn.Sequential(
@@ -256,36 +257,45 @@ class DecoderLayer(nn.Module):
         self.linear_decoder = nn.Sequential(
             nn.Linear(Nc_RIS, N_RIS),
             nn.LeakyReLU(),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
             nn.LeakyReLU(),
-            nn.Linear(N_RIS, 128),
+            nn.Dropout(0.2),
+            nn.Linear(N_RIS, N_RIS),
             nn.LeakyReLU(),
+            nn.Dropout(0.2),
             # nn.Linear(128, 128),
             # nn.LeakyReLU(),
             # nn.Tanh(),
         )
-        self.cnn_layer = nn.Sequential(
-            nn.Upsample(scale_factor=2),
-            # nn.ConvTranspose2d(64, 64, 3, padding=1),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(64),
-            # nn.ConvTranspose2d(128, 128, 3, padding=1),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(128),
-            # nn.ConvTranspose2d(128, 128, 3, padding=1),
-            # nn.ReLU(),
-            # nn.BatchNorm2d(128),
-            nn.ConvTranspose2d(128, 64, 3, padding=0),
-            nn.ReLU(),
-            nn.BatchNorm2d(64),
-            nn.ConvTranspose2d(64, 32, 5, padding=0),
-            nn.ReLU(),
-            nn.BatchNorm2d(32),
-            nn.ConvTranspose2d(32, 1, 5, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(1),
+        self.out_layer = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
+            # nn.LeakyReLU(),
+            nn.Tanh(),
         )
-        self.reshape_dim = (128, 1, 1)
+
+        # self.cnn_layer = nn.Sequential(
+        #     nn.Upsample(scale_factor=2),
+        #     # nn.ConvTranspose2d(64, 64, 3, padding=1),
+        #     # nn.ReLU(),
+        #     # nn.BatchNorm2d(64),
+        #     # nn.ConvTranspose2d(128, 128, 3, padding=1),
+        #     # nn.ReLU(),
+        #     # nn.BatchNorm2d(128),
+        #     # nn.ConvTranspose2d(128, 128, 3, padding=1),
+        #     # nn.ReLU(),
+        #     # nn.BatchNorm2d(128),
+        #     nn.ConvTranspose2d(128, 64, 3, padding=0),
+        #     nn.ReLU(),
+        #     nn.BatchNorm2d(64),
+        #     nn.ConvTranspose2d(64, 32, 5, padding=0),
+        #     nn.ReLU(),
+        #     nn.BatchNorm2d(32),
+        #     nn.ConvTranspose2d(32, 1, 5, padding=1),
+        #     nn.ReLU(),
+        #     nn.BatchNorm2d(1),
+        # )
+        # self.reshape_dim = (128, 1, 1)
 
         # self.cnn_layer = nn.Sequential(
         #     nn.Conv2d(5, 28, 3, stride=1, padding=0, padding_mode='circular'),
@@ -297,17 +307,17 @@ class DecoderLayer(nn.Module):
         #     nn.MaxPool2d(4, 4),
         # )
 
-        self.out_layer = nn.Sequential(
-            nn.Linear(100, N_RIS),
-            # nn.LeakyReLU(),
-            nn.Tanh(),
-        )
+        # self.out_layer = nn.Sequential(
+        #     nn.Linear(100, N_RIS),
+        #     # nn.LeakyReLU(),
+        #     nn.Tanh(),
+        # )
 
     def forward(self, theta_qnt):
         theta_dec = self.linear_decoder(theta_qnt)
-        theta_cnn = self.cnn_layer(theta_dec.view(theta_dec.size(0), *self.reshape_dim))
-        theta_cnn = torch.flatten(theta_cnn, start_dim=1)
-        theta_out = self.out_layer(theta_cnn)
+        # theta_cnn = self.cnn_layer(theta_dec.view(theta_dec.size(0), *self.reshape_dim))
+        # theta_cnn = torch.flatten(theta_cnn, start_dim=1)
+        theta_out = self.out_layer(theta_dec)
         return theta_out
         # return torch.angle(torch.exp(1j * theta_out))
 
@@ -607,7 +617,7 @@ if __name__ == "__main__":
                   # 'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'step_size': 10, # step size for scheduler optimizer
                   'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 3, # number of bits of a quantizer
+                  'Q_bits': 2, # number of bits of a quantizer
                   }
 
     # search_space = { # Ray Tune Hyper parameter search space
@@ -619,7 +629,7 @@ if __name__ == "__main__":
     #     # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     # }
 
-    Nc_array = 2**np.array(range(0,8))
+    Nc_array = 2**np.array(range(7,8))
 
     # Nc_array = [32]
 
@@ -635,8 +645,8 @@ if __name__ == "__main__":
     print('---------')
     print('Load Data')
     print('---------')
-    # dataset_dir = path_dir + "datasets/HDRISData/08/"
-    dataset_dir = path_dir + "datasets/HDRISData/04/"
+    dataset_dir = path_dir + "datasets/HDRISData/08/"
+    # dataset_dir = path_dir + "datasets/HDRISData/04/"
     # dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_file = "results.csv"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
