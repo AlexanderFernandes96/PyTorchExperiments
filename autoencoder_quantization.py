@@ -91,18 +91,38 @@ class EncoderLayer(nn.Module):
         #     nn.ReLU(),
         #     nn.MaxPool2d(4, 4),
         # )
+        self.linear_theta = nn.Sequential(
+            nn.Linear(100, Nc_RIS),
+            nn.LeakyReLU(),
+        )
+        self.linear_hra_mag = nn.Sequential(
+            nn.Linear(100, Nc_RIS),
+            nn.LeakyReLU(),
+        )
+        self.linear_hra_ang = nn.Sequential(
+            nn.Linear(100, Nc_RIS),
+            nn.LeakyReLU(),
+        )
+        self.linear_hur_mag = nn.Sequential(
+            nn.Linear(100, Nc_RIS),
+            nn.LeakyReLU(),
+        )
+        self.linear_hur_ang = nn.Sequential(
+            nn.Linear(100, Nc_RIS),
+            nn.LeakyReLU(),
+        )
         self.linear_encoder = nn.Sequential(
             # nn.Dropout(0.2),
             # nn.Linear(128, 128),
             # nn.LeakyReLU(),
-            nn.Linear(500, N_RIS),
+            nn.Linear(5*Nc_RIS, Nc_RIS),
             nn.LeakyReLU(),
             # nn.Dropout(0.2),
             # nn.Linear(N_RIS, N_RIS),
             # nn.LeakyReLU(),
             # nn.Dropout(0.2),
-            nn.Linear(N_RIS, Nc_RIS),
-            nn.LeakyReLU(),
+            # nn.Linear(Nc_RIS, Nc_RIS),
+            # nn.LeakyReLU(),
         )
 
         # # N = 64
@@ -162,7 +182,17 @@ class EncoderLayer(nn.Module):
         # )
 
     def forward(self, x):
-        x_in = torch.flatten(x, start_dim=1)
+        theta   = torch.flatten(x[:, 0, :], start_dim=1)
+        hra_mag = torch.flatten(x[:, 1, :], start_dim=1)
+        hra_ang = torch.flatten(x[:, 2, :], start_dim=1)
+        hur_mag = torch.flatten(x[:, 3, :], start_dim=1)
+        hur_ang = torch.flatten(x[:, 4, :], start_dim=1)
+        theta = self.linear_theta(theta)
+        hra_mag = self.linear_hra_mag(hra_mag)
+        hra_ang = self.linear_hra_ang(hra_ang)
+        hur_mag = self.linear_hur_mag(hur_mag)
+        hur_ang = self.linear_hur_ang(hur_ang)
+        x_in = torch.cat((theta, hra_mag, hra_ang, hur_mag, hur_ang), 1)
         # x_cnn0 = torch.flatten(self.cnn_layer0(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
         # x_cnn1 = torch.flatten(self.cnn_layer1(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
         # x_cnn2 = torch.flatten(self.cnn_layer2(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
@@ -271,7 +301,7 @@ class DecoderLayer(nn.Module):
         self.out_layer = nn.Sequential(
             nn.Linear(N_RIS, N_RIS),
             # nn.LeakyReLU(),
-            nn.Tanh(),
+            # nn.Tanh(), # Note Tanh at output makes training harder considering the optimal value is periodic wrt 2pi
         )
 
         # self.cnn_layer = nn.Sequential(
@@ -399,7 +429,8 @@ def Loss5(x, y, hra, hur, hua):
     R = torch.matmul(hra_hur, x.transpose(0,1))
     R = torch.log2( 1 + torch.square(torch.abs(hua + R )) )
     dist = torch.abs(torch.angle(torch.exp(1j * x)) - torch.angle(torch.exp(1j * y)))
-    return torch.mean(torch.square(dist)) - torch.mean(R)
+    # return torch.mean(torch.square(dist)) - torch.mean(R)
+    return torch.mean(torch.square(dist)) / torch.mean(R)
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams, model):
@@ -418,7 +449,7 @@ class Trainer(object):
         # self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
         # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.01, steps_per_epoch=len(train_loader),
         #                                                      pct_start=0.1, epochs=trainparams['epochs']*trainparams['grace_period'])
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', patience=int(trainparams['epoch_val']/2))
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', patience=int(trainparams['epoch_val']/4))
 
     def train(self, val_loader, trainparams):
 
@@ -617,7 +648,7 @@ if __name__ == "__main__":
                   # 'trials_per_device': 5, # number of trials per cpu/gpu resource
                   'step_size': 10, # step size for scheduler optimizer
                   'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 2, # number of bits of a quantizer
+                  'Q_bits': 3, # number of bits of a quantizer
                   }
 
     # search_space = { # Ray Tune Hyper parameter search space
@@ -629,7 +660,7 @@ if __name__ == "__main__":
     #     # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     # }
 
-    Nc_array = 2**np.array(range(7,8))
+    Nc_array = 2**np.array(range(0,8))
 
     # Nc_array = [32]
 
@@ -645,8 +676,8 @@ if __name__ == "__main__":
     print('---------')
     print('Load Data')
     print('---------')
-    # dataset_dir = path_dir + "datasets/HDRISData/08/"
-    dataset_dir = path_dir + "datasets/HDRISData/04/"
+    dataset_dir = path_dir + "datasets/HDRISData/08/"
+    # dataset_dir = path_dir + "datasets/HDRISData/04/"
     # dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_file = "results.csv"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
@@ -687,7 +718,8 @@ if __name__ == "__main__":
         # HurIn = np.reshape(Hur[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
         # input = np.array([thetaIn, np.abs(thetaInfft), np.angle(thetaInfft), np.abs(HraIn), np.angle(HraIn), np.abs(HurIn), np.angle(HurIn)])
         # input = np.array([thetaIn, np.real(HraIn), np.imag(HraIn), np.real(HurIn), np.imag(HurIn)])
-        input = np.array([theta, np.real(Hra[i]), np.imag(Hra[i]), np.real(Hur[i]), np.imag(Hur[i])])
+        # input = np.array([theta, np.real(Hra[i]), np.imag(Hra[i]), np.real(Hur[i]), np.imag(Hur[i])])
+        input = np.array([theta, np.abs(Hra[i]), np.angle(Hra[i]), np.abs(Hur[i]), np.angle(Hur[i])])
         if i < num_train:
             train_set.append([input, theta, Hua[i], Hra[i], Hur[i]])
         elif i >= num_train_val:
