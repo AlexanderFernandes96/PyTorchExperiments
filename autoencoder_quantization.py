@@ -464,7 +464,10 @@ class Trainer(object):
             # Train the model
             self.model.train()
             with torch.enable_grad():
-                self.model.quantizer_layer.hardQ = False
+                try:
+                    self.model.quantizer_layer.hardQ = False
+                except AttributeError:
+                    self.model.module.quantizer_layer.hardQ = False
                 for i, data in (enumerate(self.train_loader)):
                     inputs, labels, hua, hra, hur = data
                     hua = hua.to(self.device)
@@ -489,7 +492,10 @@ class Trainer(object):
             self.model.eval()
             with torch.no_grad():
                 # replace trainable tanh quantization layer with proper quantization layer
-                self.model.quantizer_layer.hardQ = True
+                try:
+                    self.model.quantizer_layer.hardQ = False
+                except AttributeError:
+                    self.model.module.quantizer_layer.hardQ = False
 
                 for i, data in (enumerate(val_loader)):
                     inputs, labels, hua, hra, hur = data
