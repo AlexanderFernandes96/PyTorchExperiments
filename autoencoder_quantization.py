@@ -97,10 +97,10 @@ class EncoderLayer(nn.Module):
             # nn.LeakyReLU(),
             nn.Linear(500, N_RIS),
             nn.LeakyReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, N_RIS),
-            nn.LeakyReLU(),
-            nn.Dropout(0.2),
+            # nn.Dropout(0.2),
+            # nn.Linear(N_RIS, N_RIS),
+            # nn.LeakyReLU(),
+            # nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
             nn.LeakyReLU(),
         )
@@ -257,13 +257,13 @@ class DecoderLayer(nn.Module):
         self.linear_decoder = nn.Sequential(
             nn.Linear(Nc_RIS, N_RIS),
             nn.LeakyReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, N_RIS),
-            nn.LeakyReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, N_RIS),
-            nn.LeakyReLU(),
-            nn.Dropout(0.2),
+            # nn.Dropout(0.2),
+            # nn.Linear(N_RIS, N_RIS),
+            # nn.LeakyReLU(),
+            # nn.Dropout(0.2),
+            # nn.Linear(N_RIS, N_RIS),
+            # nn.LeakyReLU(),
+            # nn.Dropout(0.2),
             # nn.Linear(128, 128),
             # nn.LeakyReLU(),
             # nn.Tanh(),
@@ -645,8 +645,8 @@ if __name__ == "__main__":
     print('---------')
     print('Load Data')
     print('---------')
-    dataset_dir = path_dir + "datasets/HDRISData/08/"
-    # dataset_dir = path_dir + "datasets/HDRISData/04/"
+    # dataset_dir = path_dir + "datasets/HDRISData/08/"
+    dataset_dir = path_dir + "datasets/HDRISData/04/"
     # dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_file = "results.csv"
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
