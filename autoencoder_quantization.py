@@ -555,7 +555,10 @@ class Trainer(object):
         self.model.eval()
         with torch.no_grad():
             # replace trainable tanh quantization layer with proper quantization layer
-            self.model.quantizer_layer.hardQ = True
+                try:
+                    self.model.quantizer_layer.hardQ = False
+                except AttributeError:
+                    self.model.module.quantizer_layer.hardQ = False
 
             test_size = len(test_loader.dataset.data)
             # y_opt = torch.view_as_complex(torch.zeros(test_size,2)).to(self.device)
