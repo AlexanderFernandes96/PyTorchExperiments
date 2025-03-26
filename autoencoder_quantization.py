@@ -633,8 +633,8 @@ if __name__ == "__main__":
     print('Start Script')
     print('------------')
 
-    # path_dir = "/home/alex96/scratch/"
-    path_dir = "MATLAB/"
+    path_dir = "/home/alex96/scratch/"
+    # path_dir = "MATLAB/"
     results_dir = path_dir + "logs/SISO_AchievableRateExperiments/01/"
 
     print("make directory:", results_dir)
