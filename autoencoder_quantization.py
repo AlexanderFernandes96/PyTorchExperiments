@@ -271,7 +271,7 @@ class QuantizerLayer(nn.Module):
 
     def forward(self, theta_enc):
         # theta_enc = matrix (number of samples of train/test dataset, Nc_RIS), in the range: [-pi, +pi)
-        theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1]).to(self.device)
+        theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1], device=self.device)
         for i in range(self.C_code_words - 1):
             if self.hardQ:
                 theta_qnt += self.a[i] * torch.sign(self.c[i] * (theta_enc - self.b[i]))
@@ -412,7 +412,7 @@ class LoadData(Dataset):
         return self.data[idx]
 
 def Loss1(x, y, hra, hur, dev):
-    dist = torch.zeros(x.shape[0]).to(dev)
+    dist = torch.zeros(x.shape[0],device=dev)
     for n in range(x.shape[1]):
         # dist += torch.square(torch.abs(hra[:,n]*hur[:,n])) * torch.square(torch.abs(torch.exp(1j*x[:,n]) - torch.exp(1j*y[:,n])))
         dist += torch.square(torch.abs(hra[:,n] * (torch.exp(1j*x[:,n]) - torch.exp(1j*y[:,n])) * hur[:,n]))
@@ -591,10 +591,8 @@ class Trainer(object):
                 hur = hur.to(self.device)
                 len_hua = len(hua)
                 theta_model = self.model(inputs)  # forward pass inputs into AQE network
-                theta_rand = torch.rand(size=(len_hua,N_RIS), dtype=torch.double) * 2*torch.pi - torch.pi
-                theta_rand = theta_rand.to(self.device)
-                x = torch.pow(10*torch.ones(1), trainparams['snr_dB']/10)
-                x = x.to(self.device)
+                theta_rand = torch.rand(size=(len_hua,N_RIS), dtype=torch.double, device=self.device) * 2*torch.pi - torch.pi
+                x = torch.pow(10*torch.ones(1, device=self.device), trainparams['snr_dB']/10)
                 hra_hur = torch.mul(hra, hur)
                 # Transmit data with RIS phases
                 if sysmodelparams['K'] == 1 & sysmodelparams['M'] == 1: # SISO
@@ -633,8 +631,8 @@ if __name__ == "__main__":
     print('Start Script')
     print('------------')
 
-    path_dir = "/home/alex96/scratch/"
-    # path_dir = "MATLAB/"
+    # path_dir = "/home/alex96/scratch/"
+    path_dir = "MATLAB/"
     results_dir = path_dir + "logs/SISO_AchievableRateExperiments/01/"
 
     print("make directory:", results_dir)
@@ -694,10 +692,18 @@ if __name__ == "__main__":
     # dataset_dir = path_dir + "datasets/HDRISData/04/"
     # dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_file = "results.csv"
+    print('Loading...', dataset_dir + '(Hua)')
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
+    Hua = torch.from_numpy(Hua).to(device)
+    print('Loading...', dataset_dir + '(Hra)')
     Hra = load_complex(dataset_dir, "Hra_r", "Hra_i")
+    Hra = torch.from_numpy(Hra).to(device)
+    print('Loading...', dataset_dir + '(Hur)')
     Hur = load_complex(dataset_dir, "Hur_r", "Hur_i")
+    Hur = torch.from_numpy(Hur).to(device)
+    print('Loading...', dataset_dir + 'RISopt.csv')
     RISopt = np.loadtxt(dataset_dir + "RISopt.csv", delimiter=',')
+    RISopt = torch.from_numpy(RISopt).to(device)
     sysmodelparams = pd.read_csv(dataset_dir + "systemModelParameters.csv").iloc[0]
     trainparams['mc_runs'] = RISopt.shape[0]
     trainparams['N_RIS'] = RISopt.shape[1]
@@ -733,7 +739,8 @@ if __name__ == "__main__":
         # input = np.array([thetaIn, np.abs(thetaInfft), np.angle(thetaInfft), np.abs(HraIn), np.angle(HraIn), np.abs(HurIn), np.angle(HurIn)])
         # input = np.array([thetaIn, np.real(HraIn), np.imag(HraIn), np.real(HurIn), np.imag(HurIn)])
         # input = np.array([theta, np.real(Hra[i]), np.imag(Hra[i]), np.real(Hur[i]), np.imag(Hur[i])])
-        input = np.array([theta, np.abs(Hra[i]), np.angle(Hra[i]), np.abs(Hur[i]), np.angle(Hur[i])])
+        # input = np.array([theta, np.abs(Hra[i]), np.angle(Hra[i]), np.abs(Hur[i]), np.angle(Hur[i])])
+        input = torch.stack([theta, torch.abs(Hra[i]), torch.angle(Hra[i]), torch.abs(Hur[i]), torch.angle(Hur[i])]).to(device)
         if i < num_train:
             train_set.append([input, theta, Hua[i], Hra[i], Hur[i]])
         elif i >= num_train_val:
