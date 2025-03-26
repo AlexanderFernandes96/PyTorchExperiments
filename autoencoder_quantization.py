@@ -39,6 +39,54 @@ def load_complex(dataset_dir, variable_name_real, variable_name_imag):
 class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
+        self.linear_theta = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
+            nn.LeakyReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(N_RIS, Nc_RIS),
+            nn.LeakyReLU(),
+        )
+        self.linear_hra_mag = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
+            nn.LeakyReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(N_RIS, Nc_RIS),
+            nn.LeakyReLU(),
+        )
+        self.linear_hra_ang = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
+            nn.LeakyReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(N_RIS, Nc_RIS),
+            nn.LeakyReLU(),
+        )
+        self.linear_hur_mag = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
+            nn.LeakyReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(N_RIS, Nc_RIS),
+            nn.LeakyReLU(),
+        )
+        self.linear_hur_ang = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
+            nn.LeakyReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(N_RIS, Nc_RIS),
+            nn.LeakyReLU(),
+        )
+        self.linear_encoder = nn.Sequential(
+            # nn.Dropout(0.2),
+            # nn.Linear(128, 128),
+            # nn.LeakyReLU(),
+            nn.Linear(5 * Nc_RIS, Nc_RIS),
+            nn.LeakyReLU(),
+            # nn.Dropout(0.2),
+            # nn.Linear(N_RIS, N_RIS),
+            # nn.LeakyReLU(),
+            # nn.Dropout(0.2),
+            # nn.Linear(Nc_RIS, Nc_RIS),
+            # nn.LeakyReLU(),
+        )
 
         # # N = 100
         # self.reshape_dim = (5,10,10)
@@ -91,39 +139,6 @@ class EncoderLayer(nn.Module):
         #     nn.ReLU(),
         #     nn.MaxPool2d(4, 4),
         # )
-        self.linear_theta = nn.Sequential(
-            nn.Linear(100, Nc_RIS),
-            nn.LeakyReLU(),
-        )
-        self.linear_hra_mag = nn.Sequential(
-            nn.Linear(100, Nc_RIS),
-            nn.LeakyReLU(),
-        )
-        self.linear_hra_ang = nn.Sequential(
-            nn.Linear(100, Nc_RIS),
-            nn.LeakyReLU(),
-        )
-        self.linear_hur_mag = nn.Sequential(
-            nn.Linear(100, Nc_RIS),
-            nn.LeakyReLU(),
-        )
-        self.linear_hur_ang = nn.Sequential(
-            nn.Linear(100, Nc_RIS),
-            nn.LeakyReLU(),
-        )
-        self.linear_encoder = nn.Sequential(
-            # nn.Dropout(0.2),
-            # nn.Linear(128, 128),
-            # nn.LeakyReLU(),
-            nn.Linear(5*Nc_RIS, Nc_RIS),
-            nn.LeakyReLU(),
-            # nn.Dropout(0.2),
-            # nn.Linear(N_RIS, N_RIS),
-            # nn.LeakyReLU(),
-            # nn.Dropout(0.2),
-            # nn.Linear(Nc_RIS, Nc_RIS),
-            # nn.LeakyReLU(),
-        )
 
         # # N = 64
         # self.reshape_dim = (5,8,8)
@@ -154,7 +169,6 @@ class EncoderLayer(nn.Module):
         #     nn.Linear(N_RIS, Nc_RIS),
         #     nn.LeakyReLU(),
         # )
-
 
         # # N = 25
         # self.reshape_dim = (5,5,5)
@@ -640,7 +654,7 @@ if __name__ == "__main__":
     ####################################################################################################################
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
-                  'lr': 0.0001, # optimizer learning rate
+                  'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 512, # batch training size
                   'epochs': 500,  # total training duration
@@ -651,9 +665,9 @@ if __name__ == "__main__":
                   # 'training_iterations': 50, # number of Ray tune training iterations
                   # 'grace_period': 20, # min number of training iterations
                   # 'trials_per_device': 5, # number of trials per cpu/gpu resource
-                  'step_size': 10, # step size for scheduler optimizer
-                  'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 3, # number of bits of a quantizer
+                  # 'step_size': 10, # step size for scheduler optimizer
+                  # 'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
+                  'Q_bits': 1, # number of bits of a quantizer
                   }
 
     # search_space = { # Ray Tune Hyper parameter search space
