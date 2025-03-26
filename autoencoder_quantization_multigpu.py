@@ -176,7 +176,7 @@ if __name__ == "__main__":
 
     d = {'Nc': Nc_array, 'R_opt': R_opt_array, 'R_AQE': R_AQE_array, 'R_linQ': R_linQ_array, 'R_rand': R_rand_array}
     results_df = pandas.DataFrame(d)
-    print('Total bits:', trainparams['overall_bits'], flush=True)
+    print('Q bits:', trainparams['Q_bits'], flush=True)
     print(results_df, flush=True)
     print('Saving to:', results_dir + results_file, flush=True)
 
