@@ -39,53 +39,93 @@ def load_complex(dataset_dir, variable_name_real, variable_name_imag):
 class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
-        self.linear_theta = nn.Sequential(
-            nn.Linear(N_RIS, N_RIS),
-            nn.LeakyReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, Nc_RIS),
-            nn.LeakyReLU(),
+        self.cnn_theta = nn.Sequential(
+            nn.Conv2d(1, 32, 5, padding=1, padding_mode='circular'),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
         )
-        self.linear_hra_mag = nn.Sequential(
-            nn.Linear(N_RIS, N_RIS),
-            nn.LeakyReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, Nc_RIS),
-            nn.LeakyReLU(),
+        self.cnn_hra = nn.Sequential(
+            nn.Conv2d(2, 32, 5, padding=1, padding_mode='circular'),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
         )
-        self.linear_hra_ang = nn.Sequential(
-            nn.Linear(N_RIS, N_RIS),
-            nn.LeakyReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, Nc_RIS),
-            nn.LeakyReLU(),
+        self.cnn_hur = nn.Sequential(
+            nn.Conv2d(2, 32, 5, padding=1, padding_mode='circular'),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
         )
-        self.linear_hur_mag = nn.Sequential(
-            nn.Linear(N_RIS, N_RIS),
-            nn.LeakyReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, Nc_RIS),
-            nn.LeakyReLU(),
-        )
-        self.linear_hur_ang = nn.Sequential(
-            nn.Linear(N_RIS, N_RIS),
-            nn.LeakyReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, Nc_RIS),
-            nn.LeakyReLU(),
-        )
+        # self.linear_theta = nn.Sequential(
+        #     nn.Linear(N_RIS, N_RIS),
+        #     nn.LeakyReLU(),
+        #     nn.Dropout(0.2),
+        #     nn.Linear(N_RIS, Nc_RIS),
+        #     nn.LeakyReLU(),
+        # )
+        # self.linear_hra_mag = nn.Sequential(
+        #     nn.Linear(N_RIS, N_RIS),
+        #     nn.LeakyReLU(),
+        #     nn.Dropout(0.2),
+        #     nn.Linear(N_RIS, Nc_RIS),
+        #     nn.LeakyReLU(),
+        # )
+        # self.linear_hra_ang = nn.Sequential(
+        #     nn.Linear(N_RIS, N_RIS),
+        #     nn.LeakyReLU(),
+        #     nn.Dropout(0.2),
+        #     nn.Linear(N_RIS, Nc_RIS),
+        #     nn.LeakyReLU(),
+        # )
+        # self.linear_hur_mag = nn.Sequential(
+        #     nn.Linear(N_RIS, N_RIS),
+        #     nn.LeakyReLU(),
+        #     nn.Dropout(0.2),
+        #     nn.Linear(N_RIS, Nc_RIS),
+        #     nn.LeakyReLU(),
+        # )
+        # self.linear_hur_ang = nn.Sequential(
+        #     nn.Linear(N_RIS, N_RIS),
+        #     nn.LeakyReLU(),
+        #     nn.Dropout(0.2),
+        #     nn.Linear(N_RIS, Nc_RIS),
+        #     nn.LeakyReLU(),
+        # )
         self.linear_encoder = nn.Sequential(
             # nn.Dropout(0.2),
             # nn.Linear(128, 128),
             # nn.LeakyReLU(),
-            nn.Linear(5 * Nc_RIS, Nc_RIS),
-            nn.LeakyReLU(),
+            # nn.Linear(5 * Nc_RIS, Nc_RIS),
+            # nn.LeakyReLU(),
             # nn.Dropout(0.2),
             # nn.Linear(N_RIS, N_RIS),
             # nn.LeakyReLU(),
             # nn.Dropout(0.2),
             # nn.Linear(Nc_RIS, Nc_RIS),
             # nn.LeakyReLU(),
+
+            nn.Dropout(0.2),
+            nn.Linear(768, Nc_RIS),
+            nn.LeakyReLU(),
         )
 
         # # N = 100
@@ -196,22 +236,24 @@ class EncoderLayer(nn.Module):
         # )
 
     def forward(self, x):
-        theta   = torch.flatten(x[:, 0, :], start_dim=1)
-        hra_mag = torch.flatten(x[:, 1, :], start_dim=1)
-        hra_ang = torch.flatten(x[:, 2, :], start_dim=1)
-        hur_mag = torch.flatten(x[:, 3, :], start_dim=1)
-        hur_ang = torch.flatten(x[:, 4, :], start_dim=1)
-        theta = self.linear_theta(theta)
-        hra_mag = self.linear_hra_mag(hra_mag)
-        hra_ang = self.linear_hra_ang(hra_ang)
-        hur_mag = self.linear_hur_mag(hur_mag)
-        hur_ang = self.linear_hur_ang(hur_ang)
-        x_in = torch.cat((theta, hra_mag, hra_ang, hur_mag, hur_ang), 1)
-        # x_cnn0 = torch.flatten(self.cnn_layer0(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
-        # x_cnn1 = torch.flatten(self.cnn_layer1(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
-        # x_cnn2 = torch.flatten(self.cnn_layer2(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
-        # x_cnn3 = torch.flatten(self.cnn_layer3(x.view(x.size(0), *self.reshape_dim)), start_dim=1)
-        # x_cat = torch.cat((x_in, x_cnn0, x_cnn1, x_cnn2, x_cnn3), 1)
+        # theta   = torch.flatten(x[:, 0, :], start_dim=1)
+        # hra_mag = torch.flatten(x[:, 1, :], start_dim=1)
+        # hra_ang = torch.flatten(x[:, 2, :], start_dim=1)
+        # hur_mag = torch.flatten(x[:, 3, :], start_dim=1)
+        # hur_ang = torch.flatten(x[:, 4, :], start_dim=1)
+        # theta = self.linear_theta(theta)
+        # hra_mag = self.linear_hra_mag(hra_mag)
+        # hra_ang = self.linear_hra_ang(hra_ang)
+        # hur_mag = self.linear_hur_mag(hur_mag)
+        # hur_ang = self.linear_hur_ang(hur_ang)
+        # x_in = torch.cat((theta, hra_mag, hra_ang, hur_mag, hur_ang), 1)
+        theta = torch.reshape(x[:, 0, :], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        hra = torch.reshape(x[:, 1:3, :], (-1, 2, sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        hur = torch.reshape(x[:, 3:5, :], (-1, 2, sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        theta = torch.flatten(self.cnn_theta(theta), start_dim=1)
+        hra = torch.flatten(self.cnn_hra(hra), start_dim=1)
+        hur = torch.flatten(self.cnn_hur(hur), start_dim=1)
+        x_in = torch.cat((theta, hra, hur), 1)
         x_enc = self.linear_encoder(x_in)
         return x_enc
 
@@ -633,7 +675,7 @@ if __name__ == "__main__":
 
     # path_dir = "/home/alex96/scratch/"
     path_dir = "MATLAB/"
-    results_dir = path_dir + "logs/SISO_AchievableRateExperiments/01/"
+    results_dir = path_dir + "logs/SISO_AchievableRateExperiments/02/"
 
     print("make directory:", results_dir)
     Path(path_dir).mkdir(parents=True, exist_ok=True)
@@ -688,9 +730,9 @@ if __name__ == "__main__":
     print('---------')
     print('Load Data')
     print('---------')
-    dataset_dir = path_dir + "datasets/HDRISData/08/"
+    # dataset_dir = path_dir + "datasets/HDRISData/08/"
     # dataset_dir = path_dir + "datasets/HDRISData/04/"
-    # dataset_dir = path_dir + "datasets/HDRISData/03/"
+    dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_file = "results.csv"
     print('Loading...', dataset_dir + '(Hua)')
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
@@ -730,12 +772,12 @@ if __name__ == "__main__":
     val_set = []
     for i in range(0, trainparams['mc_runs']):
         theta = RISopt[i]
-        # thetaIn = np.reshape(theta, (sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        # thetaIn = torch.reshape(theta, (sysmodelparams["Nw"], sysmodelparams["Nh"]))
         # ft = np.fft.ifftshift(thetaIn)
         # ft = np.fft.fft2(ft)
         # thetaInfft = np.fft.fftshift(ft)
-        # HraIn = np.reshape(Hra[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
-        # HurIn = np.reshape(Hur[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        # HraIn = torch.reshape(Hra[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        # HurIn = torch.reshape(Hur[i], (sysmodelparams["Nw"], sysmodelparams["Nh"]))
         # input = np.array([thetaIn, np.abs(thetaInfft), np.angle(thetaInfft), np.abs(HraIn), np.angle(HraIn), np.abs(HurIn), np.angle(HurIn)])
         # input = np.array([thetaIn, np.real(HraIn), np.imag(HraIn), np.real(HurIn), np.imag(HurIn)])
         # input = np.array([theta, np.real(Hra[i]), np.imag(Hra[i]), np.real(Hur[i]), np.imag(Hur[i])])
