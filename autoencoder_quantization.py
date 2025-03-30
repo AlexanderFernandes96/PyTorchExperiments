@@ -49,6 +49,9 @@ class EncoderLayer(nn.Module):
             nn.Conv2d(64, 64, 3, padding=0),
             nn.BatchNorm2d(64),
             nn.ReLU(),
+            nn.Conv2d(64, 128, 3, padding=0),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hra = nn.Sequential(
@@ -61,6 +64,9 @@ class EncoderLayer(nn.Module):
             nn.Conv2d(64, 64, 3, padding=0),
             nn.BatchNorm2d(64),
             nn.ReLU(),
+            nn.Conv2d(64, 128, 3, padding=0),
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hur = nn.Sequential(
@@ -72,6 +78,9 @@ class EncoderLayer(nn.Module):
             nn.ReLU(),
             nn.Conv2d(64, 64, 3, padding=0),
             nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, 3, padding=0),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
@@ -124,7 +133,9 @@ class EncoderLayer(nn.Module):
             # nn.LeakyReLU(),
 
             nn.Dropout(0.2),
-            nn.Linear(768, Nc_RIS),
+            nn.Linear(384, N_RIS),
+            nn.LeakyReLU(),
+            nn.Linear(N_RIS, Nc_RIS),
             nn.LeakyReLU(),
         )
 
@@ -673,9 +684,9 @@ if __name__ == "__main__":
     print('Start Script')
     print('------------')
 
-    # path_dir = "/home/alex96/scratch/"
-    path_dir = "MATLAB/"
-    results_dir = path_dir + "logs/SISO_AchievableRateExperiments/02/"
+    path_dir = "/home/alex96/scratch/"
+    # path_dir = "MATLAB/"
+    results_dir = path_dir + "logs/SISO_AchievableRateExperiments/03/"
 
     print("make directory:", results_dir)
     Path(path_dir).mkdir(parents=True, exist_ok=True)
@@ -730,9 +741,9 @@ if __name__ == "__main__":
     print('---------')
     print('Load Data')
     print('---------')
-    # dataset_dir = path_dir + "datasets/HDRISData/08/"
+    dataset_dir = path_dir + "datasets/HDRISData/08/"
     # dataset_dir = path_dir + "datasets/HDRISData/04/"
-    dataset_dir = path_dir + "datasets/HDRISData/03/"
+    # dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_file = "results.csv"
     print('Loading...', dataset_dir + '(Hua)')
     Hua = load_complex(dataset_dir, "Hua_r", "Hua_i")
