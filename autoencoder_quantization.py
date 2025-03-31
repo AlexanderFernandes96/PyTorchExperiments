@@ -39,50 +39,43 @@ def load_complex(dataset_dir, variable_name_real, variable_name_imag):
 class EncoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayer, self).__init__()
+        # Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
+        # Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
         self.cnn_theta = nn.Sequential(
-            nn.Conv2d(1, 32, 5, padding=1, padding_mode='circular'),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0),
+            nn.Conv2d(1, 64, 3, padding=0), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.LeakyReLU(),
+            nn.Conv2d(64, 64, 3, padding=0), # 6
             nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Conv2d(64, 128, 3, padding=0),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
+            nn.LeakyReLU(),
+            nn.Conv2d(64, 64, 3, padding=0), # 4
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(),
+            nn.AvgPool2d(2, 2), # 128 = 64 * 4 / 2
         )
         self.cnn_hra = nn.Sequential(
-            nn.Conv2d(2, 32, 5, padding=1, padding_mode='circular'),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0),
+            nn.Conv2d(2, 64, 5, padding=0),
             nn.BatchNorm2d(64),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Conv2d(64, 64, 3, padding=0),
             nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Conv2d(64, 128, 3, padding=0),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
+            nn.LeakyReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(),
+            nn.AvgPool2d(2, 2),
         )
         self.cnn_hur = nn.Sequential(
-            nn.Conv2d(2, 32, 5, padding=1, padding_mode='circular'),
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0),
+            nn.Conv2d(2, 64, 5, padding=0),
             nn.BatchNorm2d(64),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Conv2d(64, 64, 3, padding=0),
             nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Conv2d(64, 128, 3, padding=0),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
+            nn.LeakyReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.LeakyReLU(),
+            nn.AvgPool2d(2, 2),
         )
         # self.linear_theta = nn.Sequential(
         #     nn.Linear(N_RIS, N_RIS),
@@ -508,8 +501,8 @@ class Trainer(object):
         self.device = dev
         self.model = model.to(self.device)
         # self.optimizer = optim.Adam(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
-        self.optimizer = optim.AdamW(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
-        # self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
+        # self.optimizer = optim.AdamW(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
+        self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
         # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.01, steps_per_epoch=len(train_loader),
         #                                                      pct_start=0.1, epochs=trainparams['epochs']*trainparams['grace_period'])
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', patience=int(trainparams['epoch_val']/4))
@@ -707,10 +700,10 @@ if __name__ == "__main__":
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 128, # batch training size
+                  'batch_size': 256, # batch training size
                   'epochs': 500,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 100, # validate early stop every epoch number
+                  'epoch_val': 50, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
                   # 'trials': 500, # number of Ray tune trials
                   # 'training_iterations': 50, # number of Ray tune training iterations
