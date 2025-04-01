@@ -44,38 +44,77 @@ class EncoderLayer(nn.Module):
         self.cnn_theta = nn.Sequential(
             nn.Conv2d(1, 64, 3, padding=0), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(64),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(64, 64, 3, padding=0), # 6
             nn.BatchNorm2d(64),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(64, 64, 3, padding=0), # 4
             nn.BatchNorm2d(64),
-            nn.LeakyReLU(),
-            nn.AvgPool2d(2, 2), # 128 = 64 * 4 / 2
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0), # 2
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2), # 64
         )
-        self.cnn_hra = nn.Sequential(
-            nn.Conv2d(2, 64, 5, padding=0),
+        self.cnn_hra_mag = nn.Sequential(
+            nn.Conv2d(1, 64, 3, padding=0),
             nn.BatchNorm2d(64),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(64, 64, 3, padding=0),
             nn.BatchNorm2d(64),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(64, 64, 3, padding=0),
             nn.BatchNorm2d(64),
-            nn.LeakyReLU(),
-            nn.AvgPool2d(2, 2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
         )
-        self.cnn_hur = nn.Sequential(
-            nn.Conv2d(2, 64, 5, padding=0),
+        self.cnn_hra_ang = nn.Sequential(
+            nn.Conv2d(1, 64, 3, padding=0),
             nn.BatchNorm2d(64),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(64, 64, 3, padding=0),
             nn.BatchNorm2d(64),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Conv2d(64, 64, 3, padding=0),
             nn.BatchNorm2d(64),
-            nn.LeakyReLU(),
-            nn.AvgPool2d(2, 2),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+        )
+        self.cnn_hur_mag = nn.Sequential(
+            nn.Conv2d(1, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+        )
+        self.cnn_hur_ang = nn.Sequential(
+            nn.Conv2d(1, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 64, 3, padding=0),
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
         )
         # self.linear_theta = nn.Sequential(
         #     nn.Linear(N_RIS, N_RIS),
@@ -126,8 +165,9 @@ class EncoderLayer(nn.Module):
             # nn.LeakyReLU(),
 
             nn.Dropout(0.2),
-            nn.Linear(384, N_RIS),
+            nn.Linear(320, N_RIS),
             nn.LeakyReLU(),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
             nn.LeakyReLU(),
         )
@@ -251,13 +291,17 @@ class EncoderLayer(nn.Module):
         # hur_mag = self.linear_hur_mag(hur_mag)
         # hur_ang = self.linear_hur_ang(hur_ang)
         # x_in = torch.cat((theta, hra_mag, hra_ang, hur_mag, hur_ang), 1)
-        theta = torch.reshape(x[:, 0, :], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"]))
-        hra = torch.reshape(x[:, 1:3, :], (-1, 2, sysmodelparams["Nw"], sysmodelparams["Nh"]))
-        hur = torch.reshape(x[:, 3:5, :], (-1, 2, sysmodelparams["Nw"], sysmodelparams["Nh"]))
-        theta = torch.flatten(self.cnn_theta(theta), start_dim=1)
-        hra = torch.flatten(self.cnn_hra(hra), start_dim=1)
-        hur = torch.flatten(self.cnn_hur(hur), start_dim=1)
-        x_in = torch.cat((theta, hra, hur), 1)
+        theta   = torch.reshape(x[:, 0, :], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        hra_mag = torch.reshape(x[:, 1, :], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        hra_ang = torch.reshape(x[:, 2, :], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        hur_mag = torch.reshape(x[:, 3, :], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        hur_ang = torch.reshape(x[:, 4, :], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"]))
+        theta   = torch.flatten(self.cnn_theta(theta), start_dim=1)
+        hra_mag = torch.flatten(self.cnn_hra_mag(hra_mag), start_dim=1)
+        hra_ang = torch.flatten(self.cnn_hra_ang(hra_ang), start_dim=1)
+        hur_mag = torch.flatten(self.cnn_hur_mag(hur_mag), start_dim=1)
+        hur_ang = torch.flatten(self.cnn_hur_ang(hur_ang), start_dim=1)
+        x_in = torch.cat((theta, hra_mag, hra_ang, hur_mag, hur_ang), 1)
         x_enc = self.linear_encoder(x_in)
         return x_enc
 
@@ -347,13 +391,13 @@ class DecoderLayer(nn.Module):
         super(DecoderLayer, self).__init__()
         self.linear_decoder = nn.Sequential(
             nn.Linear(Nc_RIS, N_RIS),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
-            nn.LeakyReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, N_RIS),
-            nn.LeakyReLU(),
+            nn.ReLU(),
+            # nn.Dropout(0.2),
+            # nn.Linear(N_RIS, N_RIS),
+            # nn.LeakyReLU(),
             # nn.Dropout(0.2),
             # nn.Linear(128, 128),
             # nn.LeakyReLU(),
@@ -646,9 +690,9 @@ class Trainer(object):
 
                         # # Power
                         # awgn = torch.view_as_complex(torch.randn(1,2)).to(self.device)
-                        # y_opt[test_i]  = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_opt[b])))  * x + awgn
-                        # y[test_i]      = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_model[b])))  * x + awgn
-                        # y_rand[test_i] = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_rand[b]))) * x + awgn
+                        # y_opt[test_i]  = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_opt[b])))   * x + awgn
+                        # y[test_i]      = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_model[b]))) * x + awgn
+                        # y_rand[test_i] = (hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_rand[b])))  * x + awgn
 
                         # Achievable Rate
                         R_opt[test_i]  = torch.log2( 1 + torch.square(torch.abs(hua[b] + torch.dot(hra_hur[b], torch.exp(1j*theta_opt[b])))) * x )
@@ -701,9 +745,9 @@ if __name__ == "__main__":
                   'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 256, # batch training size
-                  'epochs': 500,  # total training duration
+                  'epochs': 1000,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 50, # validate early stop every epoch number
+                  'epoch_val': 100, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
                   # 'trials': 500, # number of Ray tune trials
                   # 'training_iterations': 50, # number of Ray tune training iterations
