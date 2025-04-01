@@ -42,77 +42,77 @@ class EncoderLayer(nn.Module):
         # Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
         # Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
         self.cnn_theta = nn.Sequential(
-            nn.Conv2d(1, 64, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(64),
+            nn.Conv2d(1, 128, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False), # 6
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False), # 4
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False), # 2
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2, 2), # 64
         )
         self.cnn_hra_mag = nn.Sequential(
-            nn.Conv2d(1, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(1, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hra_ang = nn.Sequential(
-            nn.Conv2d(1, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(1, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_mag = nn.Sequential(
-            nn.Conv2d(1, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(1, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_ang = nn.Sequential(
-            nn.Conv2d(1, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(1, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(128, 128, 3, padding=0, bias=False),
+            nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
@@ -165,7 +165,7 @@ class EncoderLayer(nn.Module):
             # nn.LeakyReLU(),
 
             nn.Dropout(0.2),
-            nn.Linear(320, N_RIS),
+            nn.Linear(5*128, N_RIS),
             nn.LeakyReLU(),
             nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
@@ -545,8 +545,8 @@ class Trainer(object):
         self.device = dev
         self.model = model.to(self.device)
         # self.optimizer = optim.Adam(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
-        # self.optimizer = optim.AdamW(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
-        self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
+        self.optimizer = optim.AdamW(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
+        # self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
         # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.01, steps_per_epoch=len(train_loader),
         #                                                      pct_start=0.1, epochs=trainparams['epochs']*trainparams['grace_period'])
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', patience=int(trainparams['epoch_val']/4))
@@ -743,9 +743,9 @@ if __name__ == "__main__":
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.001, # optimizer learning rate
-                  'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 256, # batch training size
-                  'epochs': 1000,  # total training duration
+                  # 'momentum': 0.9, # optimizer momentum for SGD
+                  'batch_size': 512, # batch training size
+                  'epochs': 500,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 100, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
