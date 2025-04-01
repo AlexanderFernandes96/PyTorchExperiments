@@ -42,76 +42,76 @@ class EncoderLayer(nn.Module):
         # Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
         # Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
         self.cnn_theta = nn.Sequential(
-            nn.Conv2d(1, 64, 3, padding=0), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 64, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0), # 6
+            nn.Conv2d(64, 64, 3, padding=0, bias=False), # 6
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0), # 4
+            nn.Conv2d(64, 64, 3, padding=0, bias=False), # 4
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0), # 2
+            nn.Conv2d(64, 64, 3, padding=0, bias=False), # 2
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2, 2), # 64
         )
         self.cnn_hra_mag = nn.Sequential(
-            nn.Conv2d(1, 64, 3, padding=0),
+            nn.Conv2d(1, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hra_ang = nn.Sequential(
-            nn.Conv2d(1, 64, 3, padding=0),
+            nn.Conv2d(1, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_mag = nn.Sequential(
-            nn.Conv2d(1, 64, 3, padding=0),
+            nn.Conv2d(1, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_ang = nn.Sequential(
-            nn.Conv2d(1, 64, 3, padding=0),
+            nn.Conv2d(1, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 64, 3, padding=0),
+            nn.Conv2d(64, 64, 3, padding=0, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
