@@ -881,13 +881,15 @@ if __name__ == "__main__":
         AQEnet, AQEnet_train_losses, AQEnet_val_losses, AQEnet_num_epochs = AQEtrainer.train(val_loader, trainparams)
         linQ, linQ_train_losses, linQ_val_losses, linQ_num_epochs = linQtrainer.train(val_loader, trainparams)
 
-        d = {"AQE epochs": AQEnet_num_epochs, "AQE train": AQEnet_train_losses, "AQE val": AQEnet_val_losses,
-             "linQ epochs": linQ_num_epochs, "linQ train": linQ_train_losses, "linQ val": linQ_val_losses,
-             "overall_bits": trainparams['overall_bits']}
-        loss_df = pandas.DataFrame(d)
+        d_AQE = {"AQE train": AQEnet_train_losses, "AQE val": AQEnet_val_losses}
+        d_linQ = {"linQ train": linQ_train_losses, "linQ val": linQ_val_losses}
+        AQE_loss_df = pandas.DataFrame(d_AQE)
+        linQ_loss_df = pandas.DataFrame(d_linQ)
         loss_file = "loss" + str(i) + ".csv"
-        print("Saving losses to:", results_dir + loss_file, flush=True)
-        loss_df.to_csv(results_dir + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+        print("Saving losses to:", results_dir + "AQE_" + loss_file, flush=True)
+        AQE_loss_df.to_csv(results_dir + "AQE_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+        print("Saving losses to:", results_dir + "linQ_" + loss_file, flush=True)
+        linQ_loss_df.to_csv(results_dir + "linQ_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
 
         R_opt, R_AQE, R_rand = AQEtrainer.evaluate(test_loader, sysmodelparams, trainparams)
         R_opt, R_linQ, R_rand = linQtrainer.evaluate(test_loader, sysmodelparams, trainparams)
