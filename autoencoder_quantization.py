@@ -724,7 +724,6 @@ class Trainer(object):
         return R_opt.item(), R.item(), R_rand.item()
 
 
-
 if __name__ == "__main__":
     print('------------')
     print('Start Script')
@@ -777,9 +776,7 @@ if __name__ == "__main__":
     # }
 
     Nc_array = 2**np.array(range(0,8))
-
     # Nc_array = [32]
-
 
     ####################################################################################################################
     # Load RIS data from .csv files
