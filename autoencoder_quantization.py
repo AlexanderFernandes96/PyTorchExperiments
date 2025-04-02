@@ -881,8 +881,8 @@ if __name__ == "__main__":
         AQEnet, AQEnet_train_losses, AQEnet_val_losses, AQEnet_num_epochs = AQEtrainer.train(val_loader, trainparams)
         linQ, linQ_train_losses, linQ_val_losses, linQ_num_epochs = linQtrainer.train(val_loader, trainparams)
 
-        d_AQE = {"AQE train": AQEnet_train_losses, "AQE val": AQEnet_val_losses}
-        d_linQ = {"linQ train": linQ_train_losses, "linQ val": linQ_val_losses}
+        d_AQE = {"train": AQEnet_train_losses, "val": AQEnet_val_losses}
+        d_linQ = {"train": linQ_train_losses, "val": linQ_val_losses}
         AQE_loss_df = pandas.DataFrame(d_AQE)
         linQ_loss_df = pandas.DataFrame(d_linQ)
         loss_file = "loss" + str(i) + ".csv"
