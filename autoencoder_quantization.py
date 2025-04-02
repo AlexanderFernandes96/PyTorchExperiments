@@ -42,79 +42,79 @@ class EncoderLayer(nn.Module):
         # Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
         # Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
         self.cnn_theta = nn.Sequential(
-            nn.Conv2d(1, 128, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(128),
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.BatchNorm2d(16),
             nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(128),
+            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
+            nn.BatchNorm2d(32),
             nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(128),
+            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 4
+            nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False), # 2
+            nn.Conv2d(64, 128, 3, padding=0, bias=False), # 2
             nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2, 2), # 64
         )
         self.cnn_hra_mag = nn.Sequential(
-            nn.Conv2d(1, 128, 3, padding=0, bias=False),
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 4
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, 3, padding=0, bias=False), # 2
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(2, 2), # 64
         )
         self.cnn_hra_ang = nn.Sequential(
-            nn.Conv2d(1, 128, 3, padding=0, bias=False),
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 4
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, 3, padding=0, bias=False), # 2
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(2, 2), # 64
         )
         self.cnn_hur_mag = nn.Sequential(
-            nn.Conv2d(1, 128, 3, padding=0, bias=False),
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 4
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, 3, padding=0, bias=False), # 2
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(2, 2), # 64
         )
         self.cnn_hur_ang = nn.Sequential(
-            nn.Conv2d(1, 128, 3, padding=0, bias=False),
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 4
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, 3, padding=0, bias=False), # 2
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 128, 3, padding=0, bias=False),
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(2, 2), # 64
         )
         # self.linear_theta = nn.Sequential(
         #     nn.Linear(N_RIS, N_RIS),
@@ -522,14 +522,23 @@ def Loss4(x, y, hra, hur):
     dist = torch.sum(torch.square(torch.abs(mul)), 1)
     return torch.mean(dist)
 
-def Loss5(x, y, hra, hur, hua):
+def LossRD(x, y, hra, hur, hua):
     hra_hur = torch.mul(hra, hur)
     x = torch.exp(1j*x)
     R = torch.matmul(hra_hur, x.transpose(0,1))
-    R = torch.log2( 1 + torch.square(torch.abs(hua + R )) )
+    R = torch.log2( 1 + torch.square(torch.abs(hua + R)) )
     dist = torch.abs(torch.angle(torch.exp(1j * x)) - torch.angle(torch.exp(1j * y)))
     # return torch.mean(torch.square(dist)) - torch.mean(R)
     return torch.mean(torch.square(dist)) / torch.mean(R)
+
+def LossR(x, y, hra, hur, hua):
+    hra_hur = torch.mul(hra, hur)
+    x = torch.exp(1j*x)
+    R = torch.matmul(hra_hur, x.transpose(0,1))
+    R = torch.log2( 1 + torch.square(torch.abs(hua + R)) )
+    # dist = torch.abs(torch.angle(torch.exp(1j * x)) - torch.angle(torch.exp(1j * y)))
+    # return torch.mean(torch.square(dist)) - torch.mean(R)
+    return 1 / torch.mean(R)
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams, model, dev):
@@ -580,11 +589,11 @@ class Trainer(object):
                     inputs = inputs.to(self.device)
                     labels = labels.to(self.device)
                     self.optimizer.zero_grad()                              # clear gradients of all variables to optimize
-                    outputs = self.model(inputs)                           # forward pass inputs into AQE network
+                    outputs = self.model(inputs)                           # forward pass inputs into network
                     # loss = Loss1(outputs, labels, hra, hur, self.device)  # calculate batch loss
                     # loss = Loss3(outputs, labels)                           # calculate batch loss
                     # loss = Loss4(outputs, labels, hra, hur)                 # calculate batch loss
-                    loss = Loss5(outputs, labels, hra, hur, hua)                 # calculate batch loss
+                    loss = LossRD(outputs, labels, hra, hur, hua)                 # calculate batch loss
                     loss.backward()                                         # back propagate gradients through AQE network
                     self.optimizer.step()                                   # single optimization step to update variables
                     # self.scheduler.step()                                   # adjust learning rate each step
@@ -612,7 +621,7 @@ class Trainer(object):
                     # loss = Loss1(outputs, labels, hra, hur)             # calculate batch loss
                     # loss = Loss3(outputs, labels)                       # calculate batch loss
                     # loss = Loss4(outputs, labels, hra, hur)             # calculate batch loss
-                    loss = Loss5(outputs, labels, hra, hur, hua)             # calculate batch loss
+                    loss = LossRD(outputs, labels, hra, hur, hua)             # calculate batch loss
                     val_loss += loss.item() * trainparams['batch_size']  # update validation loss
                     val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
@@ -872,12 +881,16 @@ if __name__ == "__main__":
         print(linQtrainer.model, flush=True)
         total_params = sum(p.numel() for p in linQtrainer.model.parameters())
         print('Number of parameters:', total_params, flush=True)
-        AQEnet, AQEnet_train_losses, AQEnet_val_losses, num_epochs = AQEtrainer.train(val_loader, trainparams)
-        linQ, AQEnet_train_losses, AQEnet_val_losses, num_epochs = linQtrainer.train(val_loader, trainparams)
-        # print(AQEnet, flush=True)
-        # total_params = sum(p.numel() for p in AQEnet.parameters())
-        # print('Number of parameters:', total_params, flush=True)
+        AQEnet, AQEnet_train_losses, AQEnet_val_losses, AQEnet_num_epochs = AQEtrainer.train(val_loader, trainparams)
+        linQ, linQ_train_losses, linQ_val_losses, linQ_num_epochs = linQtrainer.train(val_loader, trainparams)
 
+        d = {"AQE epochs": AQEnet_num_epochs, "AQE train": AQEnet_train_losses, "AQE val": AQEnet_val_losses,
+             "linQ epochs": linQ_num_epochs, "linQ train": linQ_train_losses, "linQ val": linQ_val_losses,
+             "overall_bits": trainparams['overall_bits']}
+        loss_df = pandas.DataFrame(d)
+        loss_file = "loss" + str(i) + ".csv"
+        print("Saving losses to:", results_dir + loss_file, flush=True)
+        loss_df.to_csv(results_dir + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
 
         R_opt, R_AQE, R_rand = AQEtrainer.evaluate(test_loader, sysmodelparams, trainparams)
         R_opt, R_linQ, R_rand = linQtrainer.evaluate(test_loader, sysmodelparams, trainparams)
@@ -907,9 +920,9 @@ if __name__ == "__main__":
 
     d = {'Nc': Nc_array, 'R_opt': R_opt_array, 'R_AQE': R_AQE_array, 'R_linQ': R_linQ_array, 'R_rand': R_rand_array}
     results_df = pandas.DataFrame(d)
-    print('Total bits:', trainparams['overall_bits'], flush=True)
+    print('Bits per Quantizer:', trainparams['Q_bits'], flush=True)
     print(results_df, flush=True)
-    print('Saving to:', results_dir + results_file, flush=True)
+    print('Saving results to:', results_dir + results_file, flush=True)
 
     results_df.to_csv(results_dir + results_file, sep='\t', encoding='utf-8', index=False, header=True)
 
