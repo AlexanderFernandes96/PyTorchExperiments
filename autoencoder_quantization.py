@@ -21,6 +21,8 @@ from pathlib import Path
 DISABLE_TQDM = False
 # DISABLE_TQDM = True
 
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
 
 # Get cpu, gpu or mps device for training.
 device = (
@@ -42,7 +44,13 @@ class EncoderLayer(nn.Module):
         # Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
         # Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
         self.cnn_theta = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -57,7 +65,13 @@ class EncoderLayer(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hra_mag = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -72,7 +86,13 @@ class EncoderLayer(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hra_ang = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -87,7 +107,13 @@ class EncoderLayer(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_mag = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -102,7 +128,13 @@ class EncoderLayer(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_ang = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -175,11 +207,17 @@ class EncoderLayer(nn.Module):
             # nn.LeakyReLU(),
 
             nn.Dropout(0.2),
-            nn.Linear(7*128, N_RIS),
-            nn.LeakyReLU(),
+            nn.Linear(7 * 128, 1 * 128),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(1 * 128, N_RIS),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(N_RIS, N_RIS),
+            nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
-            nn.LeakyReLU(),
+            nn.ReLU(),
         )
 
         # # N = 100
@@ -342,7 +380,13 @@ class EncoderLayerOnlyChannels(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayerOnlyChannels, self).__init__()
         self.cnn_hra_mag = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -354,10 +398,16 @@ class EncoderLayerOnlyChannels(nn.Module):
             nn.Conv2d(64, 128, 3, padding=0, bias=False), # 2
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2), # 64
+            nn.MaxPool2d(2, 2),
         )
         self.cnn_hra_ang = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -369,10 +419,16 @@ class EncoderLayerOnlyChannels(nn.Module):
             nn.Conv2d(64, 128, 3, padding=0, bias=False), # 2
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2), # 64
+            nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_mag = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -384,10 +440,16 @@ class EncoderLayerOnlyChannels(nn.Module):
             nn.Conv2d(64, 128, 3, padding=0, bias=False), # 2
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2), # 64
+            nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_ang = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -399,7 +461,7 @@ class EncoderLayerOnlyChannels(nn.Module):
             nn.Conv2d(64, 128, 3, padding=0, bias=False), # 2
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2), # 64
+            nn.MaxPool2d(2, 2),
         )
         self.cnn_hua_mag = nn.Sequential(
             nn.Conv2d(1, 128, 1, padding=0, bias=False),
@@ -413,11 +475,17 @@ class EncoderLayerOnlyChannels(nn.Module):
         )
         self.linear_encoder = nn.Sequential(
             nn.Dropout(0.2),
-            nn.Linear(6*128, N_RIS),
-            nn.LeakyReLU(),
+            nn.Linear(6*128, 1*128),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(1*128, N_RIS),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(N_RIS, N_RIS),
+            nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
-            nn.LeakyReLU(),
+            nn.ReLU(),
         )
     def forward(self, x):
         hra_mag = torch.reshape(x[1], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
@@ -498,7 +566,7 @@ class QuantizerLayer(nn.Module):
         return x_vals, soft_quant, hard_quant
 
 class DecoderLayer(nn.Module):
-    def __init__(self, N_RIS, Nc_RIS, Nw_RIS, Nh_RIS):
+    def __init__(self, N_RIS, Nc_RIS):
         super(DecoderLayer, self).__init__()
         self.linear_decoder = nn.Sequential(
             nn.Linear(Nc_RIS, N_RIS),
@@ -506,9 +574,9 @@ class DecoderLayer(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            # nn.Dropout(0.2),
-            # nn.Linear(N_RIS, N_RIS),
-            # nn.LeakyReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(N_RIS, N_RIS),
+            nn.ReLU(),
             # nn.Dropout(0.2),
             # nn.Linear(128, 128),
             # nn.LeakyReLU(),
@@ -571,11 +639,11 @@ class DecoderLayer(nn.Module):
 # 2021, doi: 10.3390/e23010104.
 # Code: https://github.com/arielamar123/ADC-Learning-hyperopt
 class AutoQEncoder(nn.Module):
-    def __init__(self, N_RIS, Nc_RIS, Nw_RIS, Nh_RIS, C_code_words, dev):
+    def __init__(self, N_RIS, Nc_RIS, C_code_words, dev):
         super(AutoQEncoder, self).__init__()
         self.encoder_layer = EncoderLayer(N_RIS, Nc_RIS).to(dev)
         self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
-        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS, Nw_RIS, Nh_RIS).to(dev)
+        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS).to(dev)
     def forward(self, x):
         x_enc = self.encoder_layer(x)
         x_qnt = self.quantizer_layer(x_enc)
@@ -583,11 +651,11 @@ class AutoQEncoder(nn.Module):
         return x_dec.double()
 
 class AutoQEncoderOnlyChannels(nn.Module):
-    def __init__(self, N_RIS, Nc_RIS, Nw_RIS, Nh_RIS, C_code_words, dev):
+    def __init__(self, N_RIS, Nc_RIS, C_code_words, dev):
         super(AutoQEncoderOnlyChannels, self).__init__()
         self.encoder_layer = EncoderLayerOnlyChannels(N_RIS, Nc_RIS).to(dev)
         self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
-        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS, Nw_RIS, Nh_RIS).to(dev)
+        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS).to(dev)
     def forward(self, x):
         x_enc = self.encoder_layer(x)
         x_qnt = self.quantizer_layer(x_enc)
@@ -874,7 +942,7 @@ if __name__ == "__main__":
     #     # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     # }
 
-    Nc_array = 2**np.array(range(0,8))
+    Nc_array = 2**np.array(range(7,8))
     # Nc_array = [32]
 
     ####################################################################################################################
@@ -967,24 +1035,24 @@ if __name__ == "__main__":
         test_loader = DataLoader(test_set, batch_size=trainparams['batch_size'])
         val_loader = DataLoader(val_set, batch_size=trainparams['batch_size'])
 
-        AQEnet = AutoQEncoder(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], trainparams['Nh_RIS'], trainparams['C_code_words'], device)
-        AQECnet = AutoQEncoderOnlyChannels(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], trainparams['Nh_RIS'], trainparams['C_code_words'], device)
+        AQEnet = AutoQEncoder(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], device)
+        AQECnet = AutoQEncoderOnlyChannels(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], device)
         linQ = LinearQuantizer(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['C_code_words'], device)
 
         AQEtrainer = Trainer(train_loader, trainparams, AQEnet, device)
-        print(AQEtrainer.model, flush=True)
         total_params = sum(p.numel() for p in AQEtrainer.model.parameters())
-        print('Number of parameters:', total_params, flush=True)
+        print('AQE Number of parameters:', total_params, flush=True)
+        print(AQEtrainer.model, flush=True)
 
         AQECtrainer = Trainer(train_loader, trainparams, AQECnet, device)
-        print(AQECtrainer.model, flush=True)
         total_params = sum(p.numel() for p in AQECtrainer.model.parameters())
-        print('Number of parameters:', total_params, flush=True)
+        print('AQEC Number of parameters:', total_params, flush=True)
+        print(AQECtrainer.model, flush=True)
 
         linQtrainer = Trainer(train_loader, trainparams, linQ, device)
-        print(linQtrainer.model, flush=True)
         total_params = sum(p.numel() for p in linQtrainer.model.parameters())
-        print('Number of parameters:', total_params, flush=True)
+        print('linQ Number of parameters:', total_params, flush=True)
+        print(linQtrainer.model, flush=True)
 
         AQEnet, AQEnet_train_losses, AQEnet_val_losses, AQEnet_num_epochs = AQEtrainer.train(val_loader, trainparams)
         AQECnet, AQECnet_train_losses, AQECnet_val_losses, AQECnet_num_epochs = AQECtrainer.train(val_loader, trainparams)
