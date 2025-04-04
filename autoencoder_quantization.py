@@ -738,11 +738,11 @@ class Trainer(object):
         self.device = dev
         self.model = model.to(self.device)
         # self.optimizer = optim.Adam(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
-        self.optimizer = optim.AdamW(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
-        # self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
-        # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.01, steps_per_epoch=len(train_loader),
-        #                                                      pct_start=0.1, epochs=trainparams['epochs']*trainparams['grace_period'])
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', patience=int(trainparams['epoch_val']/4))
+        # self.optimizer = optim.AdamW(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
+        self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
+        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.01, steps_per_epoch=len(train_loader),
+                                                             epochs=trainparams['epochs'])
+        # self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', patience=int(trainparams['epoch_val']/4))
 
     def train(self, val_loader, trainparams):
 
@@ -772,7 +772,7 @@ class Trainer(object):
                     loss = LossRD(outputs, labels, hra, hur, hua)                 # calculate batch loss
                     loss.backward()                                         # back propagate gradients through AQE network
                     self.optimizer.step()                                   # single optimization step to update variables
-                    # self.scheduler.step()                                   # adjust learning rate each step
+                    self.scheduler.step()                                   # One Cycle LR adjust learning rate each step
                     train_loss += loss.item() * trainparams['batch_size']   # update training loss
                     train_loss /= len(self.train_loader.dataset)            # normalize training loss
 
@@ -793,10 +793,10 @@ class Trainer(object):
                     val_loss += loss.item() * trainparams['batch_size']  # update validation loss
                     val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
-                before_lr = self.optimizer.param_groups[0]['lr']
-                self.scheduler.step(val_loss)                                   # adjust learning rate each step
-                after_lr = self.optimizer.param_groups[0]['lr']
-                print('\n', before_lr, '->', after_lr, flush=True)
+                # before_lr = self.optimizer.param_groups[0]['lr']
+                # self.scheduler.step(val_loss)                                   # adjust learning rate each step
+                # after_lr = self.optimizer.param_groups[0]['lr']
+                # print('\n', before_lr, '->', after_lr, flush=True)
 
                 if trainparams['epoch_echo']:
                     print('\nEpoch: {} \tTraining Loss: {:.10f} \tValidation Loss: {:.10f}'.format(
@@ -897,7 +897,7 @@ if __name__ == "__main__":
     dataset_dir = path_dir + "datasets/HDRISData/08/"
     # dataset_dir = path_dir + "datasets/HDRISData/04/"
     # dataset_dir = path_dir + "datasets/HDRISData/03/"
-    results_dir = path_dir + "logs/SISO_AchievableRateExperiments/04/"
+    results_dir = path_dir + "logs/SISO_AchievableRateExperiments/05/"
     results_file = "results.csv"
 
     print("make directory:", results_dir)
@@ -918,11 +918,11 @@ if __name__ == "__main__":
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.001, # optimizer learning rate
-                  # 'momentum': 0.9, # optimizer momentum for SGD
+                  'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 512, # batch training size
                   'epochs': 500,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': 100, # validate early stop every epoch number
+                  'epoch_val': 500, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
                   # 'trials': 500, # number of Ray tune trials
                   # 'training_iterations': 50, # number of Ray tune training iterations
@@ -932,6 +932,7 @@ if __name__ == "__main__":
                   # 'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
                   'Q_bits': 1, # number of bits of a quantizer
                   }
+    print('Using OneCycleLR Scheduler')
 
     # search_space = { # Ray Tune Hyper parameter search space
     #     "lr": tune.loguniform(1e-5, 1e-1),
@@ -942,7 +943,7 @@ if __name__ == "__main__":
     #     # 'Q_bits': tune.choice([1, 2, 3, 4, 5, 6]),
     # }
 
-    Nc_array = 2**np.array(range(7,8))
+    Nc_array = 2**np.array(range(3,7))
     # Nc_array = [32]
 
     ####################################################################################################################
