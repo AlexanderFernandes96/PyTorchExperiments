@@ -932,7 +932,7 @@ if __name__ == "__main__":
                   # 'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
                   'Q_bits': 1, # number of bits of a quantizer
                   }
-    print('Using OneCycleLR Scheduler')
+    print('Using OneCycleLR Scheduler, with SGD.')
 
     # search_space = { # Ray Tune Hyper parameter search space
     #     "lr": tune.loguniform(1e-5, 1e-1),
