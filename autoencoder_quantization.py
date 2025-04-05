@@ -504,6 +504,50 @@ class EncoderLayerOnlyChannels(nn.Module):
         x_enc = self.linear_encoder(x_in)
         return x_enc
 
+class EncoderLayerOnlyTheta(nn.Module):
+    def __init__(self, N_RIS, Nc_RIS):
+        super(EncoderLayerOnlyTheta, self).__init__()
+        self.cnn_theta = nn.Sequential(
+            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False),  # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=1, bias=False),  # 10 = 10 + 2*1 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 16, 3, padding=0, bias=False),  # 8 = 10 + 2*0 - (3-1)
+            nn.BatchNorm2d(16),
+            nn.ReLU(),
+            nn.Conv2d(16, 32, 3, padding=0, bias=False),  # 6
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+            nn.Conv2d(32, 64, 3, padding=0, bias=False),  # 4
+            nn.BatchNorm2d(64),
+            nn.ReLU(),
+            nn.Conv2d(64, 128, 3, padding=0, bias=False),  # 2
+            nn.BatchNorm2d(128),
+            nn.ReLU(),
+            nn.MaxPool2d(2, 2),
+        )
+        self.linear_encoder = nn.Sequential(
+            nn.Dropout(0.2),
+            nn.Linear(128, 128),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(128, N_RIS),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(N_RIS, N_RIS),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(N_RIS, Nc_RIS),
+            nn.ReLU(),
+        )
+    def forward(self, x):
+        theta = torch.reshape(x[0], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
+        x_in  = torch.flatten(self.cnn_theta(theta), start_dim=1)
+        x_enc = self.linear_encoder(x_in)
+        return x_enc
+
 class QuantizerLayer(nn.Module):
     def __init__(self, C_code_words, dev):
         super(QuantizerLayer, self).__init__()
@@ -654,6 +698,18 @@ class AutoQEncoderOnlyChannels(nn.Module):
     def __init__(self, N_RIS, Nc_RIS, C_code_words, dev):
         super(AutoQEncoderOnlyChannels, self).__init__()
         self.encoder_layer = EncoderLayerOnlyChannels(N_RIS, Nc_RIS).to(dev)
+        self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
+        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS).to(dev)
+    def forward(self, x):
+        x_enc = self.encoder_layer(x)
+        x_qnt = self.quantizer_layer(x_enc)
+        x_dec = self.decoder_layer(x_qnt)
+        return x_dec.double()
+
+class AutoQEncoderOnlyTheta(nn.Module):
+    def __init__(self, N_RIS, Nc_RIS, C_code_words, dev):
+        super(AutoQEncoderOnlyTheta, self).__init__()
+        self.encoder_layer = EncoderLayerOnlyTheta(N_RIS, Nc_RIS).to(dev)
         self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
         self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS).to(dev)
     def forward(self, x):
@@ -920,7 +976,7 @@ if __name__ == "__main__":
                   'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 512, # batch training size
-                  'epochs': 500,  # total training duration
+                  'epochs': 5,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 500, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
@@ -1024,6 +1080,7 @@ if __name__ == "__main__":
     R_opt_array = np.zeros(len(Nc_array))
     R_AQE_array = np.zeros(len(Nc_array))
     R_AQEC_array = np.zeros(len(Nc_array))
+    R_AQET_array = np.zeros(len(Nc_array))
     R_linQ_array = np.zeros(len(Nc_array))
     R_rand_array = np.zeros(len(Nc_array))
     for i in range(len(Nc_array)):
@@ -1038,6 +1095,7 @@ if __name__ == "__main__":
 
         AQEnet = AutoQEncoder(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], device)
         AQECnet = AutoQEncoderOnlyChannels(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], device)
+        AQETnet = AutoQEncoderOnlyTheta(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], device)
         linQ = LinearQuantizer(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['C_code_words'], device)
 
         AQEtrainer = Trainer(train_loader, trainparams, AQEnet, device)
@@ -1050,32 +1108,43 @@ if __name__ == "__main__":
         print('AQEC Number of parameters:', total_params, flush=True)
         print(AQECtrainer.model, flush=True)
 
+        AQETtrainer = Trainer(train_loader, trainparams, AQETnet, device)
+        total_params = sum(p.numel() for p in AQETtrainer.model.parameters())
+        print('AQET Number of parameters:', total_params, flush=True)
+        print(AQETtrainer.model, flush=True)
+
         linQtrainer = Trainer(train_loader, trainparams, linQ, device)
         total_params = sum(p.numel() for p in linQtrainer.model.parameters())
         print('linQ Number of parameters:', total_params, flush=True)
         print(linQtrainer.model, flush=True)
 
-        AQEnet, AQEnet_train_losses, AQEnet_val_losses, AQEnet_num_epochs = AQEtrainer.train(val_loader, trainparams)
-        AQECnet, AQECnet_train_losses, AQECnet_val_losses, AQECnet_num_epochs = AQECtrainer.train(val_loader, trainparams)
-        linQ, linQ_train_losses, linQ_val_losses, linQ_num_epochs = linQtrainer.train(val_loader, trainparams)
+        AQEnet,     AQEnet_train_losses,    AQEnet_val_losses,  AQEnet_num_epochs   = AQEtrainer.train(val_loader, trainparams)
+        AQECnet,    AQECnet_train_losses,   AQECnet_val_losses, AQECnet_num_epochs  = AQECtrainer.train(val_loader, trainparams)
+        AQETnet,    AQETnet_train_losses,   AQETnet_val_losses, AQETnet_num_epochs  = AQETtrainer.train(val_loader, trainparams)
+        linQ,       linQ_train_losses,      linQ_val_losses,    linQ_num_epochs     = linQtrainer.train(val_loader, trainparams)
 
         d_AQE = {"train": AQEnet_train_losses, "val": AQEnet_val_losses}
         AQE_loss_df = pandas.DataFrame(d_AQE)
         d_AQEC = {"train": AQECnet_train_losses, "val": AQECnet_val_losses}
         AQEC_loss_df = pandas.DataFrame(d_AQEC)
+        d_AQET = {"train": AQETnet_train_losses, "val": AQETnet_val_losses}
+        AQET_loss_df = pandas.DataFrame(d_AQET)
         d_linQ = {"train": linQ_train_losses, "val": linQ_val_losses}
         linQ_loss_df = pandas.DataFrame(d_linQ)
 
         loss_file = "loss" + str(i) + ".csv"
         print("Saving losses to:", results_dir + "AQE_" + loss_file, flush=True)
         AQE_loss_df.to_csv(results_dir + "AQE_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
-        print("Saving losses to:", results_dir + "AQE_" + loss_file, flush=True)
+        print("Saving losses to:", results_dir + "AQEC_" + loss_file, flush=True)
         AQEC_loss_df.to_csv(results_dir + "AQEC_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+        print("Saving losses to:", results_dir + "AQET_" + loss_file, flush=True)
+        AQET_loss_df.to_csv(results_dir + "AQET_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
         print("Saving losses to:", results_dir + "linQ_" + loss_file, flush=True)
         linQ_loss_df.to_csv(results_dir + "linQ_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
 
         R_opt, R_AQE, R_rand = AQEtrainer.evaluate(test_loader, sysmodelparams, trainparams)
         R_opt, R_AQEC, R_rand = AQECtrainer.evaluate(test_loader, sysmodelparams, trainparams)
+        R_opt, R_AQET, R_rand = AQETtrainer.evaluate(test_loader, sysmodelparams, trainparams)
         R_opt, R_linQ, R_rand = linQtrainer.evaluate(test_loader, sysmodelparams, trainparams)
 
         print("-------------------------------------------------------------------------------------------------------")
@@ -1085,12 +1154,14 @@ if __name__ == "__main__":
         print('optimum: ', R_opt, flush=True)
         print('AQE net: ', R_AQE, flush=True)
         print('AQEC:    ', R_AQEC, flush=True)
+        print('AQET:    ', R_AQET, flush=True)
         print('lin Q:   ', R_linQ, flush=True)
         print('random:  ', R_rand, flush=True)
         print("-------------------------------------------------------------------------------------------------------\n\n")
         R_opt_array[i] = R_opt
         R_AQE_array[i] = R_AQE
         R_AQEC_array[i] = R_AQEC
+        R_AQET_array[i] = R_AQET
         R_linQ_array[i] = R_linQ
         R_rand_array[i] = R_rand
 
@@ -1103,7 +1174,7 @@ if __name__ == "__main__":
         # plt.show(block=True)
         # # plt.interactive(False)
 
-    d = {'Nc': Nc_array, 'R_opt': R_opt_array, 'R_AQE': R_AQE_array, 'R_AQEC': R_AQEC_array, 'R_linQ': R_linQ_array, 'R_rand': R_rand_array}
+    d = {'Nc': Nc_array, 'R_opt': R_opt_array, 'R_AQE': R_AQE_array, 'R_AQEC': R_AQEC_array, 'R_AQET': R_AQET_array, 'R_linQ': R_linQ_array, 'R_rand': R_rand_array}
     results_df = pandas.DataFrame(d)
     print('Bits per Quantizer:', trainparams['Q_bits'], flush=True)
     print(results_df, flush=True)
