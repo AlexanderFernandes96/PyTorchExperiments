@@ -206,16 +206,16 @@ class EncoderLayer(nn.Module):
             # nn.Linear(Nc_RIS, Nc_RIS),
             # nn.LeakyReLU(),
 
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(7 * 128, 1 * 128),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(1 * 128, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
         )
@@ -474,16 +474,16 @@ class EncoderLayerOnlyChannels(nn.Module):
             nn.ReLU(),
         )
         self.linear_encoder = nn.Sequential(
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(6*128, 1*128),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(1*128, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
         )
@@ -529,16 +529,16 @@ class EncoderLayerOnlyTheta(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.linear_encoder = nn.Sequential(
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(128, 128),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(128, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.2),
+            nn.Dropout(0.5),
             nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
         )
@@ -774,8 +774,8 @@ def LossRD(x, y, hra, hur, hua):
     R = torch.matmul(hra_hur, x.transpose(0,1))
     R = torch.log2( 1 + torch.square(torch.abs(hua + R)) )
     dist = torch.abs(torch.angle(torch.exp(1j * x)) - torch.angle(torch.exp(1j * y)))
-    return torch.mean(torch.square(dist)) - torch.mean(R)
-    # return torch.mean(torch.square(dist)) / torch.mean(R)
+    # return torch.mean(torch.square(dist)) - torch.mean(R)
+    return torch.mean(torch.square(dist)) / torch.mean(R)
 
 def LossR(x, y, hra, hur, hua):
     hra_hur = torch.mul(hra, hur)
