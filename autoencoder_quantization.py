@@ -206,16 +206,16 @@ class EncoderLayer(nn.Module):
             # nn.Linear(Nc_RIS, Nc_RIS),
             # nn.LeakyReLU(),
 
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(7 * 128, 1 * 128),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(1 * 128, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
         )
@@ -291,7 +291,7 @@ class EncoderLayer(nn.Module):
         # )
         #
         # self.linear_encoder = nn.Sequential(
-        #     # nn.Dropout(0.5),
+        #     # nn.Dropout(0.2),
         #     nn.Linear(64, 64),
         #     nn.LeakyReLU(),
         #     nn.Linear(64, 64),
@@ -322,7 +322,7 @@ class EncoderLayer(nn.Module):
         # )
 
         # self.linear_encoder = nn.Sequential(
-        #     nn.Dropout(0.5),
+        #     nn.Dropout(0.2),
         #     nn.Linear(64, Nc_RIS),
         #     nn.LeakyReLU(),
         # )
@@ -474,16 +474,16 @@ class EncoderLayerOnlyChannels(nn.Module):
             nn.ReLU(),
         )
         self.linear_encoder = nn.Sequential(
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(6*128, 1*128),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(1*128, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
         )
@@ -529,16 +529,16 @@ class EncoderLayerOnlyTheta(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.linear_encoder = nn.Sequential(
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(128, 128),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(128, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
         )
@@ -615,13 +615,13 @@ class DecoderLayer(nn.Module):
         self.linear_decoder = nn.Sequential(
             nn.Linear(Nc_RIS, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            # nn.Dropout(0.5),
+            # nn.Dropout(0.2),
             # nn.Linear(128, 128),
             # nn.LeakyReLU(),
             # nn.Tanh(),
@@ -796,7 +796,7 @@ class Trainer(object):
         # self.optimizer = optim.Adam(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
         # self.optimizer = optim.AdamW(self.model.parameters(), lr=trainparams['lr'], amsgrad=True)
         self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
-        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.01, steps_per_epoch=len(train_loader),
+        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=trainparams['max_lr'], steps_per_epoch=len(train_loader),
                                                              epochs=trainparams['epochs'])
         # self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', patience=int(trainparams['epoch_val']/4))
 
@@ -975,7 +975,7 @@ if __name__ == "__main__":
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.001, # optimizer learning rate
                   'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 512, # batch training size
+                  'batch_size': 1024, # batch training size
                   'epochs': 500,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 500, # validate early stop every epoch number
@@ -987,6 +987,7 @@ if __name__ == "__main__":
                   # 'step_size': 10, # step size for scheduler optimizer
                   # 'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
                   'Q_bits': 1, # number of bits of a quantizer
+                  'max_lr': 1, # maximum learning rate for Scheduler
                   }
     print('Using OneCycleLR Scheduler, with SGD.')
 
