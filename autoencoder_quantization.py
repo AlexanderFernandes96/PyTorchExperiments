@@ -44,12 +44,12 @@ class EncoderLayer(nn.Module):
         # Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
         # Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
         self.cnn_theta = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
+            # nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
+            # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
             nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
@@ -65,12 +65,12 @@ class EncoderLayer(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hra_mag = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
+            # nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
+            # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
             nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
@@ -86,12 +86,12 @@ class EncoderLayer(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hra_ang = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
+            # nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
+            # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
             nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
@@ -107,12 +107,12 @@ class EncoderLayer(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_mag = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
+            # nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
+            # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
             nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
@@ -128,12 +128,12 @@ class EncoderLayer(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_ang = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
+            # nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
+            # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
             nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
@@ -212,9 +212,9 @@ class EncoderLayer(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(1 * 128, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, N_RIS),
-            nn.ReLU(),
+            # nn.Dropout(0.2),
+            # nn.Linear(N_RIS, N_RIS),
+            # nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
@@ -380,12 +380,12 @@ class EncoderLayerOnlyChannels(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayerOnlyChannels, self).__init__()
         self.cnn_hra_mag = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
+            # nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
+            # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
             nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
@@ -401,12 +401,12 @@ class EncoderLayerOnlyChannels(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hra_ang = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
+            # nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
+            # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
             nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
@@ -422,12 +422,12 @@ class EncoderLayerOnlyChannels(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_mag = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
+            # nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
+            # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
             nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
@@ -443,12 +443,12 @@ class EncoderLayerOnlyChannels(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.cnn_hur_ang = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
+            # nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
+            # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
             nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
@@ -480,9 +480,9 @@ class EncoderLayerOnlyChannels(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(1*128, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, N_RIS),
-            nn.ReLU(),
+            # nn.Dropout(0.2),
+            # nn.Linear(N_RIS, N_RIS),
+            # nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
@@ -508,12 +508,12 @@ class EncoderLayerOnlyTheta(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayerOnlyTheta, self).__init__()
         self.cnn_theta = nn.Sequential(
-            nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False),  # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=1, bias=False),  # 10 = 10 + 2*1 - (3-1)
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
+            # nn.Conv2d(1, 16, 3, padding=1, padding_mode='circular', bias=False),  # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
+            # nn.Conv2d(16, 16, 3, padding=1, bias=False),  # 10 = 10 + 2*1 - (3-1)
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
             nn.Conv2d(16, 16, 3, padding=0, bias=False),  # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
@@ -535,9 +535,9 @@ class EncoderLayerOnlyTheta(nn.Module):
             nn.Dropout(0.2),
             nn.Linear(128, N_RIS),
             nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(N_RIS, N_RIS),
-            nn.ReLU(),
+            # nn.Dropout(0.2),
+            # nn.Linear(N_RIS, N_RIS),
+            # nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
