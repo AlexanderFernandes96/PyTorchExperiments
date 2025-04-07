@@ -50,7 +50,7 @@ class EncoderLayer(nn.Module):
             # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
             # nn.BatchNorm2d(16),
             # nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -71,7 +71,7 @@ class EncoderLayer(nn.Module):
             # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
             # nn.BatchNorm2d(16),
             # nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -92,7 +92,7 @@ class EncoderLayer(nn.Module):
             # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
             # nn.BatchNorm2d(16),
             # nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -113,7 +113,7 @@ class EncoderLayer(nn.Module):
             # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
             # nn.BatchNorm2d(16),
             # nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -134,7 +134,7 @@ class EncoderLayer(nn.Module):
             # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
             # nn.BatchNorm2d(16),
             # nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -386,7 +386,7 @@ class EncoderLayerOnlyChannels(nn.Module):
             # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
             # nn.BatchNorm2d(16),
             # nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -407,7 +407,7 @@ class EncoderLayerOnlyChannels(nn.Module):
             # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
             # nn.BatchNorm2d(16),
             # nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -428,7 +428,7 @@ class EncoderLayerOnlyChannels(nn.Module):
             # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
             # nn.BatchNorm2d(16),
             # nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -449,7 +449,7 @@ class EncoderLayerOnlyChannels(nn.Module):
             # nn.Conv2d(16, 16, 3, padding=1, bias=False), # 10 = 10 + 2*1 - (3-1)
             # nn.BatchNorm2d(16),
             # nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False), # 6
@@ -514,7 +514,7 @@ class EncoderLayerOnlyTheta(nn.Module):
             # nn.Conv2d(16, 16, 3, padding=1, bias=False),  # 10 = 10 + 2*1 - (3-1)
             # nn.BatchNorm2d(16),
             # nn.ReLU(),
-            nn.Conv2d(16, 16, 3, padding=0, bias=False),  # 8 = 10 + 2*0 - (3-1)
+            nn.Conv2d(1, 16, 3, padding=0, bias=False),  # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.Conv2d(16, 32, 3, padding=0, bias=False),  # 6
