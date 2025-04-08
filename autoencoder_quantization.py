@@ -452,7 +452,7 @@ class EncoderLayerOnlyChannels(nn.Module):
         )
         self.linear_encoder = nn.Sequential(
             nn.Dropout(0.2),
-            nn.Linear(3*64, 64),
+            nn.Linear(2*64, 64),
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(64, Nc_RIS),
