@@ -158,6 +158,22 @@ class EncoderLayer(nn.Module):
             nn.BatchNorm2d(128),
             nn.ReLU(),
         )
+        self.linear_mag = nn.Sequential(
+            nn.Dropout(0.2),
+            nn.Linear(3*128, 128),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(128, 128),
+            nn.ReLU(),
+        )
+        self.linear_ang = nn.Sequential(
+            nn.Dropout(0.2),
+            nn.Linear(3*128, 128),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(128, 128),
+            nn.ReLU(),
+        )
         # self.linear_theta = nn.Sequential(
         #     nn.Linear(N_RIS, N_RIS),
         #     nn.LeakyReLU(),
@@ -207,7 +223,7 @@ class EncoderLayer(nn.Module):
             # nn.LeakyReLU(),
 
             nn.Dropout(0.2),
-            nn.Linear(7 * 128, 1 * 128),
+            nn.Linear(3 * 128, 1 * 128),
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(1 * 128, N_RIS),
@@ -353,7 +369,9 @@ class EncoderLayer(nn.Module):
         hur_ang = torch.flatten(self.cnn_hur_ang(hur_ang), start_dim=1)
         hua_mag = torch.flatten(self.cnn_hua_mag(hua_mag), start_dim=1)
         hua_ang = torch.flatten(self.cnn_hua_ang(hua_ang), start_dim=1)
-        x_in = torch.cat((theta, hra_mag, hra_ang, hur_mag, hur_ang, hua_mag, hua_ang), 1)
+        x_mag = self.linear_mag(torch.cat((hra_mag, hur_mag, hua_mag), 1))
+        x_ang = self.linear_ang(torch.cat((hra_ang, hur_ang, hua_ang), 1))
+        x_in = torch.cat((theta, x_mag, x_ang), 1)
         x_enc = self.linear_encoder(x_in)
         return x_enc
 
@@ -473,9 +491,25 @@ class EncoderLayerOnlyChannels(nn.Module):
             nn.BatchNorm2d(128),
             nn.ReLU(),
         )
+        self.linear_mag = nn.Sequential(
+            nn.Dropout(0.2),
+            nn.Linear(3*128, 128),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(128, 128),
+            nn.ReLU(),
+        )
+        self.linear_ang = nn.Sequential(
+            nn.Dropout(0.2),
+            nn.Linear(3*128, 128),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(128, 128),
+            nn.ReLU(),
+        )
         self.linear_encoder = nn.Sequential(
             nn.Dropout(0.2),
-            nn.Linear(6*128, 1*128),
+            nn.Linear(3*128, 1*128),
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(1*128, N_RIS),
@@ -500,7 +534,9 @@ class EncoderLayerOnlyChannels(nn.Module):
         hur_ang = torch.flatten(self.cnn_hur_ang(hur_ang), start_dim=1)
         hua_mag = torch.flatten(self.cnn_hua_mag(hua_mag), start_dim=1)
         hua_ang = torch.flatten(self.cnn_hua_ang(hua_ang), start_dim=1)
-        x_in = torch.cat((hra_mag, hra_ang, hur_mag, hur_ang, hua_mag, hua_ang), 1)
+        x_mag = self.linear_mag(torch.cat((hra_mag, hur_mag, hua_mag), 1))
+        x_ang = self.linear_ang(torch.cat((hra_ang, hur_ang, hua_ang), 1))
+        x_in = torch.cat((x_mag, x_ang), 1)
         x_enc = self.linear_encoder(x_in)
         return x_enc
 
@@ -855,7 +891,7 @@ class Trainer(object):
                 print(before_lr, '->', after_lr, flush=True)
 
                 if trainparams['epoch_echo']:
-                    print('\nEpoch: {} \tTraining Loss: {:.10f} \tValidation Loss: {:.10f}'.format(
+                    print('Epoch: {} \tTraining Loss: {:.10f} \tValidation Loss: {:.10f}'.format(
                         epoch, train_loss, val_loss), flush=True)
 
                 # save model if validation loss has decreased
