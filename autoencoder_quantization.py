@@ -580,10 +580,10 @@ class DecoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(DecoderLayer, self).__init__()
         self.linear_decoder = nn.Sequential(
-            nn.Linear(Nc_RIS, N_RIS),
+            nn.Linear(Nc_RIS, Nc_RIS),
             nn.ReLU(),
             nn.Dropout(0.2),
-            nn.Linear(N_RIS, N_RIS),
+            nn.Linear(Nc_RIS, N_RIS),
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
@@ -915,13 +915,13 @@ if __name__ == "__main__":
     print('Start Script')
     print('------------')
 
-    path_dir = "/home/alex96/scratch/"
-    # path_dir = "MATLAB/"
-    dataset_dir = path_dir + "datasets/HDRISData/08/"
-    # dataset_dir = path_dir + "datasets/HDRISData/04/"
+    # path_dir = "/home/alex96/scratch/"
+    path_dir = "MATLAB/"
+    # dataset_dir = path_dir + "datasets/HDRISData/08/"
+    dataset_dir = path_dir + "datasets/HDRISData/04/"
     # dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_dir = path_dir + "logs/SISO_AchievableRateExperiments/06/"
-    if len(sys.argv) > 0:
+    if len(sys.argv) > 1:
         results_dir = results_dir + sys.argv[1] + "/"
     results_file = "results.csv"
 
