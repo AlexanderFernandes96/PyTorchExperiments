@@ -915,15 +915,16 @@ if __name__ == "__main__":
     print('Start Script')
     print('------------')
 
-    # path_dir = "/home/alex96/scratch/"
-    path_dir = "MATLAB/"
-    # dataset_dir = path_dir + "datasets/HDRISData/08/"
-    dataset_dir = path_dir + "datasets/HDRISData/04/"
+    path_dir = "/home/alex96/scratch/"
+    # path_dir = "MATLAB/"
+    dataset_dir = path_dir + "datasets/HDRISData/08/"
+    # dataset_dir = path_dir + "datasets/HDRISData/04/"
     # dataset_dir = path_dir + "datasets/HDRISData/03/"
     results_dir = path_dir + "logs/SISO_AchievableRateExperiments/06/"
     if len(sys.argv) > 1:
         results_dir = results_dir + sys.argv[1] + "/"
     results_file = "results.csv"
+    trainparams_file = "trainparams.csv"
 
     print("make directory:", results_dir)
     Path(path_dir).mkdir(parents=True, exist_ok=True)
@@ -944,10 +945,10 @@ if __name__ == "__main__":
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 2**np.random.randint(6, 10), # batch training size
+                  'batch_size': 2**np.random.randint(6, 11), # batch training size
                   'epochs': 500,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
-                  'epoch_val': np.random.randint(50, 150), # validate early stop every epoch number
+                  'epoch_val': 100, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
                   # 'trials': 500, # number of Ray tune trials
                   # 'training_iterations': 50, # number of Ray tune training iterations
@@ -955,9 +956,10 @@ if __name__ == "__main__":
                   # 'trials_per_device': 5, # number of trials per cpu/gpu resource
                   # 'step_size': 10, # step size for scheduler optimizer
                   # 'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 1, # number of bits of a quantizer
+                  'Q_bits': np.random.randint(1, 6), # number of bits of a quantizer
                   # 'max_lr': 1, # maximum learning rate for Scheduler
                   }
+    # for all numpy random generators, the range is: [low, high) where the low value is included but the high value is excluded.
 
 
     # print('Using OneCycleLR Scheduler, with SGD.')
@@ -1147,12 +1149,16 @@ if __name__ == "__main__":
         # plt.show(block=True)
         # # plt.interactive(False)
 
+    trainparams_df = pandas.DataFrame(trainparams, index=[0])
+    print(trainparams_df, flush=True)
+    print('Saving parameters to:', results_dir + trainparams_file)
+    trainparams_df.to_csv(results_dir + trainparams_file, sep='\t', encoding='utf-8', index=False, header=True)
+
     d = {'Nc': Nc_array, 'R_opt': R_opt_array, 'R_AQE': R_AQE_array, 'R_AQEC': R_AQEC_array, 'R_AQET': R_AQET_array, 'R_linQ': R_linQ_array, 'R_rand': R_rand_array}
     results_df = pandas.DataFrame(d)
     print('Bits per Quantizer:', trainparams['Q_bits'], flush=True)
     print(results_df, flush=True)
     print('Saving results to:', results_dir + results_file, flush=True)
-
     results_df.to_csv(results_dir + results_file, sep='\t', encoding='utf-8', index=False, header=True)
 
     # fig, ax = plt.subplots()
