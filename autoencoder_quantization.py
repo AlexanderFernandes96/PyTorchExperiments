@@ -43,107 +43,66 @@ class EncoderLayer(nn.Module):
         super(EncoderLayer, self).__init__()
         # Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
         # Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
-        self.cnn_theta = nn.Sequential(
-            nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(8),
-            nn.ReLU(),
-            nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        self.cnn_hra_mag = nn.Sequential(
-            nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(8),
-            nn.ReLU(),
-            nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        self.cnn_hra_ang = nn.Sequential(
-            nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(8),
-            nn.ReLU(),
-            nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        self.cnn_hur_mag = nn.Sequential(
-            nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(8),
-            nn.ReLU(),
-            nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        self.cnn_hur_ang = nn.Sequential(
-            nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(8),
-            nn.ReLU(),
-            nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        self.cnn_hua_mag = nn.Sequential(
-            nn.Conv2d(1, 64, 1, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+        self.layer_theta = nn.Sequential(
+            # nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+            # nn.BatchNorm2d(8),
+            # nn.ReLU(),
+            # nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
+            # nn.BatchNorm2d(16),
+            # nn.ReLU(),
+            # nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
+            # nn.BatchNorm2d(32),
+            # nn.ReLU(),
+            # nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
+            # nn.BatchNorm2d(64),
+            # nn.ReLU(),
+            # nn.MaxPool2d(2, 2),
+            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
         )
-        self.cnn_hua_ang = nn.Sequential(
-            nn.Conv2d(1, 64, 1, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+        self.layer_hra_mag = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
         )
-        self.linear_mag = nn.Sequential(
-            nn.Dropout(0.2),
-            nn.Linear(3*64, 64),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(64, 64),
+        self.layer_hra_ang = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
         )
-        self.linear_ang = nn.Sequential(
-            nn.Dropout(0.2),
-            nn.Linear(3*64, 64),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(64, 64),
+        self.layer_hur_mag = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
         )
+        self.layer_hur_ang = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
+            nn.ReLU(),
+        )
+        self.layer_hua_mag = nn.Sequential(
+            # nn.Conv2d(1, 64, 1, padding=0, bias=False),
+            # nn.BatchNorm2d(64),
+            # nn.ReLU(),
+            nn.Linear(1, N_RIS),
+            nn.ReLU(),
+        )
+        self.layer_hua_ang = nn.Sequential(
+            nn.Linear(1, N_RIS),
+            nn.ReLU(),
+        )
+        # self.linear_mag = nn.Sequential(
+        #     nn.Dropout(0.2),
+        #     nn.Linear(3*N_RIS, 64),
+        #     nn.ReLU(),
+        #     nn.Dropout(0.2),
+        #     nn.Linear(64, 64),
+        #     nn.ReLU(),
+        # )
+        # self.linear_ang = nn.Sequential(
+        #     nn.Dropout(0.2),
+        #     nn.Linear(3*64, 64),
+        #     nn.ReLU(),
+        #     nn.Dropout(0.2),
+        #     nn.Linear(64, 64),
+        #     nn.ReLU(),
+        # )
         # self.linear_theta = nn.Sequential(
         #     nn.Linear(N_RIS, N_RIS),
         #     nn.LeakyReLU(),
@@ -193,10 +152,10 @@ class EncoderLayer(nn.Module):
             # nn.LeakyReLU(),
 
             nn.Dropout(0.2),
-            nn.Linear(3 * 64, 64),
+            nn.Linear(7 * N_RIS, N_RIS),
             nn.ReLU(),
             nn.Dropout(0.2),
-            nn.Linear(64, Nc_RIS),
+            nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(Nc_RIS, Nc_RIS),
@@ -322,23 +281,38 @@ class EncoderLayer(nn.Module):
         # hur_mag = self.linear_hur_mag(hur_mag)
         # hur_ang = self.linear_hur_ang(hur_ang)
         # x_in = torch.cat((theta, hra_mag, hra_ang, hur_mag, hur_ang), 1)
-        theta   = torch.reshape(x[0], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
-        hra_mag = torch.reshape(x[1], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
-        hra_ang = torch.reshape(x[2], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
-        hur_mag = torch.reshape(x[3], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
-        hur_ang = torch.reshape(x[4], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
-        hua_mag = torch.reshape(x[5], (-1, 1, 1, 1)).float()
-        hua_ang = torch.reshape(x[6], (-1, 1, 1, 1)).float()
-        theta   = torch.flatten(self.cnn_theta(theta), start_dim=1)
-        hra_mag = torch.flatten(self.cnn_hra_mag(hra_mag), start_dim=1)
-        hra_ang = torch.flatten(self.cnn_hra_ang(hra_ang), start_dim=1)
-        hur_mag = torch.flatten(self.cnn_hur_mag(hur_mag), start_dim=1)
-        hur_ang = torch.flatten(self.cnn_hur_ang(hur_ang), start_dim=1)
-        hua_mag = torch.flatten(self.cnn_hua_mag(hua_mag), start_dim=1)
-        hua_ang = torch.flatten(self.cnn_hua_ang(hua_ang), start_dim=1)
-        x_mag = self.linear_mag(torch.cat((hra_mag, hur_mag, hua_mag), 1))
-        x_ang = self.linear_ang(torch.cat((hra_ang, hur_ang, hua_ang), 1))
-        x_in = torch.cat((theta, x_mag, x_ang), 1)
+        # theta   = torch.reshape(x[0], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
+        # hra_mag = torch.reshape(x[1], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
+        # hra_ang = torch.reshape(x[2], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
+        # hur_mag = torch.reshape(x[3], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
+        # hur_ang = torch.reshape(x[4], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
+        # hua_mag = torch.reshape(x[5], (-1, 1, 1, 1)).float()
+        # hua_ang = torch.reshape(x[6], (-1, 1, 1, 1)).float()
+        # theta   = torch.flatten(self.layer_theta(theta), start_dim=1)
+        # hra_mag = torch.flatten(self.layer_hra_mag(hra_mag), start_dim=1)
+        # hra_ang = torch.flatten(self.layer_hra_ang(hra_ang), start_dim=1)
+        # hur_mag = torch.flatten(self.layer_hur_mag(hur_mag), start_dim=1)
+        # hur_ang = torch.flatten(self.layer_hur_ang(hur_ang), start_dim=1)
+        # hua_mag = torch.flatten(self.layer_hua_mag(hua_mag), start_dim=1)
+        # hua_ang = torch.flatten(self.layer_hua_ang(hua_ang), start_dim=1)
+        # x_mag = self.linear_mag(torch.cat((hra_mag, hur_mag, hua_mag), 1))
+        # x_ang = self.linear_ang(torch.cat((hra_ang, hur_ang, hua_ang), 1))
+        # x_in = torch.cat((theta, x_mag, x_ang), 1)
+        theta   = x[0].float()
+        hra_mag = x[1].float()
+        hra_ang = x[2].float()
+        hur_mag = x[3].float()
+        hur_ang = x[4].float()
+        hua_mag = torch.reshape(x[5], (-1, 1)).float()
+        hua_ang = torch.reshape(x[6], (-1, 1)).float()
+        theta   = self.layer_theta(theta)
+        hra_mag = self.layer_hra_mag(hra_mag)
+        hra_ang = self.layer_hra_ang(hra_ang)
+        hur_mag = self.layer_hur_mag(hur_mag)
+        hur_ang = self.layer_hur_ang(hur_ang)
+        hua_mag = self.layer_hua_mag(hua_mag)
+        hua_ang = self.layer_hua_ang(hua_ang)
+        x_in = torch.cat((theta, hra_mag, hra_ang, hur_mag, hur_ang, hua_mag, hua_ang), 1)
         x_enc = self.linear_encoder(x_in)
         return x_enc
 
@@ -364,154 +338,111 @@ class EncoderLayer(nn.Module):
 class EncoderLayerOnlyChannels(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayerOnlyChannels, self).__init__()
-        self.cnn_hra_mag = nn.Sequential(
-            nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(8),
-            nn.ReLU(),
-            nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        self.cnn_hra_ang = nn.Sequential(
-            nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(8),
-            nn.ReLU(),
-            nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        self.cnn_hur_mag = nn.Sequential(
-            nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(8),
-            nn.ReLU(),
-            nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        self.cnn_hur_ang = nn.Sequential(
-            nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(8),
-            nn.ReLU(),
-            nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
-        self.cnn_hua_mag = nn.Sequential(
-            nn.Conv2d(1, 64, 1, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+        self.layer_hra_mag = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
         )
-        self.cnn_hua_ang = nn.Sequential(
-            nn.Conv2d(1, 64, 1, padding=0, bias=False),
-            nn.BatchNorm2d(64),
+        self.layer_hra_ang = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
         )
-        self.linear_mag = nn.Sequential(
-            nn.Dropout(0.2),
-            nn.Linear(3*64, 64),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(64, 64),
+        self.layer_hur_mag = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
         )
-        self.linear_ang = nn.Sequential(
-            nn.Dropout(0.2),
-            nn.Linear(3*64, 64),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(64, 64),
+        self.layer_hur_ang = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
         )
+        self.layer_hua_mag = nn.Sequential(
+            nn.Linear(1, N_RIS),
+            nn.ReLU(),
+        )
+        self.layer_hua_ang = nn.Sequential(
+            nn.Linear(1, N_RIS),
+            nn.ReLU(),
+        )
+        # self.linear_mag = nn.Sequential(
+        #     nn.Dropout(0.2),
+        #     nn.Linear(3*64, 64),
+        #     nn.ReLU(),
+        #     nn.Dropout(0.2),
+        #     nn.Linear(64, 64),
+        #     nn.ReLU(),
+        # )
+        # self.linear_ang = nn.Sequential(
+        #     nn.Dropout(0.2),
+        #     nn.Linear(3*64, 64),
+        #     nn.ReLU(),
+        #     nn.Dropout(0.2),
+        #     nn.Linear(64, 64),
+        #     nn.ReLU(),
+        # )
         self.linear_encoder = nn.Sequential(
             nn.Dropout(0.2),
-            nn.Linear(2*64, 64),
+            nn.Linear(6*N_RIS, N_RIS),
             nn.ReLU(),
             nn.Dropout(0.2),
-            nn.Linear(64, Nc_RIS),
+            nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(Nc_RIS, Nc_RIS),
             nn.ReLU(),
         )
     def forward(self, x):
-        hra_mag = torch.reshape(x[1], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
-        hra_ang = torch.reshape(x[2], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
-        hur_mag = torch.reshape(x[3], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
-        hur_ang = torch.reshape(x[4], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
-        hua_mag = torch.reshape(x[5], (-1, 1, 1, 1)).float()
-        hua_ang = torch.reshape(x[6], (-1, 1, 1, 1)).float()
-        hra_mag = torch.flatten(self.cnn_hra_mag(hra_mag), start_dim=1)
-        hra_ang = torch.flatten(self.cnn_hra_ang(hra_ang), start_dim=1)
-        hur_mag = torch.flatten(self.cnn_hur_mag(hur_mag), start_dim=1)
-        hur_ang = torch.flatten(self.cnn_hur_ang(hur_ang), start_dim=1)
-        hua_mag = torch.flatten(self.cnn_hua_mag(hua_mag), start_dim=1)
-        hua_ang = torch.flatten(self.cnn_hua_ang(hua_ang), start_dim=1)
-        x_mag = self.linear_mag(torch.cat((hra_mag, hur_mag, hua_mag), 1))
-        x_ang = self.linear_ang(torch.cat((hra_ang, hur_ang, hua_ang), 1))
-        x_in = torch.cat((x_mag, x_ang), 1)
+        # hra_mag = torch.reshape(x[1], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
+        # hra_ang = torch.reshape(x[2], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
+        # hur_mag = torch.reshape(x[3], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
+        # hur_ang = torch.reshape(x[4], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
+        # hua_mag = torch.reshape(x[5], (-1, 1, 1, 1)).float()
+        # hua_ang = torch.reshape(x[6], (-1, 1, 1, 1)).float()
+        # hra_mag = torch.flatten(self.layer_hra_mag(hra_mag), start_dim=1)
+        # hra_ang = torch.flatten(self.layer_hra_ang(hra_ang), start_dim=1)
+        # hur_mag = torch.flatten(self.layer_hur_mag(hur_mag), start_dim=1)
+        # hur_ang = torch.flatten(self.layer_hur_ang(hur_ang), start_dim=1)
+        # hua_mag = torch.flatten(self.layer_hua_mag(hua_mag), start_dim=1)
+        # hua_ang = torch.flatten(self.layer_hua_ang(hua_ang), start_dim=1)
+        # x_mag = self.linear_mag(torch.cat((hra_mag, hur_mag, hua_mag), 1))
+        # x_ang = self.linear_ang(torch.cat((hra_ang, hur_ang, hua_ang), 1))
+        # x_in = torch.cat((x_mag, x_ang), 1)
+        hra_mag = x[1].float()
+        hra_ang = x[2].float()
+        hur_mag = x[3].float()
+        hur_ang = x[4].float()
+        hua_mag = torch.reshape(x[5], (-1, 1)).float()
+        hua_ang = torch.reshape(x[6], (-1, 1)).float()
+        hra_mag = self.layer_hra_mag(hra_mag)
+        hra_ang = self.layer_hra_ang(hra_ang)
+        hur_mag = self.layer_hur_mag(hur_mag)
+        hur_ang = self.layer_hur_ang(hur_ang)
+        hua_mag = self.layer_hua_mag(hua_mag)
+        hua_ang = self.layer_hua_ang(hua_ang)
+        x_in = torch.cat((hra_mag, hra_ang, hur_mag, hur_ang, hua_mag, hua_ang), 1)
         x_enc = self.linear_encoder(x_in)
         return x_enc
 
 class EncoderLayerOnlyTheta(nn.Module):
     def __init__(self, N_RIS, Nc_RIS):
         super(EncoderLayerOnlyTheta, self).__init__()
-        self.cnn_theta = nn.Sequential(
-            nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(8),
+        self.layer_theta = nn.Sequential(
+            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(16),
-            nn.ReLU(),
-            nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
         )
         self.linear_encoder = nn.Sequential(
             nn.Dropout(0.2),
-            nn.Linear(64, 64),
+            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
             nn.Dropout(0.2),
-            nn.Linear(64, Nc_RIS),
+            nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(Nc_RIS, Nc_RIS),
             nn.ReLU(),
         )
     def forward(self, x):
-        theta = torch.reshape(x[0], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
-        x_in  = torch.flatten(self.cnn_theta(theta), start_dim=1)
+        # theta = torch.reshape(x[0], (-1, 1, sysmodelparams["Nw"], sysmodelparams["Nh"])).float()
+        theta   = x[0].float()
+        x_in  = torch.flatten(self.layer_theta(theta), start_dim=1)
         x_enc = self.linear_encoder(x_in)
         return x_enc
 
@@ -946,7 +877,7 @@ if __name__ == "__main__":
                   'lr': 10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 2**np.random.randint(6, 11), # batch training size
-                  'epochs': 500,  # total training duration
+                  'epochs': 5,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 100, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
@@ -956,7 +887,7 @@ if __name__ == "__main__":
                   # 'trials_per_device': 5, # number of trials per cpu/gpu resource
                   # 'step_size': 10, # step size for scheduler optimizer
                   # 'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': np.random.randint(1, 6), # number of bits of a quantizer
+                  'Q_bits': 1, # number of bits of a quantizer
                   # 'max_lr': 1, # maximum learning rate for Scheduler
                   }
     # for all numpy random generators, the range is: [low, high) where the low value is included but the high value is excluded.
