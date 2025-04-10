@@ -874,9 +874,9 @@ if __name__ == "__main__":
     ####################################################################################################################
     trainparams = {'train_test_split': 0.8, # split between train/test data
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
-                  'lr': 10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
+                  'lr': 0.001,# 10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 2**np.random.randint(6, 11), # batch training size
+                  'batch_size': 1024,# 2**np.random.randint(6, 11), # batch training size
                   'epochs': 500,  # total training duration
                   'snr_dB': -5, # transmit power to receive noise power
                   'epoch_val': 100, # validate early stop every epoch number
