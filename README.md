@@ -18,8 +18,9 @@ pip install tabulate
 pip install tqdm
 pip install matplotlib
 ```
-
 see requirements.txt file for the Compute Canada python wheels. 
+
+To install MATLAB CVX see [https://cvxr.com/cvx/doc/install.html](https://cvxr.com/cvx/doc/install.html) for instructions.
 
 ### Test Run
 To check if PyTorch installed correctly run: [quickstart.py](quickstart.py).

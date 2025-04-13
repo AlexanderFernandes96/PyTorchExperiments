@@ -1,15 +1,15 @@
 %% Parameters
-mc_runs = 1000000;
+mc_runs = 10000;
 % M = 8;  % AP
 % K = 6;  % Users
 % Nw = 8;
 % Nh = 8;
 % N = Nw*Nh; % RIS
 % LOS = 3; % Number of LOS paths
-% M = 4;  % AP
-% K = 3;  % Users
-M = 1;  % AP
-K = 1;  % Users
+M = 4;  % AP
+K = 3;  % Users
+% M = 1;  % AP
+% K = 1;  % Users
 % Nw = 10;
 % Nh = 10;
 % Nw = 8;
