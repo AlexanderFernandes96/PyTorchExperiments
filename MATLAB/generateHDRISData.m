@@ -6,7 +6,7 @@ addpath("src")
 %% Setup system model / script parameters
 systemModelParameters
 
-dataDir = "datasets/HDRISData/09/";
+dataDir = "datasets/HDRISData/09/train/";
 mkdir(dataDir);
 fileSaveName = dataDir + "HDRISData";
 dfile = fileSaveName + ".txt";
@@ -112,92 +112,92 @@ Hau = Hua.';
 % end
 
 %% Optimize phase shifts and beamforming 
-% system model:
-% SISO:
-% Y = Hua*Xu + Hra*diag(exp(1j*theta))*Hur*Xu + N (Uplink)
-% Y = Hau*Xa + Hru*diag(exp(1j*theta))*Har*Xa + N (Downlink)
-% MISO:
-% Y = W*(Hua + Hra*diag(exp(1j*theta))*Hur)*xu + N (Uplink)
-% y = (hau + hru*diag(exp(1j*theta))*Har)*W*Xa + N (Downlink)
-
-if M == 1 && K == 1 % SISO system model
-    % No beamforming matrix only RIS phase shifts to optimize
-    % Hua = 1x1 scalar
-    % Hra = 1xN row vector
-    % Hur = Nx1 column vector
-    % SISO optimal phases are the same regardless of Uplink/Downlink
-    % Solution is equation (21) from:
-    % [1] Q. Wu, S. Zhang, B. Zheng, C. You, and R. Zhang, "Intelligent 
-    % Reflecting Surface-Aided Wireless Communications: A Tutorial,” IEEE 
-    % Trans. Commun., vol. 69, no. 5, pp. 3313–3351, May 2021, doi: 
-    % 10.1109/TCOMM.2021.3051897.
-    % modified using our 
-    % (21) max_theta | hua + hra*diag(exp(1j*theta))*hur) |^2
-    %      st. 0 <= theta <= 2*pi
-
-    theta_opt = zeros(1,N);
-    w_opt = zeros(1,M);
-    for n = 1:N
-        % Knowledge of Perfect CSI
-        a = angle(Hua);
-        b = angle(Hra(1,n));
-        c = angle(Hur(n,1));
-        theta_opt(1,n) = mod(a - (b+c) + pi, 2*pi) - pi;
-    end
-    theta_rand = 2*pi*rand(1,N);
-    Yopt = Hua + Hra*diag(exp(1j*theta_opt))*Hur;
-    Yrand = Hua + Hra*diag(exp(1j*theta_rand))*Hur;
-
-    Yopt2 = Yopt'*Yopt;
-    Yrand2 = Yrand'*Yrand;
-else
-    % Solve for beamforming matrix and RIS phase shifts
-    % Hua = MxK scalar
-    % Hra = MxN row vector
-    % Hur = NxK column vector, K single antenna users
-    % Solution can be found as a homogeneous QCPQ
-    % [1] Q. Wu and R. Zhang, “Intelligent Reflecting Surface Enhanced 
-    % Wireless Network: Joint Active and Passive Beamforming Design,” Proc.
-    % IEEE Glob. Commun. Conf. GLOBECOM, 2018, 
-    % doi: 10.1109/GLOCOM.2018.8647620.
-    
-    theta_opt = zeros(N,k);
-    w_opt = zeros(M,k);
-    Yopt2 = zeros(K,1);
-    Yrand2 = zeros(K,1);
-    for k = 1:K % find optimal phases for each k-th user
-        hau = Hau(k,:);
-        hru = Hru(k,:);
-        Phi = diag(hru)*Har;
-        R = [Phi*Phi', Phi*hau'; hau*Phi', 0];
-
-        % to install cvx see: https://cvxr.com/cvx/doc/install.html
-        cvx_begin quiet
-            variable V(N+1,N+1) complex semidefinite
-            maximize(trace(R*V))
-            diag(V) == 1
-        cvx_end
-
-        [U,D] = eig(V);
-        r = 1/sqrt(2)*(rand(N+1,1) + 1j*rand(N+1,1));
-        v = U*sqrt(D)*r;
-        theta_opt(:,k) = angle(v(1:N) / v(N+1));
-        
-        y = hau + hru*diag(exp(1j*theta_opt(:,k)))*Har;
-        w_opt(:,k) = y' / norm(y);
-        
-        theta_rand = 2*pi*rand(1,N);
-        y_rand = hau + hru*diag(exp(1j*theta_rand))*Har;
-        w_rand = y' / norm(y_rand);
-        Yopt = (hau + hru*diag(exp(1j*theta_opt(:,k)))*Har)*w_opt(:,k);
-        Yrand = (hau + hru*diag(exp(1j*theta_rand))*Har)*w_rand;
-        
-        Yopt2 = Yopt*Yopt';
-        Yrand2 = Yrand*Yrand';
-    end
-    theta_opt = theta_opt(:).'; % stack all user phases into one row vector
-    w_opt = w_opt(:).';
-end
+% % system model:
+% % SISO:
+% % Y = Hua*Xu + Hra*diag(exp(1j*theta))*Hur*Xu + N (Uplink)
+% % Y = Hau*Xa + Hru*diag(exp(1j*theta))*Har*Xa + N (Downlink)
+% % MISO:
+% % Y = W*(Hua + Hra*diag(exp(1j*theta))*Hur)*xu + N (Uplink)
+% % y = (hau + hru*diag(exp(1j*theta))*Har)*W*Xa + N (Downlink)
+% 
+% if M == 1 && K == 1 % SISO system model
+%     % No beamforming matrix only RIS phase shifts to optimize
+%     % Hua = 1x1 scalar
+%     % Hra = 1xN row vector
+%     % Hur = Nx1 column vector
+%     % SISO optimal phases are the same regardless of Uplink/Downlink
+%     % Solution is equation (21) from:
+%     % [1] Q. Wu, S. Zhang, B. Zheng, C. You, and R. Zhang, "Intelligent 
+%     % Reflecting Surface-Aided Wireless Communications: A Tutorial,” IEEE 
+%     % Trans. Commun., vol. 69, no. 5, pp. 3313–3351, May 2021, doi: 
+%     % 10.1109/TCOMM.2021.3051897.
+%     % modified using our 
+%     % (21) max_theta | hua + hra*diag(exp(1j*theta))*hur) |^2
+%     %      st. 0 <= theta <= 2*pi
+% 
+%     theta_opt = zeros(1,N);
+%     w_opt = zeros(1,M);
+%     for n = 1:N
+%         % Knowledge of Perfect CSI
+%         a = angle(Hua);
+%         b = angle(Hra(1,n));
+%         c = angle(Hur(n,1));
+%         theta_opt(1,n) = mod(a - (b+c) + pi, 2*pi) - pi;
+%     end
+%     theta_rand = 2*pi*rand(1,N);
+%     Yopt = Hua + Hra*diag(exp(1j*theta_opt))*Hur;
+%     Yrand = Hua + Hra*diag(exp(1j*theta_rand))*Hur;
+% 
+%     Yopt2 = Yopt'*Yopt;
+%     Yrand2 = Yrand'*Yrand;
+% else
+%     % Solve for beamforming matrix and RIS phase shifts
+%     % Hua = MxK scalar
+%     % Hra = MxN row vector
+%     % Hur = NxK column vector, K single antenna users
+%     % Solution can be found as a homogeneous QCPQ
+%     % [1] Q. Wu and R. Zhang, “Intelligent Reflecting Surface Enhanced 
+%     % Wireless Network: Joint Active and Passive Beamforming Design,” Proc.
+%     % IEEE Glob. Commun. Conf. GLOBECOM, 2018, 
+%     % doi: 10.1109/GLOCOM.2018.8647620.
+%     
+%     theta_opt = zeros(N,k);
+%     w_opt = zeros(M,k);
+%     Yopt2 = zeros(K,1);
+%     Yrand2 = zeros(K,1);
+%     for k = 1:K % find optimal phases for each k-th user
+%         hau = Hau(k,:);
+%         hru = Hru(k,:);
+%         Phi = diag(hru)*Har;
+%         R = [Phi*Phi', Phi*hau'; hau*Phi', 0];
+% 
+%         % to install cvx see: https://cvxr.com/cvx/doc/install.html
+%         cvx_begin quiet
+%             variable V(N+1,N+1) complex semidefinite
+%             maximize(trace(R*V))
+%             diag(V) == 1
+%         cvx_end
+% 
+%         [U,D] = eig(V);
+%         r = 1/sqrt(2)*(rand(N+1,1) + 1j*rand(N+1,1));
+%         v = U*sqrt(D)*r;
+%         theta_opt(:,k) = angle(v(1:N) / v(N+1));
+%         
+%         y = hau + hru*diag(exp(1j*theta_opt(:,k)))*Har;
+%         w_opt(:,k) = y' / norm(y);
+%         
+%         theta_rand = 2*pi*rand(1,N);
+%         y_rand = hau + hru*diag(exp(1j*theta_rand))*Har;
+%         w_rand = y' / norm(y_rand);
+%         Yopt = (hau + hru*diag(exp(1j*theta_opt(:,k)))*Har)*w_opt(:,k);
+%         Yrand = (hau + hru*diag(exp(1j*theta_rand))*Har)*w_rand;
+%         
+%         Yopt2 = Yopt*Yopt';
+%         Yrand2 = Yrand*Yrand';
+%     end
+%     theta_opt = theta_opt(:).'; % stack all user phases into one row vector
+%     w_opt = w_opt(:).';
+% end
 
 % Example:     hur <=> Hur(:) for Hur = N by K matrix
 % vectorize:   hur = reshape(Hur, [N*K,1]), stack columns into one column
@@ -205,18 +205,18 @@ end
 Hru_mc(mc_run,:) = Hru(:).';     
 Har_mc(mc_run,:) = Har(:).';     
 Hau_mc(mc_run,:) = Hau(:).';     
-theta_mc(mc_run,:) = theta_opt;  % optimized RIS phase shifts
-w_mc(mc_run,:) = w_opt;  % optimized beamforming matrix
-Yopt2_mc(mc_run,:) = Yopt2; % test receive signal is optimized
-Yrand2_mc(mc_run,:) = Yrand2; % test receive signal is optimized
+% theta_mc(mc_run,:) = theta_opt;  % optimized RIS phase shifts
+% w_mc(mc_run,:) = w_opt;  % optimized beamforming matrix
+% Yopt2_mc(mc_run,:) = Yopt2; % test receive signal is optimized
+% Yrand2_mc(mc_run,:) = Yrand2; % test receive signal is optimized
 end % mc_run
 
 %% Print
-fprintf("\n\n");
-fprintf("Optimized receive signal: mean(||Yopt||^2) = %.4f\n", ...
-    mean(Yopt2_mc, 1));
-fprintf("Random receive signal: mean(||Yrand||^2) = %.4f\n", ...
-    mean(Yrand2_mc, 1));
+% fprintf("\n\n");
+% fprintf("Optimized receive signal: mean(||Yopt||^2) = %.4f\n", ...
+%     mean(Yopt2_mc, 1));
+% fprintf("Random receive signal: mean(||Yrand||^2) = %.4f\n", ...
+%     mean(Yrand2_mc, 1));
 
 %% Save data
 save(fileSaveName + ".mat", vars2save{:})
@@ -247,9 +247,9 @@ writematrix(imag(Hru_mc), dataDir + "Hru_i.csv")
 writematrix(imag(Har_mc), dataDir + "Har_i.csv")
 writematrix(imag(Hau_mc), dataDir + "Hau_i.csv")
 
-% Save optimal RIS phase shifts (-pi <= theta < pi) and beamforming matrix
-writematrix(theta_mc, dataDir + "RISopt.csv")
-writematrix(w_mc, dataDir + "beamforming.csv")
+% % Save optimal RIS phase shifts (-pi <= theta < pi) and beamforming matrix
+% writematrix(theta_mc, dataDir + "RISopt.csv")
+% writematrix(w_mc, dataDir + "beamforming.csv")
 
 delete(gcp('nocreate'))
 fprintf("Script Execution time:\n")
