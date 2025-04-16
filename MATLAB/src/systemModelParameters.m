@@ -1,5 +1,5 @@
 %% Parameters
-mc_runs = 1000000;
+mc_runs = 10;
 % M = 8;  % AP
 % K = 6;  % Users
 % Nw = 8;
