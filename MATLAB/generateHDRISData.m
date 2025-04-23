@@ -7,7 +7,7 @@ addpath("src")
 systemModelParameters
 
 % dataDir = "~/scratch/datasets/HDRISData/09/test2/";
-dataDir = "datasets/HDRISData/10/test/";
+dataDir = "datasets/HDRISData/10/";
 mkdir(dataDir);
 fileSaveName = dataDir + "HDRISData";
 dfile = fileSaveName + ".txt";
@@ -39,7 +39,9 @@ vars2save =       {"channel_type", ...
                    ..."a_AP_UE", ...
                    ..."d_UE_RIS", ...
                    ..."a_UE_RIS", ...
-                   ..."g_si", ...
+                   "g_si", ...
+                   "g_dp", ...
+                   "g_cc", ...
                    "SNRdB", ...
                    "SINRdB", ...
                    "mc_runs"};
@@ -77,13 +79,13 @@ w_mc = zeros(mc_runs,M*K); % optimal beamforming
 Ropt2_mc = zeros(mc_runs,1); % optimized receive signal (at the users)
 Rrand2_mc = zeros(mc_runs,1); % random phases receive signal (at the users)
 
-fprintf('Monte Carlo Run: ');
+fprintf('Monte Carlo Run:\n');
 for mc_run = 1:mc_runs
-if mod(mc_run,mc_runs/25) == 0
+% if mod(mc_run,mc_runs/25) == 0
     fprintf('%i/%i\n', mc_run, mc_runs);
     fprintf("Script Execution time:\n")
     fprintElapsedTime(TSTART);
-end
+% end
 %% Create system model via channel matrices
 generateHDRISchannels
 % Creates Channel Matrices based on scructure of the channel
@@ -216,7 +218,7 @@ else
         end
         diag(V) == 1;
     cvx_end
-%     fprintf([cvx_status, '\n']);
+%     fprintf(['Initialize RIS: ', cvx_status, '\n']);
 
     % Gaussian random vector to obtain approximate best rank 1 vector
     [U,D] = eig(V);
@@ -279,9 +281,10 @@ else
             
             betavar >= 0; % Power constraints must be positive
         cvx_end
-%         fprintf([cvx_status, ' ']);
+%         fprintf(['AO: ', cvx_status, ', ']);
 
         % 3. Solve problem P4' for given beamforming matrix
+        theta_prev = theta;
         cvx_begin quiet
             variable V(N+1,N+1) complex semidefinite
             variable alphavar(K) % SINR residual of user k
@@ -302,10 +305,10 @@ else
                         b_kj = hau*W(:,j);
                         Rkj = [a_kj*a_kj', a_kj*b_kj'; ...
                                b_kj*a_kj', 0];
-                        s = s + trace(Rkj*V) + b_kj*b_kj' + 10^(-SNRdB/10);
+                        s = s + trace(Rkj*V) + b_kj*b_kj';
                     end
                 end
-                trace(Rkk*V) + b_kk*b_kk' >= gammavar(k)*s + alphavar(k);
+                trace(Rkk*V) + b_kk*b_kk' >= gammavar(k)*(s + 10^(-SNRdB/10)) + alphavar(k);
                 alphavar(k) >= 0;
             end
             diag(V) == 1;
@@ -340,10 +343,10 @@ else
                             b_kj = hau*W(:,j);
                             Rkj = [a_kj*a_kj', a_kj*b_kj'; ...
                                    b_kj*a_kj', 0];
-                            s = s + real(v(:,n)'*Rkj*v(:,n) + b_kj*b_kj' + 10^(-SNRdB/10));
+                            s = s + (v(:,n)'*Rkj*v(:,n) + b_kj*b_kj');
                         end
                     end
-                    Cost = Cost + (real(v(:,n)'*Rkk*v(:,n)) + b_kk*b_kk') / s;
+                    Cost = Cost + ((v(:,n)'*Rkk*v(:,n)) + b_kk*b_kk') / (s + 10^(-SNRdB/10));
                 end
                 if Cost > Cost_best
                     Cost_best = Cost;
@@ -356,10 +359,9 @@ else
 
         % 4. Stop when infeasible or the transmit power stops decreasing
         tx_power = norm(W,'fro');
+        fprintf('%i: %.4e\n', iter, tx_power);
 
-%         fprintf('%i: %.6f\n', iter, tx_power);
-
-        if tx_power_prev - tx_power > 0.001
+        if tx_power_prev - tx_power > 10^(-SNRdB/10)
             tx_power_prev = tx_power;
             W_opt = W;
             theta_opt = theta;
@@ -369,7 +371,7 @@ else
 
     end % 5. End Alternating Optimization
 
-    W_opt = P*W_opt/norm(W_opt,'fro');
+%     W_opt = P*W_opt/norm(W_opt,'fro');
 
     % Compare optimal phases vs random phases given optimal beamforming
     for k = 1:K 
