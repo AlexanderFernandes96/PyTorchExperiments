@@ -1,5 +1,5 @@
 %% Parameters
-mc_runs = 100;
+mc_runs = 5000;
 % M = 8;  % AP
 % K = 6;  % Users
 % Nw = 8;
@@ -17,15 +17,16 @@ K = 3;  % Users
 Nw = 10;
 Nh = 10;
 N = Nw*Nh; % Number of RIS elements
-LOS = 2; % Number of LOS paths
+LOS = 5; % Number of LOS paths
 B = N+1; % Number of RIS transmission blocks
 SNRdB = 80;
 SINRdB = 20;
 % channel_type = 'unstructured';
 channel_type = 'geometric';
-g_si = 1; % Self-Interference gain due to environmental reflections
-g_dp = 0.0001; % Direct-Path gain
-g_cc = 0.1; % RIS cascaded channels gain
+g_ur = 10^(-6/10); % User-RIS gain
+g_ra = 10^(-8/10); % RIS-AP gain
+g_ua = 10^(-10/10); % Direct-Path gain
+CH_err = 10^(-40/10);
 
 % Generate pilot scheme based on energy or power constraint: use E or P
 % pilot_scheme = "S1P"; % Scheme 1: Simultaneous transmission

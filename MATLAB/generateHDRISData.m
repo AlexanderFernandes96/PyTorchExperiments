@@ -1,5 +1,6 @@
 % This script generates transmit - receive signal data for a wireless 
-% RIS-assisted communication system
+% RIS-assisted communication system along with optimal RIS phases and
+% beamforming precoder
 clear all; close all; delete(gcp('nocreate')); clc; 
 TSTART = tic;
 addpath("src")
@@ -39,9 +40,10 @@ vars2save =       {"channel_type", ...
                    ..."a_AP_UE", ...
                    ..."d_UE_RIS", ...
                    ..."a_UE_RIS", ...
-                   "g_si", ...
-                   "g_dp", ...
-                   "g_cc", ...
+                   "g_ur", ...
+                   "g_ra", ...
+                   "g_ua", ...
+                   "CH_err", ...
                    "SNRdB", ...
                    "SINRdB", ...
                    "mc_runs"};
@@ -74,6 +76,9 @@ ONES = ones(B,M+K);
 Hru_mc = complex(zeros(mc_runs,N*K));
 Har_mc = complex(zeros(mc_runs,M*N));
 Hau_mc = complex(zeros(mc_runs,M*K));
+nmse_Hru_mc = zeros(mc_runs,1);
+nmse_Har_mc = zeros(mc_runs,1);
+nmse_Hau_mc = zeros(mc_runs,1);
 theta_mc = zeros(mc_runs,N); % optimal phase shifts
 w_mc = zeros(mc_runs,M*K); % optimal beamforming
 Ropt2_mc = zeros(mc_runs,1); % optimized receive signal (at the users)
@@ -97,9 +102,22 @@ generateHDRISchannels
 %     Hru = (K,N) RIS -> UE
 %     Har = (N,M) AP  -> RIS
 %     Hau = (K,M) AP  -> UE
-Hru = Hur.';
-Har = Hra.';
-Hau = Hua.';
+Hru_true = Hur.';
+Har_true = Hra.';
+Hau_true = Hua.';
+
+Hru = Hru_true + sqrt(CH_err*1/2)*(randn(K,N) + 1j*randn(K,N));
+Har = Har_true + sqrt(CH_err*1/2)*(randn(N,M) + 1j*randn(N,M));
+Hau = Hau_true + sqrt(CH_err*1/2)*(randn(K,M) + 1j*randn(K,M));
+
+nmse_Hru = norm(Hru_true - Hru,'fro')^2 / norm(Hru_true,'fro')^2;
+nmse_Har = norm(Har_true - Har,'fro')^2 / norm(Har_true,'fro')^2;
+nmse_Hau = norm(Hau_true - Hau,'fro')^2 / norm(Hau_true,'fro')^2;
+
+nmse_Hru_mc(mc_run) = nmse_Hru;
+nmse_Har_mc(mc_run) = nmse_Har;
+nmse_Hau_mc(mc_run) = nmse_Hau;
+fprintf("nmse_Hru %.3e, nmse_Har %.3e, nmse_Hau %.3e\n", nmse_Hru, nmse_Har, nmse_Hau)
 
 % %% Transmit Pilots through RIS communication system
 % % TODO: receive signal for channel estimation
@@ -191,7 +209,7 @@ else
     % Trans. Wirel. Commun., vol. 18, no. 11, pp. 5394–5409, Nov. 2019, 
     % doi: 10.1109/TWC.2019.2936025.
     
-    % Alternating Optimization Algorithm
+    %% Alternating Optimization Algorithm
     max_iterations = 30;
     W_opt = zeros(M,K);
     gammavar = 10^(SINRdB/10)*ones(K,1); % SINR constraint for all users
@@ -236,7 +254,7 @@ else
             b_kk = hau;
             Rkk = [a_kk*a_kk', a_kk*b_kk'; ...
                    b_kk*a_kk', 0];
-            Cost = Cost + real(v(:,n)'*Rkk*v(:,n)) + b_kk*b_kk';
+            Cost = Cost + (v(:,n)'*Rkk*v(:,n)) + b_kk*b_kk';
         end
         if Cost > Cost_init
             Cost_init = Cost;
@@ -272,7 +290,6 @@ else
                 imag(hk*W(:,k)) == 0;
                 % SOCP formulation for the SINR constraint of user k
                 sqrt(1 + 1/gammavar(k))*real(hk*W(:,k)) >= norm([hk*W(:,[1:k-1 k+1:K]) 10^(-SNRdB/10)]);
-
                 w_sum = w_sum + W(:,k)'*W(:,k);
             end
             
@@ -375,11 +392,11 @@ else
 
     % Compare optimal phases vs random phases given optimal beamforming
     for k = 1:K 
-        hau = Hau(k,:);
-        hru = Hru(k,:);
+        hau = Hau_true(k,:);
+        hru = Hru_true(k,:);
         theta_rand = 2*pi*rand(1,N) - pi;
-        h_opt = hau + hru*diag(exp(1j*theta_opt))*Har;
-        h_rand = hau + hru*diag(exp(1j*theta_rand))*Har;
+        h_opt = hau + hru*diag(exp(1j*theta_opt))*Har_true;
+        h_rand = hau + hru*diag(exp(1j*theta_rand))*Har_true;
         
         Ropt(k) = log2(1 + norm(h_opt*W_opt(:,k))^2 / norm([10^(-SNRdB/10) h_opt*W_opt(:,[1:k-1 k+1:K])])^2);
         Rrand(k) = log2(1 + norm(h_rand*W_opt(:,k))^2 / norm([10^(-SNRdB/10) h_rand*W_opt(:,[1:k-1 k+1:K])])^2);
@@ -392,9 +409,9 @@ end
 % Example:     hur <=> Hur(:) for Hur = N by K matrix
 % vectorize:   hur = reshape(Hur, [N*K,1]), stack columns into one column
 % unvectorize: Hur = reshape(hur, [N,K]), unstack into K columns
-Hru_mc(mc_run,:) = Hru(:).';
-Har_mc(mc_run,:) = Har(:).';
-Hau_mc(mc_run,:) = Hau(:).';
+Hru_mc(mc_run,:) = Hru_true(:).';
+Har_mc(mc_run,:) = Har_true(:).';
+Hau_mc(mc_run,:) = Hau_true(:).';
 theta_mc(mc_run,:) = theta.';  % optimized RIS phase shifts
 w_mc(mc_run,:) = w_opt;  % optimized beamforming matrix
 Ropt2_mc(mc_run,:) = sum(Ropt); % test receive signal is optimized
@@ -402,17 +419,23 @@ Rrand2_mc(mc_run,:) = sum(Rrand); % test receive signal is optimized
 end % mc_run
 
 %% Print
+fprintf("\n------------------------------------------------------------\n")
 fprintf("Mean Sum Rate over montecarlo runs:\n");
 fprintf("Optimized RIS: %.4f\n", mean(Ropt2_mc, 1));
 fprintf("Random RIS: %.4f\n", mean(Rrand2_mc, 1));
+fprintf("Average Channel Error:\n")
+fprintf("nmse_Hru %.3e, nmse_Har %.3e, nmse_Hau %.3e\n", ...
+    mean(nmse_Hru_mc), mean(nmse_Har_mc), mean(nmse_Hau_mc))
 
 %% Save data
 save(fileSaveName + ".mat", vars2save{:})
-A = [LOS, B, L, T, K, M, N, Nw, Nh, mc_runs];
+A = [LOS, K, M, N, Nw, Nh, g_ur, ...
+   g_ra, g_ua, CH_err, SNRdB, SINRdB, mc_runs];
 Tab = array2table(A);
 Tab.Properties.VariableNames(1:length(A)) = ...
-    {'LOS', 'B', 'L', 'T', 'K', 'M', 'N', 'Nw', 'Nh', 'mc_runs'};
-writetable(Tab,dataDir + "systemModelParameters.csv")
+{'LOS', 'K', 'M', 'N', 'Nw', 'Nh', 'g_ur', ...
+   'g_ra', 'g_ua', 'CH_err', 'SNRdB', 'SINRdB', 'mc_runs'};
+writetable(Tab, dataDir + "systemModelParameters.csv")
 
 % Save channels into a single csv file
 % % Uplink
