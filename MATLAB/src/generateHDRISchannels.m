@@ -48,37 +48,37 @@ elseif strcmp(channel_type, 'geometric')
     end
 end
 
-% Account for Scaling ambiguity
-if M > 1
-    if M > N
-        if rank(Hra) == 1
-            Hra = Hra./Hra(:,1);
-        else
-            Hra(:,1) = ones(M,1);
-        end
-    else
-        if rank(Hra) == 1
-            Hra = Hra./Hra(1,:);
-        else
-            Hra(1,:) = ones(1,N);
-        end
-    end
-end
-if K > 1
-    if K > N
-        if rank(Hur) == 1
-            Hur = Hur./Hur(1,:);
-        else
-            Hur(1,:) = ones(1,K);
-        end
-    else
-        if rank(Hur) == 1
-            Hur = Hur./Hur(:,1);
-        else
-            Hur(:,1) = ones(N,1);
-        end
-    end
-end
+% % Account for Scaling ambiguity
+% if M > 1
+%     if M > N
+% %         if rank(Hra) == 1
+%             Hra = Hra./Hra(:,1);
+% %         else
+% %             Hra(:,1) = ones(M,1);
+% %         end
+%     else
+% %         if rank(Hra) == 1
+%             Hra = Hra./Hra(1,:);
+% %         else
+% %             Hra(1,:) = ones(1,N);
+% %         end
+%     end
+% end
+% if K > 1
+%     if K > N
+% %         if rank(Hur) == 1
+%             Hur = Hur./Hur(1,:);
+% %         else
+% %             Hur(1,:) = ones(1,K);
+% %         end
+%     else
+% %         if rank(Hur) == 1
+%             Hur = Hur./Hur(:,1);
+% %         else
+% %             Hur(:,1) = ones(N,1);
+% %         end
+%     end
+% end
 
 % % Large Scale Fading: Path Loss
 % Hur = sqrt(PL(g0, d_UE_RIS, a_UE_RIS))*Hur;
