@@ -8,7 +8,7 @@ addpath("src")
 systemModelParameters
 
 % dataDir = "~/scratch/datasets/HDRISData/09/test2/";
-dataDir = "datasets/HDRISData/10/";
+dataDir = "datasets/HDRISData/11/";
 mkdir(dataDir);
 fileSaveName = dataDir + "HDRISData";
 dfile = fileSaveName + ".txt";

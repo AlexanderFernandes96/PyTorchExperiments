@@ -26,7 +26,7 @@ channel_type = 'geometric';
 g_ur = 10^(-6/10); % User-RIS gain
 g_ra = 10^(-8/10); % RIS-AP gain
 g_ua = 10^(-10/10); % Direct-Path gain
-CH_err = 10^(-40/10);
+CH_err = 0;%10^(-40/10);
 
 % Generate pilot scheme based on energy or power constraint: use E or P
 % pilot_scheme = "S1P"; % Scheme 1: Simultaneous transmission
