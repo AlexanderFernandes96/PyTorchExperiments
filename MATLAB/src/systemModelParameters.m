@@ -1,5 +1,5 @@
 %% Parameters
-mc_runs = 5000;
+mc_runs = 100;
 % M = 8;  % AP
 % K = 6;  % Users
 % Nw = 8;
@@ -23,9 +23,16 @@ SNRdB = 80;
 SINRdB = 20;
 % channel_type = 'unstructured';
 channel_type = 'geometric';
-g_ur = 10^(-6/10); % User-RIS gain
-g_ra = 10^(-8/10); % RIS-AP gain
-g_ua = 10^(-10/10); % Direct-Path gain
+d_ur = 3; % meters
+a_ur = 2.8;
+d_ra = 20;
+a_ra = 2.8;
+d_ua = sqrt(d_ur^2 + d_ra^2);
+a_ua = 3.5;
+pl = @(d,a) -30*d^-a;
+g_ur = -pl(d_ur,a_ur); % User-RIS gain
+g_ra = -pl(d_ra,a_ra); % RIS-AP gain
+g_ua = -pl(d_ua,a_ua); % Direct-Path gain
 CH_err = 0;%10^(-40/10);
 
 % Generate pilot scheme based on energy or power constraint: use E or P
