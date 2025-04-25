@@ -7,8 +7,8 @@ addpath("src")
 %% Setup system model / script parameters
 systemModelParameters
 
-% dataDir = "~/scratch/datasets/HDRISData/09/test2/";
-dataDir = "datasets/HDRISData/12/";
+dataDir = "~/scratch/datasets/HDRISData/12/" + job_id;
+% dataDir = "datasets/HDRISData/12/";
 mkdir(dataDir);
 fileSaveName = dataDir + "HDRISData";
 dfile = fileSaveName + ".txt";
