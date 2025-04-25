@@ -1,13 +1,17 @@
+function generateHDRISData(job_id)
 % This script generates transmit - receive signal data for a wireless 
 % RIS-assisted communication system along with optimal RIS phases and
 % beamforming precoder
-clear all; close all; delete(gcp('nocreate')); clc; 
+% input: job_id of the slurm job
+
+% clear all; close all; delete(gcp('nocreate')); clc; 
+clc;
 TSTART = tic;
 addpath("src")
 %% Setup system model / script parameters
 systemModelParameters
 
-dataDir = "~/scratch/datasets/HDRISData/12/" + job_id;
+dataDir = "~/scratch/datasets/HDRISData/12/" + num2str(job_id) + "/";
 % dataDir = "datasets/HDRISData/12/";
 mkdir(dataDir);
 fileSaveName = dataDir + "HDRISData";
@@ -469,4 +473,4 @@ fprintf("Script Execution time:\n")
 fprintElapsedTime(TSTART);
 diary off
 
-
+end
