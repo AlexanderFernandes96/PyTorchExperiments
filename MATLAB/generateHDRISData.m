@@ -461,8 +461,8 @@ writematrix(imag(Har_mc), dataDir + "Har_i.csv")
 writematrix(imag(Hau_mc), dataDir + "Hau_i.csv")
 
 % Save optimal RIS phase shifts (-pi <= theta < pi) and beamforming matrix
-writematrix(theta_mc, dataDir + "RISopt.csv")
-writematrix(w_mc, dataDir + "beamforming.csv")
+writematrix(theta_mc, dataDir + "RISopt.csv") % N RIS elements
+writematrix(w_mc, dataDir + "beamforming.csv") % W is MxK, w = W(:).'
 
 delete(gcp('nocreate'))
 fprintf("Script Execution time:\n")
