@@ -8,8 +8,8 @@ addpath("src")
 systemModelParameters
 
 job_id = getenv("SLURM_ARRAY_TASK_ID");
-dataDir = "~/scratch/datasets/HDRISData/12/" + num2str(job_id) + "/";
-% dataDir = "datasets/HDRISData/12/";
+dataDir = "~/scratch/datasets/HDRISData/13/" + num2str(job_id) + "/";
+% dataDir = "datasets/HDRISData/13/";
 mkdir(dataDir);
 fileSaveName = dataDir + "HDRISData";
 dfile = fileSaveName + ".txt";
