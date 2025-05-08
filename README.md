@@ -51,3 +51,7 @@ Code was obtained from: https://pytorch.org/tutorials/beginner/basics/quickstart
 Simple autoencoder to quantize optimal RIS phases into bits for phase shift feedback in a SISO RIS-assisted communication system model.
 * Files included in project:
   * [autoencoder_quantization.py](autoencoder_quantization.py)
+
+### MU-MISO Neural Network AutoEncoder with Quantization
+Autoencoder to quantize optimal RIS phases into bits for phase shift feedback of a multi-user multiple-input-single-output RIS-assisted communication system model. 
+* [mumiso_autoencoder_quantization.py](mumiso_autoencoder_quantization.py)

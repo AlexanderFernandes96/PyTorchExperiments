@@ -7,9 +7,12 @@ addpath("src")
 %% Setup system model / script parameters
 systemModelParameters
 
-job_id = getenv("SLURM_ARRAY_TASK_ID");
-dataDir = "~/scratch/datasets/HDRISData/13/" + num2str(job_id) + "/";
-% dataDir = "datasets/HDRISData/13/";
+% job_id = getenv("SLURM_ARRAY_TASK_ID");
+% dataDir = "~/scratch/datasets/HDRISData/13/";
+job_id = 0;
+dataDir = "datasets/HDRISData/13/";
+rng(job_id)
+dataDir = dataDir + num2str(job_id) + "/";
 mkdir(dataDir);
 fileSaveName = dataDir + "HDRISData";
 dfile = fileSaveName + ".txt";
@@ -290,7 +293,7 @@ else
                 % Useful link is assumed to be real-valued
                 imag(hk*W(:,k)) == 0;
                 % SOCP formulation for the SINR constraint of user k
-                sqrt(1 + 1/gammavar(k))*real(hk*W(:,k)) >= norm([hk*W(:,[1:k-1 k+1:K]) 10^(-SNRdB/10)]);
+                sqrt(1 + 1/gammavar(k))*real(hk*W(:,k)) >= norm([hk*W(:,[1:k-1 k+1:K]) 10^(-SNRdB/20)]);
                 w_sum = w_sum + W(:,k)'*W(:,k);
             end
             
@@ -398,12 +401,19 @@ else
         theta_rand = 2*pi*rand(1,N) - pi;
         h_opt = hau + hru*diag(exp(1j*theta_opt))*Har_true;
         h_rand = hau + hru*diag(exp(1j*theta_rand))*Har_true;
-        
-        Ropt(k) = log2(1 + norm(h_opt*W_opt(:,k))^2 / norm([10^(-SNRdB/10) h_opt*W_opt(:,[1:k-1 k+1:K])])^2);
-        Rrand(k) = log2(1 + norm(h_rand*W_opt(:,k))^2 / norm([10^(-SNRdB/10) h_rand*W_opt(:,[1:k-1 k+1:K])])^2);
+        intf_opt = 10^(-SNRdB/10);
+        intf_rand = 10^(-SNRdB/10);
+        for l = 1:K
+            if l ~= k
+                intf_opt = intf_opt + norm(h_opt*W_opt(:,l))^2;
+                intf_rand = intf_rand + norm(h_rand*W_opt(:,l))^2;
+            end
+        end
+        Ropt(k) = log2(1 + norm(h_opt*W_opt(:,k))^2 / intf_opt);
+        Rrand(k) = log2(1 + norm(h_rand*W_opt(:,k))^2 / intf_rand);
     end
     
-    theta = theta.'; % stack all phases into one row vector
+    theta_opt = theta_opt.'; % stack all phases into one row vector
     w_opt = W_opt(:).';
 end
 
@@ -413,7 +423,7 @@ end
 Hru_mc(mc_run,:) = Hru_true(:).';
 Har_mc(mc_run,:) = Har_true(:).';
 Hau_mc(mc_run,:) = Hau_true(:).';
-theta_mc(mc_run,:) = theta.';  % optimized RIS phase shifts
+theta_mc(mc_run,:) = theta_opt.';  % optimized RIS phase shifts
 w_mc(mc_run,:) = w_opt;  % optimized beamforming matrix
 Ropt2_mc(mc_run,:) = sum(Ropt); % test receive signal is optimized
 Rrand2_mc(mc_run,:) = sum(Rrand); % test receive signal is optimized
@@ -464,6 +474,8 @@ writematrix(imag(Hau_mc), dataDir + "Hau_i.csv")
 % Save optimal RIS phase shifts (-pi <= theta < pi) and beamforming matrix
 writematrix(theta_mc, dataDir + "RISopt.csv") % N RIS elements
 writematrix(w_mc, dataDir + "beamforming.csv") % W is MxK, w = W(:).'
+writematrix(real(w_mc), dataDir + "wopt_r.csv")
+writematrix(imag(w_mc), dataDir + "wopt_i.csv")
 
 delete(gcp('nocreate'))
 fprintf("Script Execution time:\n")
