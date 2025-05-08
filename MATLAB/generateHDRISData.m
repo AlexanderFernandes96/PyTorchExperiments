@@ -7,7 +7,7 @@ addpath("src")
 %% Setup system model / script parameters
 systemModelParameters
 
-job_id = getenv("SLURM_ARRAY_TASK_ID");
+job_id = str2num(getenv("SLURM_ARRAY_TASK_ID"));
 dataDir = "~/scratch/datasets/HDRISData/13/";
 %job_id = 0;
 %dataDir = "datasets/HDRISData/13/";
