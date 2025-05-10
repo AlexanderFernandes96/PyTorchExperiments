@@ -8,9 +8,9 @@ addpath("src")
 systemModelParameters
 
 job_id = str2num(getenv("SLURM_ARRAY_TASK_ID"));
-dataDir = "~/scratch/datasets/HDRISData/13/";
+dataDir = "~/scratch/datasets/HDRISData/14/";
 %job_id = 0;
-%dataDir = "datasets/HDRISData/13/";
+%dataDir = "datasets/HDRISData/14/";
 rng(job_id)
 dataDir = dataDir + num2str(job_id) + "/";
 mkdir(dataDir);
