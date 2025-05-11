@@ -667,11 +667,11 @@ def Loss4(x, y, hra, hur):
     return torch.mean(dist)
 
 def LossRD(x, y, hra, hur, hua):
+    dist = torch.angle(torch.exp(1j * x)) - torch.angle(torch.exp(1j * y))
     hra_hur = torch.mul(hra, hur)
     x = torch.exp(1j*x)
     R = torch.matmul(hra_hur, x.transpose(0,1))
     R = torch.log2( 1 + torch.square(torch.abs(hua + R)) )
-    dist = torch.abs(torch.angle(torch.exp(1j * x)) - torch.angle(torch.exp(1j * y)))
     # return torch.mean(torch.square(dist)) - torch.mean(R)
     return torch.mean(torch.square(dist)) / torch.mean(R)
 

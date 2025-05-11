@@ -62,6 +62,8 @@ class EncoderLayer(nn.Module):
             # nn.BatchNorm2d(64),
             # nn.ReLU(),
             # nn.MaxPool2d(2, 2),
+            nn.Linear(N_RIS, N_RIS),
+            nn.ReLU(),
             nn.Linear(N_RIS, Nc_RIS),
             nn.ReLU(),
         )
@@ -103,6 +105,9 @@ class EncoderLayer(nn.Module):
         self.linear_encoder = nn.Sequential(
             nn.Dropout(0.2),
             nn.Linear(9 * Nc_RIS, Nc_RIS),
+            nn.ReLU(),
+            nn.Dropout(0.2),
+            nn.Linear(Nc_RIS, Nc_RIS),
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(Nc_RIS, Nc_RIS),
@@ -472,8 +477,9 @@ def batchSumRate(theta, Wopt, Hau, Har, Hru):
         R[:,k] = torch.log2(torch.ones(theta.shape[0], device=device) + torch.div(S, N))
     return torch.einsum("bk -> b", R)
 
-def Loss(theta, Wopt, Hau, Har, Hru):
-    return -torch.mean(batchSumRate(theta, Wopt, Hau, Har, Hru))
+def Loss(theta, theta_opt, Wopt, Hau, Har, Hru):
+    dist = torch.square(torch.angle(torch.exp(1j * theta)) - torch.angle(torch.exp(1j * theta_opt)))
+    return torch.mean(dist) - torch.mean(batchSumRate(theta, Wopt, Hau, Har, Hru))
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams, model, dev):
@@ -512,10 +518,10 @@ class Trainer(object):
                 except AttributeError:
                     self.model.module.quantizer_layer.hardQ = False
                 for i, data in (enumerate(self.train_loader)):
-                    inputs, theta_opt, Wopt, Hau, Har, Hru = data
+                    input, theta_opt, Wopt, Hau, Har, Hru = data
                     self.optimizer.zero_grad()                              # clear gradients of all variables to optimize
-                    outputs = self.model(inputs)                           # forward pass inputs into network
-                    loss = Loss(outputs, Wopt, Hau, Har, Hru)   # calculate batch loss
+                    output = self.model(input)                           # forward pass inputs into network
+                    loss = Loss(output, theta_opt, Wopt, Hau, Har, Hru)   # calculate batch loss
                     loss.backward()                                         # back propagate gradients through AQE network
                     self.optimizer.step()                                   # single optimization step to update variables
                     # self.scheduler.step()                                   # One Cycle LR adjust learning rate each step
@@ -533,9 +539,9 @@ class Trainer(object):
                     self.model.module.quantizer_layer.hardQ = False
 
                 for i, data in (enumerate(val_loader)):
-                    inputs, theta_opt, Wopt, Hau, Har, Hru = data
-                    outputs = self.model(inputs)                       # forward pass inputs into AQE network
-                    loss = Loss(outputs, Wopt, Hau, Har, Hru)   # calculate batch loss
+                    input, theta_opt, Wopt, Hau, Har, Hru = data
+                    output = self.model(input)                       # forward pass inputs into AQE network
+                    loss = Loss(output, theta_opt, Wopt, Hau, Har, Hru)   # calculate batch loss
                     val_loss += loss.item() * trainparams['batch_size']  # update validation loss
                     val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
@@ -545,13 +551,13 @@ class Trainer(object):
                 print(before_lr, '->', after_lr, flush=True)
 
                 if trainparams['epoch_echo']:
-                    print('Epoch: {} \tTraining Loss: {:.10f} \tValidation Loss: {:.10f}'.format(
-                        epoch, train_loss, val_loss), flush=True)
+                    print('Epoch: {} \tTraining Loss: {:.10f} \tValidation Loss: {:.10f} \tBest Validation Loss: {:.10f}'.format(
+                        epoch, train_loss, val_loss, val_loss_min), flush=True)
 
                 # save model if validation loss has decreased
                 if val_loss <= val_loss_min:
                     if trainparams['epoch_echo']:
-                        print('Validation loss same/decreased ({:.10f} --> {:.10f})... saving model.'.format(
+                        print('### Validation loss same/decreased ({:.10f} --> {:.10f})... saving model. ###'.format(
                             val_loss_min, val_loss), flush=True)
                     val_loss_min = val_loss
                     model_validated = deepcopy(self.model) # if val loss does not decrease, return the copy of AQEnet before training
@@ -592,9 +598,9 @@ class Trainer(object):
                 self.model.module.quantizer_layer.hardQ = False
 
             for i, data in tqdm(enumerate(test_loader), disable=DISABLE_TQDM):
-                inputs, theta_opt, Wopt, Hau, Har, Hru = data
+                input, theta_opt, Wopt, Hau, Har, Hru = data
                 batchsize = theta_opt.shape[0]
-                theta_model = self.model(inputs)  # forward pass inputs into AQE network
+                theta_model = self.model(input)  # forward pass inputs into AQE network
                 theta_rand = torch.rand(size=(batchsize,N_RIS), dtype=torch.double, device=self.device) * 2*torch.pi - torch.pi
 
                 R_opt  += torch.sum(batchSumRate(theta_opt, Wopt, Hau, Har, Hru))
@@ -638,17 +644,17 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Training trainparams
     ####################################################################################################################
-    trainparams = {'train_test_split': 0.8, # split between train/test data
-                  'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
+    trainparams = {'train_test_split': 0.9, # split between train/test data
+                  'train_val_split': 0.9,  # after the train/test split, split train data into train/val data
                   'lr': 10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 2**np.random.randint(6, 11), # batch training size
-                  'epochs': 100,  # total training duration
-                  'epoch_val': 100, # validate early stop every epoch number
+                  'epochs': 500,  # total training duration
+                  'epoch_val': 500, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
                   # 'step_size': 10, # step size for scheduler optimizer
                   # 'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 1, # number of bits of a quantizer
+                  'Q_bits': 5, # number of bits of a quantizer
                   # 'max_lr': 1, # maximum learning rate for Scheduler
                   }
     # for all numpy random generators, the range is: [low, high) where the low value is included but the high value is excluded.
