@@ -44,7 +44,7 @@ def load_complex(dataset_dir, variable_name_real, variable_name_imag):
     # W   = (M, K)    UE stream -> AP
 
 class EncoderLayer(nn.Module):
-    def __init__(self, K_UE, M_AP, N_RIS, Nc_RIS):
+    def __init__(self, K_UE, M_AP, N_RIS, Nc_enc):
         super(EncoderLayer, self).__init__()
         # Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
         # Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
@@ -64,53 +64,54 @@ class EncoderLayer(nn.Module):
             # nn.MaxPool2d(2, 2),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            nn.Linear(N_RIS, Nc_RIS),
+            nn.Linear(N_RIS, 64),
             nn.ReLU(),
         )
         self.layer_w_mag = nn.Sequential(
-            nn.Linear(M_AP*K_UE, Nc_RIS),
+            nn.Linear(M_AP*K_UE, 64),
             nn.ReLU(),
         )
         self.layer_w_ang = nn.Sequential(
-            nn.Linear(M_AP*K_UE, Nc_RIS),
+            nn.Linear(M_AP*K_UE, 64),
             nn.ReLU(),
         )
         self.layer_har_mag = nn.Sequential(
-            nn.Linear(N_RIS*M_AP, Nc_RIS),
+            nn.Linear(N_RIS*M_AP, 64),
             nn.ReLU(),
         )
         self.layer_har_ang = nn.Sequential(
-            nn.Linear(N_RIS*M_AP, Nc_RIS),
+            nn.Linear(N_RIS*M_AP, 64),
             nn.ReLU(),
         )
         self.layer_hru_mag = nn.Sequential(
-            nn.Linear(N_RIS*K_UE, Nc_RIS),
+            nn.Linear(N_RIS*K_UE, 64),
             nn.ReLU(),
         )
         self.layer_hru_ang = nn.Sequential(
-            nn.Linear(N_RIS*K_UE, Nc_RIS),
+            nn.Linear(N_RIS*K_UE, 64),
             nn.ReLU(),
         )
         self.layer_hau_mag = nn.Sequential(
             # nn.Conv2d(1, 64, 1, padding=0, bias=False),
             # nn.BatchNorm2d(64),
             # nn.ReLU(),
-            nn.Linear(K_UE*M_AP, Nc_RIS),
+            nn.Linear(K_UE*M_AP, 64),
             nn.ReLU(),
         )
         self.layer_hau_ang = nn.Sequential(
-            nn.Linear(K_UE*M_AP, Nc_RIS),
+            nn.Linear(K_UE*M_AP, 64),
+            nn.ReLU(),
+        )
+        self.layer_not_theta = nn.Sequential(
+            nn.Linear(8*64, 64),
             nn.ReLU(),
         )
         self.linear_encoder = nn.Sequential(
             nn.Dropout(0.2),
-            nn.Linear(9 * Nc_RIS, Nc_RIS),
+            nn.Linear(2 * 64, Nc_enc),
             nn.ReLU(),
             nn.Dropout(0.2),
-            nn.Linear(Nc_RIS, Nc_RIS),
-            nn.ReLU(),
-            nn.Dropout(0.2),
-            nn.Linear(Nc_RIS, Nc_RIS),
+            nn.Linear(Nc_enc, Nc_enc),
             nn.ReLU(),
         )
 
@@ -142,12 +143,13 @@ class EncoderLayer(nn.Module):
         hur_ang = self.layer_hru_ang(hru_ang)
         hua_mag = self.layer_hau_mag(hau_mag)
         hua_ang = self.layer_hau_ang(hau_ang)
-        x_in = torch.cat((theta, w_mag, w_ang, hra_mag, hra_ang, hur_mag, hur_ang, hua_mag, hua_ang), 1)
-        x_enc = self.linear_encoder(x_in)
+        x_in = torch.cat((w_mag, w_ang, hra_mag, hra_ang, hur_mag, hur_ang, hua_mag, hua_ang), 1)
+        x_in = self.layer_not_theta(x_in)
+        x_enc = self.linear_encoder(torch.cat((theta, x_in), 1))
         return x_enc
 
 # class EncoderLayerOnlyChannels(nn.Module):
-#     def __init__(self, N_RIS, Nc_RIS):
+#     def __init__(self, N_RIS, Nc_enc):
 #         super(EncoderLayerOnlyChannels, self).__init__()
 #         self.layer_hra_mag = nn.Sequential(
 #             nn.Linear(N_RIS, N_RIS),
@@ -194,10 +196,10 @@ class EncoderLayer(nn.Module):
 #             nn.Linear(6*N_RIS, N_RIS),
 #             nn.ReLU(),
 #             nn.Dropout(0.2),
-#             nn.Linear(N_RIS, Nc_RIS),
+#             nn.Linear(N_RIS, Nc_enc),
 #             nn.ReLU(),
 #             nn.Dropout(0.2),
-#             nn.Linear(Nc_RIS, Nc_RIS),
+#             nn.Linear(Nc_enc, Nc_enc),
 #             nn.ReLU(),
 #         )
 #     def forward(self, x):
@@ -233,7 +235,7 @@ class EncoderLayer(nn.Module):
 #         return x_enc
 
 # class EncoderLayerOnlyTheta(nn.Module):
-#     def __init__(self, N_RIS, Nc_RIS):
+#     def __init__(self, N_RIS, Nc_enc):
 #         super(EncoderLayerOnlyTheta, self).__init__()
 #         self.layer_theta = nn.Sequential(
 #             nn.Linear(N_RIS, N_RIS),
@@ -244,10 +246,10 @@ class EncoderLayer(nn.Module):
 #             nn.Linear(N_RIS, N_RIS),
 #             nn.ReLU(),
 #             nn.Dropout(0.2),
-#             nn.Linear(N_RIS, Nc_RIS),
+#             nn.Linear(N_RIS, Nc_enc),
 #             nn.ReLU(),
 #             nn.Dropout(0.2),
-#             nn.Linear(Nc_RIS, Nc_RIS),
+#             nn.Linear(Nc_enc, Nc_enc),
 #             nn.ReLU(),
 #         )
 #     def forward(self, x):
@@ -292,7 +294,7 @@ class QuantizerLayer(nn.Module):
         self.device = dev
 
     def forward(self, theta_enc):
-        # theta_enc = matrix (number of samples of train/test dataset, Nc_RIS), in the range: [-pi, +pi)
+        # theta_enc = matrix (number of samples of train/test dataset, Nc_enc), in the range: [-pi, +pi)
         theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1], device=self.device)
         for i in range(self.C_code_words - 1):
             if self.hardQ:
@@ -319,13 +321,13 @@ class QuantizerLayer(nn.Module):
         return x_vals, soft_quant, hard_quant
 
 class DecoderLayer(nn.Module):
-    def __init__(self, N_RIS, Nc_RIS):
+    def __init__(self, N_RIS, Nc_enc):
         super(DecoderLayer, self).__init__()
         self.linear_decoder = nn.Sequential(
-            nn.Linear(Nc_RIS, Nc_RIS),
+            nn.Linear(Nc_enc, Nc_enc),
             nn.ReLU(),
             nn.Dropout(0.2),
-            nn.Linear(Nc_RIS, N_RIS),
+            nn.Linear(Nc_enc, N_RIS),
             nn.ReLU(),
             nn.Dropout(0.2),
             nn.Linear(N_RIS, N_RIS),
@@ -392,11 +394,11 @@ class DecoderLayer(nn.Module):
 # 2021, doi: 10.3390/e23010104.
 # Code: https://github.com/arielamar123/ADC-Learning-hyperopt
 class AutoQEncoder(nn.Module):
-    def __init__(self, K_UE, M_AP, N_RIS, Nc_RIS, C_code_words, dev):
+    def __init__(self, K_UE, M_AP, N_RIS, Nc_enc, C_code_words, dev):
         super(AutoQEncoder, self).__init__()
-        self.encoder_layer = EncoderLayer(K_UE, M_AP, N_RIS, Nc_RIS).to(dev)
+        self.encoder_layer = EncoderLayer(K_UE, M_AP, N_RIS, Nc_enc).to(dev)
         self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
-        self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS).to(dev)
+        self.decoder_layer = DecoderLayer(N_RIS, Nc_enc).to(dev)
     def forward(self, x):
         x_enc = self.encoder_layer(x)
         x_qnt = self.quantizer_layer(x_enc)
@@ -404,11 +406,11 @@ class AutoQEncoder(nn.Module):
         return x_dec.double()
 
 # class AutoQEncoderOnlyChannels(nn.Module):
-#     def __init__(self, N_RIS, Nc_RIS, C_code_words, dev):
+#     def __init__(self, N_RIS, Nc_enc, C_code_words, dev):
 #         super(AutoQEncoderOnlyChannels, self).__init__()
-#         self.encoder_layer = EncoderLayerOnlyChannels(N_RIS, Nc_RIS).to(dev)
+#         self.encoder_layer = EncoderLayerOnlyChannels(N_RIS, Nc_enc).to(dev)
 #         self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
-#         self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS).to(dev)
+#         self.decoder_layer = DecoderLayer(N_RIS, Nc_enc).to(dev)
 #     def forward(self, x):
 #         x_enc = self.encoder_layer(x)
 #         x_qnt = self.quantizer_layer(x_enc)
@@ -416,11 +418,11 @@ class AutoQEncoder(nn.Module):
 #         return x_dec.double()
 #
 # class AutoQEncoderOnlyTheta(nn.Module):
-#     def __init__(self, N_RIS, Nc_RIS, C_code_words, dev):
+#     def __init__(self, N_RIS, Nc_enc, C_code_words, dev):
 #         super(AutoQEncoderOnlyTheta, self).__init__()
-#         self.encoder_layer = EncoderLayerOnlyTheta(N_RIS, Nc_RIS).to(dev)
+#         self.encoder_layer = EncoderLayerOnlyTheta(N_RIS, Nc_enc).to(dev)
 #         self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
-#         self.decoder_layer = DecoderLayer(N_RIS, Nc_RIS).to(dev)
+#         self.decoder_layer = DecoderLayer(N_RIS, Nc_enc).to(dev)
 #     def forward(self, x):
 #         x_enc = self.encoder_layer(x)
 #         x_qnt = self.quantizer_layer(x_enc)
@@ -428,14 +430,14 @@ class AutoQEncoder(nn.Module):
 #         return x_dec.double()
 
 class LinearQuantizer(nn.Module):
-    def __init__(self, N_RIS, Nc_RIS, C_code_words, dev):
+    def __init__(self, N_RIS, Nc_enc, C_code_words, dev):
         super(LinearQuantizer, self).__init__()
-        self.encoder_layer = nn.Linear(N_RIS, Nc_RIS).to(dev)
+        self.encoder_layer = nn.Linear(N_RIS, Nc_enc).to(dev)
         self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
-        self.decoder_layer = nn.Linear(Nc_RIS, N_RIS).to(dev)
-        # self.encoder_layer = nn.Identity(N_RIS, Nc_RIS).to(dev)
+        self.decoder_layer = nn.Linear(Nc_enc, N_RIS).to(dev)
+        # self.encoder_layer = nn.Identity(N_RIS, Nc_enc).to(dev)
         # self.quantizer_layer = QuantizerLayer(C_code_words).to(dev)
-        # self.decoder_layer = nn.Identity(Nc_RIS, N_RIS).to(dev)
+        # self.decoder_layer = nn.Identity(Nc_enc, N_RIS).to(dev)
     def forward(self, x):
         # theta = torch.flatten(x[:,0,:,:], start_dim=1) # get only the theta values
         # theta = x[:,0,:] # get only the theta values
@@ -478,14 +480,14 @@ def batchSumRate(theta, Wopt, Hau, Har, Hru):
     return torch.einsum("bk -> b", R)
 
 def Loss(theta, theta_opt, Wopt, Hau, Har, Hru):
-    dist = torch.square(torch.angle(torch.exp(1j * theta)) - torch.angle(torch.exp(1j * theta_opt)))
-    return torch.mean(dist) - torch.mean(batchSumRate(theta, Wopt, Hau, Har, Hru))
+    dist = torch.abs(torch.angle(torch.exp(1j * (theta - theta_opt))))
+    return torch.mean(torch.square(dist)) - torch.mean(batchSumRate(theta, Wopt, Hau, Har, Hru))
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams, model, dev):
         self.train_loader = train_loader
         self.N_RIS = trainparams['N_RIS']
-        self.Nc_RIS = int(self.N_RIS * trainparams['Nc_RIS_compressed_ratio'])
+        self.Nc_enc = int(self.N_RIS * trainparams['Nc_enc_compressed_ratio'])
         self.C_code_words = trainparams['C_code_words']
         self.device = dev
         self.model = model.to(self.device)
@@ -646,15 +648,15 @@ if __name__ == "__main__":
     ####################################################################################################################
     trainparams = {'train_test_split': 0.9, # split between train/test data
                   'train_val_split': 0.9,  # after the train/test split, split train data into train/val data
-                  'lr': 10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
+                  'lr': 0.01, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 2**np.random.randint(6, 11), # batch training size
-                  'epochs': 500,  # total training duration
+                  'batch_size': 1024, #2**np.random.randint(6, 11), # batch training size
+                  'epochs': 100,  # total training duration
                   'epoch_val': 500, # validate early stop every epoch number
                   'epoch_echo': True, # flag to display epoch print losses
                   # 'step_size': 10, # step size for scheduler optimizer
-                  # 'Nc_RIS': 100, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 5, # number of bits of a quantizer
+                  # 'Nc_enc': 100, # number of quantizers, values that N is compressed/encoded into
+                  'Q_bits': 1, # number of bits of a quantizer
                   # 'max_lr': 1, # maximum learning rate for Scheduler
                   }
     # for all numpy random generators, the range is: [low, high) where the low value is included but the high value is excluded.
@@ -663,7 +665,7 @@ if __name__ == "__main__":
     # print('Using OneCycleLR Scheduler, with SGD.')
     print('Using ADAM with learning rate decay')
 
-    Nc_array = 2**np.array(range(3,7))
+    Nc_array = 2**np.array(range(4,9))
     # Nc_array = [32]
 
     num_dirs = 25 # number of directories to use which includes data samples
@@ -769,19 +771,19 @@ if __name__ == "__main__":
     R_rand_array = np.zeros(len(Nc_array))
     trainparamslist = []
     for i in range(len(Nc_array)):
-        trainparams['Nc_RIS'] = Nc_array[i]
+        trainparams['Nc_enc'] = Nc_array[i]
         bits = trainparams['Q_bits'] # bits per Quantizer
         trainparams['C_code_words'] = 2**bits
-        trainparams['Nc_RIS_compressed_ratio'] = trainparams['Nc_RIS'] / trainparams['N_RIS']
-        trainparams['overall_bits'] = trainparams['Nc_RIS'] * bits
+        trainparams['Nc_enc_compressed_ratio'] = trainparams['Nc_enc'] / trainparams['N_RIS']
+        trainparams['overall_bits'] = trainparams['Nc_enc'] * bits
         train_loader = DataLoader(train_set, batch_size=trainparams['batch_size'])
         test_loader = DataLoader(test_set, batch_size=trainparams['batch_size'])
         val_loader = DataLoader(val_set, batch_size=trainparams['batch_size'])
 
-        AQEnet = AutoQEncoder(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], device)
-        # AQECnet = AutoQEncoderOnlyChannels(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], device)
-        # AQETnet = AutoQEncoderOnlyTheta(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], device)
-        linQ = LinearQuantizer(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['C_code_words'], device)
+        AQEnet = AutoQEncoder(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['Nw_RIS'], device)
+        # AQECnet = AutoQEncoderOnlyChannels(trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['Nw_RIS'], device)
+        # AQETnet = AutoQEncoderOnlyTheta(trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['Nw_RIS'], device)
+        linQ = LinearQuantizer(trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
 
         AQEtrainer = Trainer(train_loader, trainparams, AQEnet, device)
         total_params = sum(p.numel() for p in AQEtrainer.model.parameters())
