@@ -455,7 +455,7 @@ class QuantizerLayer(nn.Module):
         # where theta_n is a scalar value: [-pi, +pi) and z is the quantized theta_n
         self.a = torch.nn.Parameter(
             data=torch.from_numpy(
-                np.ones(C_code_words-1) * np.pi / ( C_code_words-1 )
+                np.ones(C_code_words-1) * np.pi / ( C_code_words )
             ), requires_grad=False)
         spacing = np.linspace(-1, 1, C_code_words + 1) * np.pi
         self.b = torch.nn.Parameter(
@@ -736,9 +736,9 @@ class Trainer(object):
             with torch.no_grad():
                 # replace trainable tanh quantization layer with proper quantization layer
                 try:
-                    self.model.quantizer_layer.hardQ = False
+                    self.model.quantizer_layer.hardQ = True
                 except AttributeError:
-                    self.model.module.quantizer_layer.hardQ = False
+                    self.model.module.quantizer_layer.hardQ = True
 
                 for i, data in (enumerate(val_loader)):
                     inputs, labels, hua, hra, hur = data
@@ -791,9 +791,9 @@ class Trainer(object):
         with torch.no_grad():
             # replace trainable tanh quantization layer with proper quantization layer
             try:
-                self.model.quantizer_layer.hardQ = False
+                self.model.quantizer_layer.hardQ = True
             except AttributeError:
-                self.model.module.quantizer_layer.hardQ = False
+                self.model.module.quantizer_layer.hardQ = True
 
             test_size = len(test_loader.dataset.data)
             # y_opt = torch.view_as_complex(torch.zeros(test_size,2)).to(self.device)
@@ -999,9 +999,9 @@ if __name__ == "__main__":
         test_loader = DataLoader(test_set, batch_size=trainparams['batch_size'])
         val_loader = DataLoader(val_set, batch_size=trainparams['batch_size'])
 
-        AQEnet = AutoQEncoder(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], device)
-        AQECnet = AutoQEncoderOnlyChannels(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], device)
-        AQETnet = AutoQEncoderOnlyTheta(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['Nw_RIS'], device)
+        AQEnet = AutoQEncoder(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['C_code_words'], device)
+        AQECnet = AutoQEncoderOnlyChannels(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['C_code_words'], device)
+        AQETnet = AutoQEncoderOnlyTheta(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['C_code_words'], device)
         linQ = LinearQuantizer(trainparams['N_RIS'], trainparams['Nc_RIS'], trainparams['C_code_words'], device)
 
         AQEtrainer = Trainer(train_loader, trainparams, AQEnet, device)
