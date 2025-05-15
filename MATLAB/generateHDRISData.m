@@ -7,11 +7,11 @@ addpath("src")
 %% Setup system model / script parameters
 systemModelParameters
 
-job_id = str2num(getenv("SLURM_ARRAY_TASK_ID"));
-dataDir = "~/scratch/datasets/HDRISData/14/";
-%job_id = 0;
-%dataDir = "datasets/HDRISData/14/";
-rng(job_id)
+% job_id = str2num(getenv("SLURM_ARRAY_TASK_ID"));
+% dataDir = "~/scratch/datasets/HDRISData/14/";
+job_id = 0;
+dataDir = "datasets/HDRISData/14/";
+% rng(job_id)
 dataDir = dataDir + num2str(job_id) + "/";
 mkdir(dataDir);
 fileSaveName = dataDir + "HDRISData";
@@ -21,16 +21,16 @@ diary(dfile)
 diary on
 vars2save =       {"channel_type", ...
                    "LOS", ...
-                   "B", ...
-                   "L", ...
-                   "T", ...
+                   ..."B", ...
+                   ..."L", ...
+                   ..."T", ...
                    "K", ...
                    "M", ...
                    "N", ...
                    "Nw", ...
                    "Nh", ...
-                   "Xu", ...
-                   "Psi", ...
+                   ..."Xu", ...
+                   ..."Psi", ...
                    ..."Hur_mc", ...
                    ..."Hra_mc", ...
                    ..."Hua_mc", ...
@@ -48,26 +48,30 @@ vars2save =       {"channel_type", ...
                    "g_ra", ...
                    "g_ua", ...
                    "CH_err", ...
+                   "PdBm", ...
+                   "NdBm", ...
                    "SNRdB", ...
-                   "SINRdB", ...
+                   ..."SINRdB", ...
+                   "max_AO_iterations",...
                    "mc_runs"};
 
 %% Generate pilots and RIS phase shifts
-P = 10^(SNRdB/10); % Transmission Power
-Xu = sqrt(P).*dftmtx(K)/sqrt(K);
-% Xu = sqrt(P).*eye(K);
-
-[~,L] = size(Xu);
-T = B*L; % training overhead
-
-XU = repmat(Xu, [1,B]);
-
-F_N1 = dftmtx(N+1);
-Psi = zeros(B,N); % RIS phase shifts per block
-for b = 1:B
-    Psi(b,:) = F_N1(mod(b-1,N+1)+1, 2:end); % DFT scheme
-end
-ONES = ones(B,M+K);
+P = 10^(PdBm/10); % Transmission Power
+SNR = 10^(SNRdB/10);
+% Xu = sqrt(P).*dftmtx(K)/sqrt(K);
+% % Xu = sqrt(P).*eye(K);
+% 
+% [~,L] = size(Xu);
+% T = B*L; % training overhead
+% 
+% XU = repmat(Xu, [1,B]);
+% 
+% F_N1 = dftmtx(N+1);
+% Psi = zeros(B,N); % RIS phase shifts per block
+% for b = 1:B
+%     Psi(b,:) = F_N1(mod(b-1,N+1)+1, 2:end); % DFT scheme
+% end
+% ONES = ones(B,M+K);
 
 %% Monte Carlo
 % channel matrices vectorized by stacking column vectors via H(:) operator
@@ -89,12 +93,13 @@ Ropt2_mc = zeros(mc_runs,1); % optimized receive signal (at the users)
 Rrand2_mc = zeros(mc_runs,1); % random phases receive signal (at the users)
 
 fprintf('Monte Carlo Run:\n');
+mc_run_print = 100;
 for mc_run = 1:mc_runs
-% if mod(mc_run,mc_runs/25) == 0
+if mod(mc_run,mc_runs/mc_run_print) == 0
     fprintf('%i/%i\n', mc_run, mc_runs);
     fprintf("Script Execution time:\n")
     fprintElapsedTime(TSTART);
-% end
+end
 %% Create system model via channel matrices
 generateHDRISchannels
 % Creates Channel Matrices based on scructure of the channel
@@ -121,7 +126,14 @@ nmse_Hau = norm(Hau_true - Hau,'fro')^2 / norm(Hau_true,'fro')^2;
 nmse_Hru_mc(mc_run) = nmse_Hru;
 nmse_Har_mc(mc_run) = nmse_Har;
 nmse_Hau_mc(mc_run) = nmse_Hau;
-fprintf("nmse_Hru %.3e, nmse_Har %.3e, nmse_Hau %.3e\n", nmse_Hru, nmse_Har, nmse_Hau)
+% fprintf("nmse_Hru %.3e, nmse_Har %.3e, nmse_Hau %.3e\n", nmse_Hru, nmse_Har, nmse_Hau)
+
+% % User priorities chosen inversely proportional to the direct-link path-loss
+% uw = zeros(K,1);
+% for k = 1:K
+%     uw(k) = norm(Hau(k,:))^2;
+% end
+% uw = uw / sum(uw);
 
 % %% Transmit Pilots through RIS communication system
 % % TODO: receive signal for channel estimation
@@ -207,202 +219,368 @@ else
     % Hua = MxK scalar
     % Hra = MxN row vector
     % Hur = NxK column vector, K single antenna users
-    % Solution can be found as a homogeneous QCPQ
+    % Solution can be found using Algorithm 1 in [6]
+    
+    %% Alternating Optimization Algorithm
     % [1] Q. Wu and R. Zhang, “Intelligent Reflecting Surface Enhanced 
     % Wireless Network via Joint Active and Passive Beamforming,” IEEE 
     % Trans. Wirel. Commun., vol. 18, no. 11, pp. 5394–5409, Nov. 2019, 
     % doi: 10.1109/TWC.2019.2936025.
-    
-    %% Alternating Optimization Algorithm
-    max_iterations = 30;
-    W_opt = zeros(M,K);
-    gammavar = 10^(SINRdB/10)*ones(K,1); % SINR constraint for all users
-    tx_power_prev = Inf;
+    % [2] https://github.com/emilbjornson/optimal-beamforming/blob/master/functionFeasibilityProblem_cvx.m
+    % [2] Z. Q. Luo and W. Yu, "An introduction to convex optimization 
+    % for communications and signal processing,” IEEE J. Sel. Areas 
+    % Commun., vol. 24, no. 8, pp. 1426–1438, Aug. 2006, 
+    % doi: 10.1109/JSAC.2006.879347.
+    % [3] A. Wiesel, Y. C. Eldar, and S. Shamai, "Linear precoding via 
+    % conic optimization for fixed MIMO receivers,” IEEE Trans. Signal 
+    % Process., vol. 54, no. 1, pp. 161–176, Jan. 2006, 
+    % doi: 10.1109/TSP.2005.861073.
+    % [4] Q. Shi, M. Razaviyayn, Z. Q. Luo, and C. He, "An iteratively 
+    % weighted MMSE approach to distributed sum-utility maximization 
+    % for a MIMO interfering broadcast channel," IEEE Trans. Signal 
+    % Process., vol. 59, no. 9, pp. 4331–4340, Sep. 2011, 
+    % doi: 10.1109/TSP.2011.2147784.
+    % [5] H. Guo, Y. C. Liang, J. Chen, and E. G. Larsson, "Weighted 
+    % Sum-Rate Maximization for Reconfigurable Intelligent Surface 
+    % Aided Wireless Networks," IEEE Trans. Wirel. Commun., vol. 19, 
+    % no. 5, pp. 3064–3076, May 2020, doi: 10.1109/TWC.2020.2970061.
+    % [6] W. Jin, J. Zhang, C. K. Wen, S. Jin, X. Li, and S. Han, 
+    % "Low-Complexity Joint Beamforming for RIS-Assisted MU-MISO 
+    % Systems Based on Model-Driven Deep Learning," IEEE Trans. Wirel. 
+    % Commun., vol. 23, no. 7, pp. 6968–6982, 2024, 
+    % doi: 10.1109/TWC.2023.3336742.
+    % [7] X. Yu, D. Xu, and R. Schober, "MISO wireless communication 
+    % systems via intelligent reflecting surfaces: (Invited paper)," 2019 
+    % IEEE/CIC Int. Conf. Commun. China, ICCC 2019, pp. 735–740, Aug. 2019,
+    % doi: 10.1109/ICCCHINA.2019.8855810.
+
+%     gammavar = 10^(SINRdB/10)*ones(K,1); % SINR constraint for all users
+    R_best = 0;
     Ropt = zeros(K,1);
     Rrand = zeros(K,1);
+%     num_r = 1000; % number of SDR gaussian approximations
 
-    % 1. Initialize phase shifts to be optimal without beamforming
-    cvx_begin quiet
-        variable V(N+1,N+1) complex semidefinite
-        variable alphavar(K) % SINR residual of user k
-        maximize sum(alphavar)
-        
-        subject to
-        for k = 1:K
-            hau = Hau(k,:);
-            hru = Hru(k,:);
-            a_kk = diag(hru)*Har;
-            b_kk = hau;
-            Rkk = [a_kk*a_kk', a_kk*b_kk'; ...
-                   b_kk*a_kk', 0];
-            trace(Rkk*V) + b_kk*b_kk' >= alphavar(k);
-            alphavar(k) >= 0;
-        end
-        diag(V) == 1;
-    cvx_end
+%     % [1]
+%     cvx_begin quiet
+%         variable V(N+1,N+1) complex semidefinite
+%         variable alphavar(K) % SINR residual of user k
+%         maximize sum(alphavar)
+%         
+%         subject to
+%         for k = 1:K
+%             hau = Hau(k,:);
+%             hru = Hru(k,:);
+%             a_kk = diag(hru)*Har;
+%             b_kk = hau;
+%             Rkk = [a_kk*a_kk', a_kk*b_kk'; ...
+%                    b_kk*a_kk', 0];
+%             (trace(Rkk*V) + b_kk*b_kk') / (gammavar(k) * 10^(NdBm/10)) == alphavar(k);
+%             alphavar(k) >= 0;
+%         end
+%         diag(V) == 1;
+%     cvx_end
 %     fprintf(['Initialize RIS: ', cvx_status, '\n']);
+% 
+%     % Gaussian random vector to obtain approximate best rank 1 vector
+%     [U,D] = eig(V);
+%     r = 1/sqrt(2)*(rand(N+1,num_r) + 1j*rand(N+1,num_r));
+%     v = U*sqrt(D)*r;
+%     v = exp(1j*angle(v(1:N,1:num_r) ./ v(N+1,1:num_r)));
+%     v_init = v(:,1);
+%     Cost_init = 0;
+%     for n = 1:num_r
+%         Cost = 0;
+%         for k = 1:K
+%             hau = Hau(k,:);
+%             hru = Hru(k,:);
+%             Cost = Cost + norm(hau + hru*diag(v(:,n))*Har);
+%         end
+%         if Cost > Cost_init
+%             Cost_init = Cost;
+%             v_init = v(:,n);
+%             n_init = n;
+%         end
+%     end
+%     theta = angle(v_init);
 
-    % Gaussian random vector to obtain approximate best rank 1 vector
-    [U,D] = eig(V);
-    num_r = 1000;
-    r = 1/sqrt(2)*(rand(N+1,num_r) + 1j*rand(N+1,num_r));
-    v = U*sqrt(D)*r;
-    v_init = v(:,1);
-    Cost_init = 0;
-    for n = 1:num_r
-        Cost = 0;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% 1. Initialize RIS phases and obtain first update of WMMSE variables
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % initialize RIS using [1] or randomization
+    theta = 2*pi*rand(1,N); 
+    
+    % Complete communication channel given RIS phase shifts
+    H = Hau + Hru*diag(exp(1j*theta))*Har;
+    
+    % Initialize W with zero-forcing
+    W = H'*(H*H');
+    W = sqrt(P)*W/norm(W,'fro');
+
+    % Obtain initial update for WMMSE variables: U_, L_, and W
+    U_ = zeros(K,1); % effective MMSE receiver (complex valued)
+    L_ = zeros(K,1); % effective MMSE receiver weights (positive)
+
+    % WMMSE algorithm update [6] (inspired by [4] and [5]) Update U_ and L_
+    wwh = W(:,1)*W(:,1)';
+    whw = W(:,1)'*W(:,1);
+    for j = 2:K
+        wwh = wwh + W(:,j)*W(:,j)';
+        whw = whw + W(:,j)'*W(:,j);
+    end
+    for k = 1:K
+        hk = H(k,:);
+        U_(k) =  (hk*wwh*hk' + whw/SNR) \ hk*W(:,k);
+        L_(k) = 1 / abs(1 - U_(k)'*hk*W(:,k));
+    end
+
+    % WMMSE algorithm update [6] (inspired by [4] and [5]) Update W
+    for k = 1:K
+        Sk = zeros(M,M);
+        for j = 1:K
+            Sk = Sk + abs(U_(j))^2 * L_(j) * (1/SNR + H(j,:)'*H(j,:));
+        end
+        W(:,k) = U_(k)*L_(k) * (Sk \ H(k,:)');
+    end
+    W = sqrt(P)*W/norm(W,'fro');
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% Begin iteratively solving WMMSE algorithm and RIS phase shifts
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    for iter = 1:max_AO_iterations
+
+%         % [2] Solve for W multiuser beamforming via power minimization
+%         cvx_begin quiet
+%             variable W(M,K) complex % beamforming matrix k data streams for M transmit antennas
+%             variable betavar % power scaling constraint
+%             minimize betavar % minimize the power indirectly by scaling power constraint
+%             subject to
+%             % SINR constraints (K users)
+%             w_sum = 0;
+%             for k = 1:K
+%                 % complete communication channel to the kth user
+%                 hk = Hau(k,:) + Hru(k,:)*diag(exp(1j*theta))*Har;
+%                 % Useful link is assumed to be real-valued
+%                 imag(hk*W(:,k)) == 0;
+%                 % SOCP formulation for the SINR constraint of user k
+%                 sqrt(1 + 1/gammavar(k))*real(hk*W(:,k)) >= norm([hk*W(:,[1:k-1 k+1:K]) 10^(NdBm/20)]);
+%                 w_sum = w_sum + W(:,k)'*W(:,k);
+%             end
+%             %Power constraints scaled by the variable betavar
+%             w_sum <= betavar;
+%             betavar >= 0; % Power constraints must be positive
+%         cvx_end
+%         fprintf(['AO: ', cvx_status, ', ']);
+%         % [3] Solve for W multiuser beamforming via power minimization
+%         E = eye(K); % used for standard basis vectors
+%         H = Hau + Hru*diag(exp(1j*theta))*Har;
+%         cvx_begin quiet
+%             variable W(M,K) complex % beamforming matrix k data streams for M transmit antennas
+%             variable p % power scaling constraint
+%             minimize p % minimize the power indirectly by scaling power constraint
+%             subject to
+%             for k = 1:K
+%                 % complete communication channel to the kth user
+%                 hk = Hau(k,:) + Hru(k,:)*diag(exp(1j*theta))*Har;
+%                 ek = E(:,k);
+%                 % Useful link is assumed to be real-valued
+%                 imag(hk*W(:,k)) == 0;
+%                 norm([W'*H'*ek; 10^(NdBm/20)]) <= real(sqrt(1 + 1/gammavar(k))*hk*W(:,k));
+%                 w = W(:);
+%                 norm(w) <= p;
+%             end
+% 
+%         cvx_end
+%         fprintf(['AO W: ', cvx_status, '\n']);
+
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% 2. Update U_ and L_
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        wwh = W(:,1)*W(:,1)';
+        whw = W(:,1)'*W(:,1);
+        for j = 2:K
+            wwh = wwh + W(:,j)*W(:,j)';
+            whw = whw + W(:,j)'*W(:,j);
+        end
+        H = Hau + Hru*diag(exp(1j*theta))*Har;
+        for k = 1:K
+            hk = H(k,:);
+            U_(k) =  (hk*wwh*hk' + whw/SNR) \ hk*W(:,k);
+            L_(k) = 1 / abs(1 - U_(k)'*hk*W(:,k));
+        end
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% 3. Solve RIS phase shifts theta 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+%         % Solving problem P4' from [1] via SDR
+%         cvx_begin quiet
+%             variable V(N+1,N+1) complex semidefinite
+%             variable alphavar(K) % SINR residual of user k
+%             maximize sum(alphavar)
+%             
+%             subject to
+%             for k = 1:K
+%                 hau = Hau(k,:);
+%                 hru = Hru(k,:);
+%                 a_kk = diag(hru)*Har*W(:,k);
+%                 b_kk = hau*W(:,k);
+%                 Rkk = [a_kk*a_kk', a_kk*b_kk'; ...
+%                        b_kk*a_kk', 0];
+%                 s = 0;
+%                 for j = 1:K
+%                     if j ~= k
+%                         a_kj = diag(hru)*Har*W(:,j);
+%                         b_kj = hau*W(:,j);
+%                         Rkj = [a_kj*a_kj', a_kj*b_kj'; ...
+%                                b_kj*a_kj', 0];
+%                         s = s + trace(Rkj*V) + b_kj*b_kj';
+%                     end
+%                 end
+%                 trace(Rkk*V) + b_kk*b_kk' >= gammavar(k)*(s + 10^(NdBm/10)) + alphavar(k);
+%                 alphavar(k) >= 0;
+%             end
+%             diag(V) == 1;
+%         cvx_end
+%         fprintf(['AO theta: ', cvx_status, '\n']);
+%         if strcmp(cvx_status, 'Infeasible')
+%             break
+%         else
+%             % Gaussian random vector to obtain approximate best rank 1 vector
+%             [U,D] = eig(V);
+%             r = 1/sqrt(2)*(rand(N+1,num_r) + 1j*rand(N+1,num_r));
+%             v = U*sqrt(D)*r;
+%             v = exp(1j*angle(v(1:N,1:num_r) ./ v(N+1,1:num_r)));
+%             v_best = v(:,1);
+%             Cost_best = 0;
+%             for n = 1:num_r
+%                 Cost = 0;
+% %                 for k = 1:K
+% %                     hau = Hau(k,:);
+% %                     hru = Hru(k,:);
+% %                     a_kk = hru*diag(v(:,n))*Har*W(:,k);
+% %                     b_kk = hau*W(:,k);
+% %                     s = 10^(NdBm/10);
+% %                     for j = 1:K
+% %                         if j ~= k
+% %                             a_kj = hru*diag(v(:,n))*Har*W(:,j);
+% %                             b_kj = hau*W(:,j);
+% %                             s = s + a_kj*a_kj' + b_kj*b_kj';
+% %                         end
+% %                     end
+% %                     Cost = Cost + (a_kk*a_kk' + b_kk*b_kk') / s;
+% %                 end
+%                 for k = 1:K 
+%                     hau = Hau(k,:);
+%                     hru = Hru(k,:);
+%                     hk = hau + hru*diag(v(:,n))*Har;
+%                     intf_opt = 10^(NdBm/10);
+%                     for l = 1:K
+%                         if l ~= k
+%                             intf_opt = intf_opt + norm(hk*W(:,l))^2;
+%                         end
+%                     end
+%                     Cost = Cost + log2(1 + norm(hk*W(:,k))^2 / intf_opt);
+%                 end
+%                 if Cost > Cost_best
+%                     Cost_best = Cost;
+%                     v_best = v(:,n);
+%                     n_best = n;
+%                 end
+%             end
+%             theta = angle(v_best);
+%         end
+
+        % Solving problem P5 from [6] / Fixed point iteration from [7]
+        A = zeros(N,N);
+        b = zeros(N,1);
+        wwh = W(:,1)*W(:,1)';
+        for j = 2:K
+            wwh = wwh + W(:,j)*W(:,j)';
+        end
         for k = 1:K
             hau = Hau(k,:);
             hru = Hru(k,:);
-            a_kk = diag(hru)*Har;
-            b_kk = hau;
-            Rkk = [a_kk*a_kk', a_kk*b_kk'; ...
-                   b_kk*a_kk', 0];
-            Cost = Cost + (v(:,n)'*Rkk*v(:,n)) + b_kk*b_kk';
+            Hrk = diag(hru)*Har;
+            A = A + L_(k)*abs(U_(k))^2*Hrk*wwh*Hrk';
+            b = b - L_(k)*U_(k)'*Hrk*W(:,k) + L_(k)*abs(U_(k))^2*Hrk*wwh*hau';
         end
-        if Cost > Cost_init
-            Cost_init = Cost;
-            v_init = v(:,n);
-            n_init = n;
+        Ab = [-A, -b; -(b'), 0];
+        R = Ab + norm(Ab,'fro')*eye(N+1);
+
+        v = exp(1j*2*pi*[theta(:); 0]);
+        Rv = R*v;
+        Rv_norm = norm(Rv, 1);
+        n = 1;
+        while(1)
+            Rv_norm_prev = Rv_norm;
+%             v = exp(1j*angle(Rv)); % [6]
+            v = Rv ./ abs(Rv); % [7]
+            Rv = R*v;
+            Rv_norm = norm(Rv, 1);
+            v_ = v(1:N)*v(N+1)';
+            n = n+1;
+            
+%             fprintf('%i, diff: %.8f\n', n, Rv_norm - Rv_norm_prev);
+            if Rv_norm - Rv_norm_prev < 1e-6
+%             fprintf('%i, diff: %.8f\n', n, Rv_norm - Rv_norm_prev);
+                theta = angle(v_);
+                break
+            end
         end
-    end
-    theta = angle(v_init(1:N) / v_init(N+1));
 
-    for iter = 1:max_iterations
-        % 2. Solve P3 for given RIS phases to obtain beamforming
-        % Solve for W multiuser beamforming via powerscaling constraint
-        % https://github.com/emilbjornson/optimal-beamforming/blob/master/functionFeasibilityProblem_cvx.m
-        % [1] Z. Q. Luo and W. Yu, “An introduction to convex optimization 
-        % for communications and signal processing,” IEEE J. Sel. Areas 
-        % Commun., vol. 24, no. 8, pp. 1426–1438, Aug. 2006, 
-        % doi: 10.1109/JSAC.2006.879347.
-        cvx_begin quiet
-            variable W(M,K) complex % beamforming matrix k data streams for M transmit antennas
-            variable betavar % power scaling constraint
-
-            minimize betavar % minimize the power indirectly by scaling power constraint
-            
-            subject to
-
-            % SINR constraints (K users)
-            w_sum = 0;
-            for k = 1:K
-                % complete communication channel to the kth user
-                hk = Hau(k,:) + Hru(k,:)*diag(exp(1j*theta))*Har;
-                
-                % Useful link is assumed to be real-valued
-                imag(hk*W(:,k)) == 0;
-                % SOCP formulation for the SINR constraint of user k
-                sqrt(1 + 1/gammavar(k))*real(hk*W(:,k)) >= norm([hk*W(:,[1:k-1 k+1:K]) 10^(-SNRdB/20)]);
-                w_sum = w_sum + W(:,k)'*W(:,k);
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% 4. Update Beamforming Matrix W 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        H = Hau + Hru*diag(exp(1j*theta))*Har;
+        for k = 1:K
+            Sk = zeros(M,M);
+            for j = 1:K
+                Sk = Sk + abs(U_(j))^2 * L_(j) * (1/SNR + H(j,:)'*H(j,:));
             end
-            
-            %Power constraints scaled by the variable betavar
-            w_sum <= betavar;
-            
-            betavar >= 0; % Power constraints must be positive
-        cvx_end
-%         fprintf(['AO: ', cvx_status, ', ']);
+            W(:,k) = U_(k)*L_(k) * (Sk \ H(k,:)');
+        end
+        W = sqrt(P)*W/norm(W,'fro');
 
-        % 3. Solve problem P4' for given beamforming matrix
-        theta_prev = theta;
-        cvx_begin quiet
-            variable V(N+1,N+1) complex semidefinite
-            variable alphavar(K) % SINR residual of user k
-            maximize sum(alphavar)
-            
-            subject to
-            for k = 1:K
-                hau = Hau(k,:);
-                hru = Hru(k,:);
-                a_kk = diag(hru)*Har*W(:,k);
-                b_kk = hau*W(:,k);
-                Rkk = [a_kk*a_kk', a_kk*b_kk'; ...
-                       b_kk*a_kk', 0];
-                s = 0;
-                for j = 1:K
-                    if j ~= k
-                        a_kj = diag(hru)*Har*W(:,j);
-                        b_kj = hau*W(:,j);
-                        Rkj = [a_kj*a_kj', a_kj*b_kj'; ...
-                               b_kj*a_kj', 0];
-                        s = s + trace(Rkj*V) + b_kj*b_kj';
-                    end
-                end
-                trace(Rkk*V) + b_kk*b_kk' >= gammavar(k)*(s + 10^(-SNRdB/10)) + alphavar(k);
-                alphavar(k) >= 0;
-            end
-            diag(V) == 1;
-        cvx_end
-%         fprintf([cvx_status, '\n']);
-        
-        if strcmp(cvx_status, 'Infeasible')
-            W_opt = W;
-            theta_opt = theta;
-            break
-        else
-            % Gaussian random vector to obtain approximate best rank 1 vector
-            [U,D] = eig(V);
-            num_r = 1000;
-            r = 1/sqrt(2)*(rand(N+1,num_r) + 1j*rand(N+1,num_r));
-            v = U*sqrt(D)*r;
-            v_best = v(:,1);
-            Cost_best = 0;
-            for n = 1:num_r
-                Cost = 0;
-                for k = 1:K
-                    hau = Hau(k,:);
-                    hru = Hru(k,:);
-                    a_kk = diag(hru)*Har*W(:,k);
-                    b_kk = hau*W(:,k);
-                    Rkk = [a_kk*a_kk', a_kk*b_kk'; ...
-                           b_kk*a_kk', 0];
-                    s = 0;
-                    for j = 1:K
-                        if j ~= k
-                            a_kj = diag(hru)*Har*W(:,j);
-                            b_kj = hau*W(:,j);
-                            Rkj = [a_kj*a_kj', a_kj*b_kj'; ...
-                                   b_kj*a_kj', 0];
-                            s = s + (v(:,n)'*Rkj*v(:,n) + b_kj*b_kj');
-                        end
-                    end
-                    Cost = Cost + ((v(:,n)'*Rkk*v(:,n)) + b_kk*b_kk') / (s + 10^(-SNRdB/10));
-                end
-                if Cost > Cost_best
-                    Cost_best = Cost;
-                    v_best = v(:,n);
-                    n_best = n;
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% 5. Evaluate Sum Rate of iteration 
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        Rate = 0;
+        for k = 1:K 
+            hau = Hau(k,:);
+            hru = Hru(k,:);
+            hk = hau + hru*diag(exp(1j*theta))*Har;
+            intf_opt = 10^(NdBm/10);
+            for l = 1:K
+                if l ~= k
+                    intf_opt = intf_opt + norm(hk*W(:,l))^2;
                 end
             end
-            theta = angle(v_best(1:N) / v_best(N+1));
+            Rate = Rate + log2(1 + norm(hk*W(:,k))^2 / intf_opt);
+            if Rate > R_best
+                R_best = Rate;
+                % Save optimal beamforming matrix and theta
+                W_opt = sqrt(P)*W/norm(W,'fro');
+                theta_opt = theta;
+            end
         end
+%         fprintf('iter %i  \tBest: %.4f \tRate: %.4f\n', iter, R_best, Rate);
 
-        % 4. Stop when infeasible or the transmit power stops decreasing
-        tx_power = norm(W,'fro');
-        fprintf('%i: %.4e\n', iter, tx_power);
-
-        if tx_power_prev - tx_power > 10^(-SNRdB/10)
-            tx_power_prev = tx_power;
-            W_opt = W;
-            theta_opt = theta;
-        else
-            break
-        end
-
-    end % 5. End Alternating Optimization
-
-%     W_opt = P*W_opt/norm(W_opt,'fro');
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %%% End Alternating Optimization
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    end % End AO
 
     % Compare optimal phases vs random phases given optimal beamforming
+    % with true channels
     for k = 1:K 
         hau = Hau_true(k,:);
         hru = Hru_true(k,:);
         theta_rand = 2*pi*rand(1,N) - pi;
         h_opt = hau + hru*diag(exp(1j*theta_opt))*Har_true;
         h_rand = hau + hru*diag(exp(1j*theta_rand))*Har_true;
-        intf_opt = 10^(-SNRdB/10);
-        intf_rand = 10^(-SNRdB/10);
+        intf_opt = 10^(NdBm/10);
+        intf_rand = 10^(NdBm/10);
         for l = 1:K
             if l ~= k
                 intf_opt = intf_opt + norm(h_opt*W_opt(:,l))^2;
@@ -413,6 +591,8 @@ else
         Rrand(k) = log2(1 + norm(h_rand*W_opt(:,k))^2 / intf_rand);
     end
     
+    fprintf('R_opt: %.4f \tR_rand: %.4f\n', sum(Ropt), sum(Rrand));
+
     theta_opt = theta_opt.'; % stack all phases into one row vector
     w_opt = W_opt(:).';
 end
@@ -432,22 +612,24 @@ end % mc_run
 %% Print
 fprintf("\n------------------------------------------------------------\n")
 fprintf("Mean Sum Rate over montecarlo runs:\n");
-fprintf("Optimized RIS: %.4f\n", mean(Ropt2_mc, 1));
-fprintf("Random RIS: %.4f\n", mean(Rrand2_mc, 1));
+fprintf("Optimized RIS: %.4f +/- %.4f\n", mean(Ropt2_mc, 1), var(Ropt2_mc, 1));
+fprintf("Random RIS: %.4f +/- %.4f\n", mean(Rrand2_mc, 1), var(Rrand2_mc, 1));
 fprintf("Average Channel Error:\n")
 fprintf("nmse_Hru %.3e, nmse_Har %.3e, nmse_Hau %.3e\n", ...
     mean(nmse_Hru_mc), mean(nmse_Har_mc), mean(nmse_Hau_mc))
 
 %% Save data
 save(fileSaveName + ".mat", vars2save{:})
-A = [LOS, K, M, N, Nw, Nh, ...
+systemModelParameters = [LOS, K, M, N, Nw, Nh, ...
     d_ra, a_ra, d_ur, a_ur, d_ua, a_ua, ...
-    g_ur, g_ra, g_ua, CH_err, SNRdB, SINRdB, mc_runs];
-Tab = array2table(A);
-Tab.Properties.VariableNames(1:length(A)) = ...
+    g_ur, g_ra, g_ua, CH_err, PdBm, NdBm, SNRdB, ...SINRdB,
+    max_AO_iterations, mc_runs];
+Tab = array2table(systemModelParameters);
+Tab.Properties.VariableNames(1:length(systemModelParameters)) = ...
 {'LOS', 'K', 'M', 'N', 'Nw', 'Nh', ...
  'd_ra', 'a_ra', 'd_ur', 'a_ur', 'd_ua', 'a_ua', ...
- 'g_ur', 'g_ra', 'g_ua', 'CH_err', 'SNRdB', 'SINRdB', 'mc_runs'};
+ 'g_ur', 'g_ra', 'g_ua', 'CH_err', 'PdBm', 'NdBm', 'SNRdB', ...'SINRdB', 
+ 'max_AO_iterations', 'mc_runs'};
 writetable(Tab, dataDir + "systemModelParameters.csv")
 
 % Save channels into a single csv file

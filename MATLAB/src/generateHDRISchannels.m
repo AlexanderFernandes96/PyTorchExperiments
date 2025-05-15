@@ -85,9 +85,9 @@ end
 % Hra = sqrt(PL(g0, d_AP_RIS, a_AP_RIS))*Hra;
 % Hua = sqrt(PL(g0, d_AP_UE, a_AP_UE))*Hua;
 
-Hur = sqrt(g_ur)*Hur;
-Hra = sqrt(g_ra)*Hra;
-Hua = sqrt(g_ua)*Hua;
+Hur = sqrt(g_ur)*Hur/norm(Hur,'fro');
+Hra = sqrt(g_ra)*Hra/norm(Hra,'fro');
+Hua = sqrt(g_ua)*Hua/norm(Hua,'fro');
 
 % HurHra_kr = khatrirao(Hur.', Hra);
 

@@ -447,7 +447,13 @@ def batchSumRate(theta, W, Hau, Har, Hru):
     return torch.einsum("bk -> b", R)
 
 def Loss(theta, W, Hau, Har, Hru):
-    return -torch.mean(batchSumRate(theta, W, Hau, Har, Hru))
+    S = torch.zeros((theta.shape[0]), device=device)
+    for k in range(trainparams['K_UE']):
+        hruHar = torch.einsum("bn, bnm -> bnm", Hru[:,k,:], Har)
+        hk = Hau[:, k, :] + torch.einsum("bn, bnm -> bm", torch.exp(1j*theta), hruHar)
+        # Useful link is assumed to be real-valued, to match the constraint in SOCP solution
+        S += torch.abs(torch.imag(torch.einsum("bm, bm -> b", hk, W[:, :, k])))
+    return 10**(trainparams['snr_dB']/10)*torch.mean(S) - torch.mean(batchSumRate(theta, W, Hau, Har, Hru))
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams, model, dev):
@@ -617,7 +623,7 @@ if __name__ == "__main__":
                   'lr': 0.01, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 1024, #2**np.random.randint(6, 11), # batch training size
-                  'epochs': 5,  # total training duration
+                  'epochs': 100,  # total training duration
                   'epoch_val': 100, # validate early stop every epoch number
                   'epoch_patience': 20, # number of epochs before loss decrease
                   'epoch_echo': True, # flag to display epoch print losses
