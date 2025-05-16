@@ -431,29 +431,23 @@ def normalizethetaW(theta, W):
 
 def batchSumRate(theta, W, Hau, Har, Hru):
     theta, W = normalizethetaW(theta, W)
-    n = torch.ones(theta.shape[0], device=device)
-    W = W * 10**(trainparams['snr_dB']/20)
+    n = torch.ones(theta.shape[0], device=device) * 10**(trainparams['N_dBm']/10)
+    W = W * 10**(trainparams['P_dBm']/20)
     R = torch.zeros((theta.shape[0], trainparams['K_UE']), device=device)
     for k in range(trainparams['K_UE']):
         hruHar = torch.einsum("bn, bnm -> bnm", Hru[:,k,:], Har)
         hk = Hau[:, k, :] + torch.einsum("bn, bnm -> bm", torch.exp(1j*theta), hruHar)
-        S = torch.pow(torch.linalg.vector_norm(torch.einsum("bm, bm -> b", hk, W[:, :, k])), 2)
+        S = torch.pow(torch.abs(torch.einsum("bm, bm -> b", hk, W[:, :, k])), 2)
         N = torch.zeros(theta.shape[0], device=device)
         for l in range(trainparams['K_UE']):
             if l != k:
-                N += torch.pow(torch.linalg.vector_norm(torch.einsum("bm, bm -> b", hk, W[:, :, l])), 2)
+                N += torch.pow(torch.abs(torch.einsum("bm, bm -> b", hk, W[:, :, l])), 2)
         N += n
         R[:,k] = torch.log2(torch.ones(theta.shape[0], device=device) + torch.div(S, N))
     return torch.einsum("bk -> b", R)
 
 def Loss(theta, W, Hau, Har, Hru):
-    S = torch.zeros((theta.shape[0]), device=device)
-    for k in range(trainparams['K_UE']):
-        hruHar = torch.einsum("bn, bnm -> bnm", Hru[:,k,:], Har)
-        hk = Hau[:, k, :] + torch.einsum("bn, bnm -> bm", torch.exp(1j*theta), hruHar)
-        # Useful link is assumed to be real-valued, to match the constraint in SOCP solution
-        S += torch.abs(torch.imag(torch.einsum("bm, bm -> b", hk, W[:, :, k])))
-    return 10**(trainparams['snr_dB']/10)*torch.mean(S) - torch.mean(batchSumRate(theta, W, Hau, Har, Hru))
+    return -torch.mean(batchSumRate(theta, W, Hau, Har, Hru))
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams, model, dev):
@@ -585,7 +579,7 @@ class Trainer(object):
         R_opt  = R_opt / test_size
         R      = R / test_size
         R_rand = R_rand / test_size
-        R = torch.nan_to_num(R, nan=trainparams['snr_dB'])
+        R = torch.nan_to_num(R, nan=0)
         return R_opt.item(), R.item(), R_rand.item()
 
 
@@ -596,7 +590,7 @@ if __name__ == "__main__":
 
     # path_dir = "/home/alex96/scratch/"
     path_dir = "MATLAB/"
-    dataset_dir = path_dir + "datasets/HDRISData/13/"
+    dataset_dir = path_dir + "datasets/HDRISData/14/"
     results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/00/"
     if len(sys.argv) > 1:
         results_dir = results_dir + sys.argv[1] + "/"
@@ -659,6 +653,8 @@ if __name__ == "__main__":
         trainparams['Nh_RIS'] = int(sysmodelparams['Nh'])
         trainparams['M_AP'] = int(sysmodelparams['M'])
         trainparams['K_UE'] = int(sysmodelparams['K'])
+        trainparams['P_dBm'] = int(sysmodelparams['PdBm'])
+        trainparams['N_dBm'] = int(sysmodelparams['NdBm'])
         trainparams['snr_dB'] = int(sysmodelparams['SNRdB'])
 
     print("Training Model parameters:", flush=True)
