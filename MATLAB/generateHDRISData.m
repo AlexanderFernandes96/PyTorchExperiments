@@ -93,7 +93,7 @@ Ropt2_mc = zeros(mc_runs,1); % optimized receive signal (at the users)
 Rrand2_mc = zeros(mc_runs,1); % random phases receive signal (at the users)
 
 fprintf('Monte Carlo Run:\n');
-mc_run_print = 100;
+mc_run_print = mc_runs;
 for mc_run = 1:mc_runs
 if mod(mc_run,mc_runs/mc_run_print) == 0
     fprintf('%i/%i\n', mc_run, mc_runs);
@@ -115,9 +115,13 @@ Hru_true = Hur.';
 Har_true = Hra.';
 Hau_true = Hua.';
 
-Hru = Hru_true + sqrt(CH_err*1/2)*(randn(K,N) + 1j*randn(K,N));
-Har = Har_true + sqrt(CH_err*1/2)*(randn(N,M) + 1j*randn(N,M));
-Hau = Hau_true + sqrt(CH_err*1/2)*(randn(K,M) + 1j*randn(K,M));
+Hru_err = sqrt(CH_err*1/2)*(randn(K,N) + 1j*randn(K,N)) * norm(Hru_true,'fro');
+Har_err = sqrt(CH_err*1/2)*(randn(N,M) + 1j*randn(N,M)) * norm(Har_true,'fro');
+Hau_err = sqrt(CH_err*1/2)*(randn(K,M) + 1j*randn(K,M)) * norm(Hau_true,'fro');
+
+Hru = Hru_true + Hru_err ;   
+Har = Har_true + Har_err ;
+Hau = Hau_true + Hau_err ;
 
 nmse_Hru = norm(Hru_true - Hru,'fro')^2 / norm(Hru_true,'fro')^2;
 nmse_Har = norm(Har_true - Har,'fro')^2 / norm(Har_true,'fro')^2;
@@ -506,19 +510,27 @@ else
             b = b - L_(k)*U_(k)'*Hrk*W(:,k) + L_(k)*abs(U_(k))^2*Hrk*wwh*hau';
         end
         Ab = [-A, -b; -(b'), 0];
-        R = Ab + norm(Ab,'fro')*eye(N+1);
-
-        v = exp(1j*2*pi*[theta(:); 0]);
+%         R = Ab + norm(Ab,'fro')*eye(N+1); % [6]
+        Abd = sort(eig(Ab), 'ascend', 'ComparisonMethod','real');
+        R = Ab + (abs(Abd(1)) + 1e-6)*eye(N+1); % [7] make all eig(R) > 0
+        
+%         v = exp(1j*2*pi*[theta(:); 0]);
+        % Relax optimal v to a norm constraint then applying unit modulus
+        % to obtain initial value to the algorithm [7]
+        [V,D] = eig(R);
+        [d,ind] = sort(diag(D), 'descend');
+        Vs = V(:,ind); % Sort eigenvectors
+        v = sqrt(N+1)*Vs(:,1); % get largest eigenvector of R
+        v = v ./ abs(v); % normalize with unit modulus constraint
         Rv = R*v;
         Rv_norm = norm(Rv, 1);
         n = 1;
         while(1)
             Rv_norm_prev = Rv_norm;
-%             v = exp(1j*angle(Rv)); % [6]
             v = Rv ./ abs(Rv); % [7]
             Rv = R*v;
             Rv_norm = norm(Rv, 1);
-            v_ = v(1:N)*v(N+1)';
+            v_ = v(1:N)'; % [7]
             n = n+1;
             
 %             fprintf('%i, diff: %.8f\n', n, Rv_norm - Rv_norm_prev);
@@ -615,8 +627,8 @@ fprintf("Mean Sum Rate over montecarlo runs:\n");
 fprintf("Optimized RIS: %.4f +/- %.4f\n", mean(Ropt2_mc, 1), var(Ropt2_mc, 1));
 fprintf("Random RIS: %.4f +/- %.4f\n", mean(Rrand2_mc, 1), var(Rrand2_mc, 1));
 fprintf("Average Channel Error:\n")
-fprintf("nmse_Hru %.3e, nmse_Har %.3e, nmse_Hau %.3e\n", ...
-    mean(nmse_Hru_mc), mean(nmse_Har_mc), mean(nmse_Hau_mc))
+fprintf("nmse_Hru %.3e +/- %.3e, nmse_Har %.3e +/- %.3e, nmse_Hau %.3e +/- %.3e\n", ...
+    mean(nmse_Hru_mc), var(nmse_Hru_mc), mean(nmse_Har_mc), var(nmse_Har_mc), mean(nmse_Hau_mc), var(nmse_Hau_mc))
 
 %% Save data
 save(fileSaveName + ".mat", vars2save{:})

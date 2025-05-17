@@ -1,5 +1,5 @@
 %% Parameters
-mc_runs = 10;
+mc_runs = 10000;
 % M = 8;  % AP
 % K = 6;  % Users
 % Nw = 8;
@@ -35,8 +35,8 @@ pl = @(d,a) -30*d^-a;
 g_ur = -pl(d_ur,a_ur); % User-RIS gain
 g_ra = -pl(d_ra,a_ra); % RIS-AP gain
 g_ua = -pl(d_ua,a_ua); % Direct-Path gain
-CH_err = 0;%10^(-80/10);
-max_AO_iterations = 100;
+CH_err = 0; %10^(-50/10);
+max_AO_iterations = 500;
 
 % Generate pilot scheme based on energy or power constraint: use E or P
 % pilot_scheme = "S1P"; % Scheme 1: Simultaneous transmission
