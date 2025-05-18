@@ -548,7 +548,7 @@ else
         for k = 1:K
             Sk = zeros(M,M);
             for j = 1:K
-                Sk = Sk + abs(U_(j))^2 * L_(j) * (1/SNR + H(j,:)'*H(j,:));
+                Sk = Sk + abs(U_(j))^2 * L_(j) * (eye(M)/SNR + H(j,:)'*H(j,:));
             end
             W(:,k) = U_(k)*L_(k) * (Sk \ H(k,:)');
         end
@@ -576,7 +576,7 @@ else
                 theta_opt = theta;
             end
         end
-%         fprintf('iter %i  \tBest: %.4f \tRate: %.4f\n', iter, R_best, Rate);
+        fprintf('iter %i  \tBest: %.4f \tRate: %.4f\n', iter, R_best, Rate);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% End Alternating Optimization

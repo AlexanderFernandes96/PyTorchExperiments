@@ -378,131 +378,64 @@ class WupdateLayer(nn.Module):
         super(WupdateLayer, self).__init__()
         self.K_UE = K_UE
         self.M_AP = M_AP
-        self.linear_layer1 = nn.Sequential(
-            # nn.Linear(N_RIS + 2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + M_AP*K_UE), 8*K_UE*M_AP),
-            # nn.ReLU(),
-            # nn.BatchNorm1d(8*K_UE*M_AP),
-            # nn.Linear(8*K_UE*M_AP, 4*K_UE*M_AP),
-            # nn.ReLU(),
-            # nn.BatchNorm1d(4*K_UE*M_AP),
-            # nn.Linear(4*K_UE*M_AP, 2*K_UE*M_AP),
+        self.linear_UL = nn.Sequential(
             nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
             nn.ReLU(),
             nn.BatchNorm1d(4*K_UE*M_AP),
             nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
             nn.ReLU(),
             nn.BatchNorm1d(4*K_UE*M_AP),
-            nn.Linear(4*K_UE*M_AP, 2*K_UE*M_AP),
+            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
+            nn.ReLU(),
+            nn.BatchNorm1d(4*K_UE*M_AP),
+            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
+            nn.ReLU(),
+            nn.BatchNorm1d(4*K_UE*M_AP),
+            nn.Linear(4*K_UE*M_AP, 3*K_UE)
         )
-        self.linear_layer2 = nn.Sequential(
-            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
-            nn.ReLU(),
-            nn.BatchNorm1d(4*K_UE*M_AP),
-            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
-            nn.ReLU(),
-            nn.BatchNorm1d(4*K_UE*M_AP),
-            nn.Linear(4*K_UE*M_AP, 2*K_UE*M_AP),
-        )
-        self.linear_layer3 = nn.Sequential(
-            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
-            nn.ReLU(),
-            nn.BatchNorm1d(4*K_UE*M_AP),
-            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
-            nn.ReLU(),
-            nn.BatchNorm1d(4*K_UE*M_AP),
-            nn.Linear(4*K_UE*M_AP, 2*K_UE*M_AP),
-        )
-        self.linear_layer4 = nn.Sequential(
-            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
-            nn.ReLU(),
-            nn.BatchNorm1d(4*K_UE*M_AP),
-            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
-            nn.ReLU(),
-            nn.BatchNorm1d(4*K_UE*M_AP),
-            nn.Linear(4*K_UE*M_AP, 2*K_UE*M_AP),
-        )
-        self.linear_layer5 = nn.Sequential(
-            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
-            nn.ReLU(),
-            nn.BatchNorm1d(4*K_UE*M_AP),
-            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
-            nn.ReLU(),
-            nn.BatchNorm1d(4*K_UE*M_AP),
-            nn.Linear(4*K_UE*M_AP, 2*K_UE*M_AP),
-        )
+
     def forward(self, theta, W_r, W_i, x):
-        # har_r = x[3].float()
-        # har_i = x[4].float()
-        # hru_r = x[5].float()
-        # hru_i = x[6].float()
-        # hau_r = x[7].float()
-        # hau_i = x[8].float()
-        # har_r = torch.flatten(har_r, start_dim=1)
-        # har_i = torch.flatten(har_i, start_dim=1)
-        # hru_r = torch.flatten(hru_r, start_dim=1)
-        # hru_i = torch.flatten(hru_i, start_dim=1)
-        # hau_r = torch.flatten(hau_r, start_dim=1)
-        # hau_i = torch.flatten(hau_i, start_dim=1)
-        # x_in1 = torch.cat((theta, W_r, W_i, har_r, har_i, hru_r, hru_i, hau_r, hau_i), 1)
-        # x_out1 = self.linear_layer1(x_in1)
-        # Wr1 = x_out1[:, :(self.K_UE*self.M_AP)]
-        # Wi1 = x_out1[:, (self.K_UE*self.M_AP):2*(self.K_UE*self.M_AP)]
-        # x_in2 = torch.cat((theta, Wr1, Wi1, har_r, har_i, hru_r, hru_i, hau_r, hau_i), 1)
-        # x_out2 = self.linear_layer2(x_in2)
-        # Wr2 = x_out2[:, :(self.K_UE*self.M_AP)]
-        # Wi2 = x_out2[:, (self.K_UE*self.M_AP):2*(self.K_UE*self.M_AP)]
-        # x_in3 = torch.cat((theta, Wr2, Wi2, har_r, har_i, hru_r, hru_i, hau_r, hau_i), 1)
-        # x_out3 = self.linear_layer3(x_in3)
-        # Wr3 = x_out3[:, :(self.K_UE*self.M_AP)]
-        # Wi3 = x_out3[:, (self.K_UE*self.M_AP):2*(self.K_UE*self.M_AP)]
-        # x_in4 = torch.cat((theta, Wr3, Wi3, har_r, har_i, hru_r, hru_i, hau_r, hau_i), 1)
-        # x_out4 = self.linear_layer4(x_in4)
-        # Wr4 = x_out4[:, :(self.K_UE*self.M_AP)]
-        # Wi4 = x_out4[:, (self.K_UE*self.M_AP):2*(self.K_UE*self.M_AP)]
-        # x_in5 = torch.cat((theta, Wr4, Wi4, har_r, har_i, hru_r, hru_i, hau_r, hau_i), 1)
-        # x_out5 = self.linear_layer5(x_in5)
-        # Wr5 = x_out5[:, :(self.K_UE*self.M_AP)]
-        # Wi5 = x_out5[:, (self.K_UE*self.M_AP):2*(self.K_UE*self.M_AP)]
-        # Wr = Wr5
-        # Wi = Wi5
+        # Solving optimal wmmse parameters with deep learning inspired by:
+        #  [1] W. Xia, G. Zheng, Y. Zhu, J. Zhang, J. Wang, and A. P. Petropulu, “A deep learning framework for
+        #  optimization of MISO downlink beamforming,” IEEE Trans. Commun., vol. 68, no. 3, pp. 1866–1880, Mar. 2020,
+        #  doi: 10.1109/TCOMM.2019.2960361.
         W = torch.reshape(W_r + 1j*W_i, (-1, self.M_AP, self.K_UE))
         theta, W = normalizethetaW(theta, W)
-        W_r = torch.flatten(torch.real(W), start_dim=1)
-        W_i = torch.flatten(torch.imag(W), start_dim=1)
+        Wr_in = torch.flatten(torch.real(W), start_dim=1)
+        Wi_in = torch.flatten(torch.imag(W), start_dim=1)
         Har = x[3].float() + 1j*x[4].float()
         Hru = x[5].float() + 1j*x[6].float()
         Hau = x[7].float() + 1j*x[8].float()
         H = Hau + torch.einsum("bkn, bnm -> bkm", Hru, torch.einsum("bn, bnm -> bnm", torch.exp(1j*theta), Har))
         h_r = torch.flatten(torch.real(H), start_dim=1)
         h_i = torch.flatten(torch.imag(H), start_dim=1)
-        x_in1 = torch.cat((W_r, W_i, h_r, h_i), 1)
-        x_out1 = self.linear_layer1(x_in1)
-        Wr1 = x_out1[:, :(self.K_UE*self.M_AP)]
-        Wi1 = x_out1[:, (self.K_UE*self.M_AP):2*(self.K_UE*self.M_AP)]
-        x_in2 = torch.cat((Wr1, Wi1, h_r, h_i), 1)
-        x_out2 = self.linear_layer2(x_in2)
-        Wr2 = x_out2[:, :(self.K_UE*self.M_AP)]
-        Wi2 = x_out2[:, (self.K_UE*self.M_AP):2*(self.K_UE*self.M_AP)]
-        x_in3 = torch.cat((Wr2, Wi2, h_r, h_i), 1)
-        x_out3 = self.linear_layer3(x_in3)
-        Wr3 = x_out3[:, :(self.K_UE*self.M_AP)]
-        Wi3 = x_out3[:, (self.K_UE*self.M_AP):2*(self.K_UE*self.M_AP)]
-        x_in4 = torch.cat((Wr3, Wi3, h_r, h_i), 1)
-        x_out4 = self.linear_layer4(x_in4)
-        Wr4 = x_out4[:, :(self.K_UE*self.M_AP)]
-        Wi4 = x_out4[:, (self.K_UE*self.M_AP):2*(self.K_UE*self.M_AP)]
-        x_in5 = torch.cat((Wr4, Wi4, h_r, h_i), 1)
-        x_out5 = self.linear_layer5(x_in5)
-        Wr5 = x_out5[:, :(self.K_UE*self.M_AP)]
-        Wi5 = x_out5[:, (self.K_UE*self.M_AP):2*(self.K_UE*self.M_AP)]
-        Wr = Wr5
-        Wi = Wi5
 
-        # TODO try solving optimal wmmse parameters with deep learning:
-        #  [1] W. Xia, G. Zheng, Y. Zhu, J. Zhang, J. Wang, and A. P. Petropulu, “A deep learning framework for
-        #  optimization of MISO downlink beamforming,” IEEE Trans. Commun., vol. 68, no. 3, pp. 1866–1880, Mar. 2020,
-        #  doi: 10.1109/TCOMM.2019.2960361.
-        return Wr, Wi
+        x_in = torch.cat((Wr_in, Wi_in, h_r, h_i), 1)
+        x_out = self.linear_UL(x_in)
+        Ur =          x_out[:, 0*self.K_UE:1*self.K_UE]
+        Ui =          x_out[:, 1*self.K_UE:2*self.K_UE]
+        L = torch.abs(x_out[:, 2*self.K_UE:3*self.K_UE])
+        U = Ur + 1j*Ui
+
+        snr_ = torch.eye(self.M_AP, device=device) * 10 ** (-trainparams['snr_dB'] / 10)
+        snr_ = snr_.reshape((1, self.M_AP, self.M_AP))
+        snr_ = snr_.repeat(theta.shape[0], 1, 1)
+        for k in range(self.K_UE):
+            Sk = torch.zeros((theta.shape[0], self.M_AP, self.M_AP), dtype=torch.cfloat, device=device)
+            for j in range(self.K_UE):
+                HHj = torch.einsum("bp, bq -> bpq", torch.conj(H[:,j,:]), H[:,j,:]) # m x m correlation matrix
+                Uj = U[:,j]
+                Lj = L[:,j]
+                Sk += torch.square(torch.abs(Uj[:,None,None])) * Lj[:,None,None] * (snr_ + HHj)
+            Uk = U[:,k]
+            Lk = L[:,k]
+            W[:, :, k] = Uk[:,None] * Lk[:,None] * torch.linalg.solve(Sk, torch.conj(H[:,k,:]))
+
+        theta, W = normalizethetaW(theta, W)
+        Wr_out = torch.real(W)
+        Wi_out = torch.imag(W)
+
+        return Wr_out, Wi_out
 
 # Inspired by: N. Shlezinger and Y. C. Eldar, “Deep task-based quantization,” Entropy, vol. 23, no. 1, pp. 1–18, Jan.
 # 2021, doi: 10.3390/e23010104.
@@ -517,7 +450,6 @@ class AutoQEncoder(nn.Module):
         self.decoder_layer = DecoderLayer(N_RIS, Nc_enc).to(dev)
         self.w_update_layer = WupdateLayer(K_UE, M_AP, N_RIS).to(dev)
     def forward(self, x):
-        # theta_enc, Wr, Wi = self.encoder_layer(x)
         theta_enc, Wr, Wi = self.encoder_layer(x)
         theta_qnt = self.quantizer_layer(theta_enc)
         theta_dec = self.decoder_layer(theta_qnt)
