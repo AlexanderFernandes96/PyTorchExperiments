@@ -576,7 +576,7 @@ else
                 theta_opt = theta;
             end
         end
-        fprintf('iter %i  \tBest: %.4f \tRate: %.4f\n', iter, R_best, Rate);
+%         fprintf('iter %i  \tBest: %.4f \tRate: %.4f\n', iter, R_best, Rate);
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%% End Alternating Optimization
