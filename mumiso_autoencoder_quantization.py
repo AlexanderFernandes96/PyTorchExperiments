@@ -46,104 +46,11 @@ def load_complex(dataset_dir, variable_name_real, variable_name_imag):
 class EncoderLayer(nn.Module):
     def __init__(self, K_UE, M_AP, N_RIS, Nc_enc):
         super(EncoderLayer, self).__init__()
-        # Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
-        # Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
-        # self.layer_theta = nn.Sequential(
-        #     # nn.Conv2d(1, 8, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-        #     # nn.BatchNorm2d(8),
-        #     # nn.ReLU(),
-        #     # nn.Conv2d(8, 16, 3, padding=0, bias=False), # 6
-        #     # nn.BatchNorm2d(16),
-        #     # nn.ReLU(),
-        #     # nn.Conv2d(16, 32, 3, padding=0, bias=False), # 4
-        #     # nn.BatchNorm2d(32),
-        #     # nn.ReLU(),
-        #     # nn.Conv2d(32, 64, 3, padding=0, bias=False), # 2
-        #     # nn.BatchNorm2d(64),
-        #     # nn.ReLU(),
-        #     # nn.MaxPool2d(2, 2),
-        #     nn.Linear(N_RIS, N_RIS),
-        #     nn.ReLU(),
-        #     nn.Linear(N_RIS, N_RIS),
-        #     nn.ReLU(),
-        # )
-        # self.layer_w_r = nn.Sequential(
-        #     nn.Linear(M_AP*K_UE, 64),
-        #     nn.ReLU(),
-        # )
-        # self.layer_w_i = nn.Sequential(
-        #     nn.Linear(M_AP*K_UE, 64),
-        #     nn.ReLU(),
-        # )
-        # self.layer_har_r = nn.Sequential(
-        #     nn.Linear(N_RIS*M_AP, 64),
-        #     nn.ReLU(),
-        # )
-        # self.layer_har_i = nn.Sequential(
-        #     nn.Linear(N_RIS*M_AP, 64),
-        #     nn.ReLU(),
-        # )
-        # self.layer_hru_r = nn.Sequential(
-        #     nn.Linear(N_RIS*K_UE, 64),
-        #     nn.ReLU(),
-        # )
-        # self.layer_hru_i = nn.Sequential(
-        #     nn.Linear(N_RIS*K_UE, 64),
-        #     nn.ReLU(),
-        # )
-        # self.layer_hau_r = nn.Sequential(
-        #     # nn.Conv2d(1, 64, 1, padding=0, bias=False),
-        #     # nn.BatchNorm2d(64),
-        #     # nn.ReLU(),
-        #     nn.Linear(K_UE*M_AP, 64),
-        #     nn.ReLU(),
-        # )
-        # self.layer_hau_i = nn.Sequential(
-        #     nn.Linear(K_UE*M_AP, 64),
-        #     nn.ReLU(),
-        # )
-        # self.layer_not_theta = nn.Sequential(
-        #     nn.Dropout(0.2),
-        #     nn.Linear(8*64, 4*64),
-        #     nn.ReLU(),
-        #     nn.Dropout(0.2),
-        #     nn.Linear(4*64, 64),
-        #     nn.ReLU(),
-        # )
-        # self.linear_encoder = nn.Sequential(
-        #     nn.Dropout(0.2),
-        #     nn.Linear(64 + N_RIS, Nc_enc),
-        #     nn.ReLU(),
-        #     nn.Dropout(0.2),
-        #     nn.Linear(Nc_enc, Nc_enc),
-        #     nn.ReLU(),
-        # )
-        H = N_RIS + 2 * K_UE * M_AP
         self.K_UE = K_UE
         self.M_AP = M_AP
         self.N_RIS = N_RIS
-        # self.linear_net = nn.Sequential(
-        #     # nn.Linear(N_RIS + 2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP), 32*H),
-        #     # nn.ReLU(),
-        #     # nn.BatchNorm1d(32*H),
-        #     # nn.Linear(32*H, 16*H),
-        #     # nn.ReLU(),
-        #     # nn.BatchNorm1d(16*H),
-        #     # nn.Linear(16*H, 8*H),
-        #     # nn.ReLU(),
-        #     # nn.BatchNorm1d(8*H),
-        #     # nn.Linear(8*H, 4*H),
-        #     # nn.ReLU(),
-        #     # nn.BatchNorm1d(4*H),
-        #     # nn.Linear(4*H, H),
-        #     nn.Linear(N_RIS + 2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP), 4*H),
-        #     nn.ReLU(),
-        #     nn.BatchNorm1d(4*H),
-        #     nn.Linear(4*H, 2*H),
-        #     nn.ReLU(),
-        #     nn.BatchNorm1d(2*H),
-        #     nn.Linear(2*H, H),
-        # )
+        ## Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
+        ## Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
         self.cnn_encoder = nn.Sequential(
             nn.Conv2d(1, 32, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(32),
@@ -160,58 +67,18 @@ class EncoderLayer(nn.Module):
             nn.MaxPool2d(2, 2),
         )
         self.linear_encoder = nn.Sequential(
-            # nn.Linear(N_RIS, N_RIS),
-            # nn.ReLU(),
-            # nn.Linear(N_RIS, Nc_enc),
-            # nn.ReLU(),
-            # nn.Linear(Nc_enc, Nc_enc),
-            nn.Linear(256, Nc_enc),
+            nn.Linear(256, 256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.ReLU(),
+            nn.Linear(128, Nc_enc),
         )
 
-    def forward(self, x):
-        theta   = x[0].float()
-        W_r   = x[1].float()
-        W_i   = x[2].float()
-        har_r = x[3].float()
-        har_i = x[4].float()
-        hru_r = x[5].float()
-        hru_i = x[6].float()
-        hau_r = x[7].float()
-        hau_i = x[8].float()
-        theta   = torch.flatten(theta, start_dim=1)
-        W_r   = torch.flatten(W_r, start_dim=1)
-        W_i   = torch.flatten(W_i, start_dim=1)
-        har_r = torch.flatten(har_r, start_dim=1)
-        har_i = torch.flatten(har_i, start_dim=1)
-        hru_r = torch.flatten(hru_r, start_dim=1)
-        hru_i = torch.flatten(hru_i, start_dim=1)
-        hau_r = torch.flatten(hau_r, start_dim=1)
-        hau_i = torch.flatten(hau_i, start_dim=1)
-        # # theta   = self.layer_theta(theta)
-        # # W_r   = self.layer_w_r(W_r)
-        # # W_i   = self.layer_w_i(W_i)
-        # # har_r = self.layer_har_r(har_r)
-        # # har_i = self.layer_har_i(har_i)
-        # # hru_r = self.layer_hru_r(hru_r)
-        # # hru_i = self.layer_hru_i(hru_i)
-        # # hau_r = self.layer_hau_r(hau_r)
-        # # hau_i = self.layer_hau_i(hau_i)
-        # x_in = torch.cat((W_r, W_i, har_r, har_i, hru_r, hru_i, hau_r, hau_i), 1)
-        # x_in = self.layer_not_theta(x_in)
-        # x_enc = self.linear_encoder(torch.cat((theta, x_in), 1))
-
-        # x_in = torch.cat((theta, W_r, W_i, har_r, har_i, hru_r, hru_i, hau_r, hau_i), 1)
-        # x_out = self.linear_net(x_in)
-        # theta_net = x_out[:, 0:self.N_RIS]
-        # Wr = x_out[:, self.N_RIS:self.N_RIS+(self.K_UE*self.M_AP)]
-        # Wi = x_out[:, self.N_RIS+(self.K_UE*self.M_AP):self.N_RIS+2*(self.K_UE*self.M_AP)]
-        theta_net = theta
-        Wr = W_r
-        Wi = W_i
-        theta_rec = torch.reshape(theta_net, (-1, 1, trainparams['Nw_RIS'], trainparams['Nh_RIS'])).float()
+    def forward(self, theta):
+        theta_rec = torch.reshape(theta, (-1, 1, trainparams['Nw_RIS'], trainparams['Nh_RIS'])).float()
         theta_cnn = self.cnn_encoder(theta_rec)
         theta_enc = self.linear_encoder(torch.flatten(theta_cnn, start_dim=1))
-        return theta_enc, Wr, Wi
+        return theta_enc
 
 class DNN(nn.Module):
     def __init__(self, K_UE, M_AP, N_RIS):
@@ -254,10 +121,10 @@ class DNN(nn.Module):
 class QuantizerLayer(nn.Module):
     def __init__(self, C_code_words, dev):
         super(QuantizerLayer, self).__init__()
-        # a = amplitude, b = shift, c = slope
-        # for i = 0 to C_code_words-1:
-        #   z += a[i] * tanh( c[i] * (theta_n - b[i]) )
-        # where theta_n is a scalar value: [-pi, +pi) and z is the quantized theta_n
+        ## a = amplitude, b = shift, c = slope
+        ## for i = 0 to C_code_words-1:
+        ##   z += a[i] * tanh( c[i] * (theta_n - b[i]) )
+        ## where theta_n is a scalar value: [-pi, +pi) and z is the quantized theta_n
         self.a = torch.nn.Parameter(
             data=torch.from_numpy(
                 np.ones(C_code_words-1) * np.pi / ( C_code_words )
@@ -268,8 +135,8 @@ class QuantizerLayer(nn.Module):
                 np.delete(spacing,[0,-1])
                 # np.random.rand(C_code_words - 1, 1) * 2 * np.pi - 3 * np.pi),
             ), requires_grad=True)
-        c_slope = 0.5
-        # c_slope = 10
+        # c_slope = 0.5
+        c_slope = 10
         if len(self.b) > 1:
             self.c = torch.nn.Parameter(
                 # data=torch.from_numpy((15 / np.mean(np.diff(self.b.data.numpy()))) * np.ones(C_code_words - 1)),
@@ -287,7 +154,7 @@ class QuantizerLayer(nn.Module):
         self.device = dev
 
     def forward(self, theta_enc):
-        # theta_enc = matrix (number of samples of train/test dataset, Nc_enc), in the range: [-pi, +pi)
+        ## theta_enc = matrix (number of samples of train/test dataset, Nc_enc), in the range: [-pi, +pi)
         theta_qnt = torch.zeros(theta_enc.shape[0], theta_enc.shape[1], device=self.device)
         for i in range(self.C_code_words - 1):
             if self.hardQ:
@@ -317,18 +184,14 @@ class DecoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_enc):
         super(DecoderLayer, self).__init__()
         self.linear_decoder = nn.Sequential(
-            nn.Linear(Nc_enc, 256),
+            nn.Linear(Nc_enc, 128),
             nn.ReLU(),
-            # nn.Linear(N_RIS, N_RIS),
-            # nn.ReLU(),
-            # nn.Linear(N_RIS, N_RIS),
-            # nn.ReLU(),
-            # nn.Dropout(0.2),
-            # nn.Linear(128, 128),
-            # nn.LeakyReLU(),
-            # nn.Tanh(),
+            nn.Linear(128, 256),
+            nn.ReLU(),
+            nn.Linear(256, 256),
+            nn.ReLU(),
         )
-        self.cnn_layer = nn.Sequential(
+        self.cnn_decoder = nn.Sequential(
             nn.Upsample(scale_factor=2),
             nn.ConvTranspose2d(256, 128, 3, padding=0),
             nn.ReLU(),
@@ -345,30 +208,14 @@ class DecoderLayer(nn.Module):
         )
         self.reshape_dim = (256, 1, 1)
         self.out_layer = nn.Sequential(
-            nn.Linear(N_RIS, N_RIS),
-            # nn.LeakyReLU(),
+            nn.Linear(N_RIS, N_RIS), # best to make output layer a linear operator
+            # nn.LeakyReLU(), # LeakyReLU or ReLU will make negative phase shifts not work
             # nn.Tanh(), # Note Tanh at output makes training harder considering the optimal value is periodic wrt 2pi
         )
 
-        # self.cnn_layer = nn.Sequential(
-        #     nn.Conv2d(5, 28, 3, stride=1, padding=0, padding_mode='circular'),
-        #     nn.BatchNorm2d(28),
-        #     nn.LeakyReLU(),
-        #     nn.Conv2d(28, 32, 3, stride=1, padding=0, padding_mode='circular'),
-        #     nn.BatchNorm2d(32),
-        #     nn.LeakyReLU(),
-        #     nn.MaxPool2d(4, 4),
-        # )
-
-        # self.out_layer = nn.Sequential(
-        #     nn.Linear(100, N_RIS),
-        #     # nn.LeakyReLU(),
-        #     nn.Tanh(),
-        # )
-
     def forward(self, theta_qnt):
         theta_dec = self.linear_decoder(theta_qnt)
-        theta_cnn = self.cnn_layer(theta_dec.view(theta_dec.size(0), *self.reshape_dim))
+        theta_cnn = self.cnn_decoder(theta_dec.view(theta_dec.size(0), *self.reshape_dim))
         theta_cnn = torch.flatten(theta_cnn, start_dim=1)
         theta_out = self.out_layer(theta_cnn)
         return theta_out
@@ -376,36 +223,39 @@ class DecoderLayer(nn.Module):
 
 
 class WupdateLayer(nn.Module):
-    def __init__(self, K_UE, M_AP, N_RIS):
+    def __init__(self, K_UE, M_AP):
         super(WupdateLayer, self).__init__()
         self.K_UE = K_UE
         self.M_AP = M_AP
+        self.linear_W = nn.Sequential(
+            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
+            nn.ReLU(),
+            nn.Linear(4*K_UE*M_AP, 3*K_UE*M_AP),
+            nn.ReLU(),
+            nn.Linear(3*K_UE*M_AP, 3*K_UE*M_AP),
+            nn.ReLU(),
+            nn.Linear(3*K_UE*M_AP, 2*K_UE*M_AP),
+        )
         self.linear_UL = nn.Sequential(
-            nn.Linear(4*K_UE*M_AP + N_RIS + 2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP), 32*K_UE),
+            nn.Linear(4*K_UE*M_AP, 6*K_UE),
             nn.ReLU(),
-            nn.BatchNorm1d(32*K_UE),
-            nn.Linear(32*K_UE, 16*K_UE),
+            nn.Linear(6*K_UE, 5*K_UE),
             nn.ReLU(),
-            nn.BatchNorm1d(16*K_UE),
-            nn.Linear(16*K_UE, 8*K_UE),
+            nn.Linear(5*K_UE, 4*K_UE),
             nn.ReLU(),
-            nn.BatchNorm1d(8*K_UE),
-            nn.Linear(8*K_UE, 4*K_UE),
-            nn.ReLU(),
-            nn.BatchNorm1d(4*K_UE),
             nn.Linear(4*K_UE, 3*K_UE)
         )
 
-    def forward(self, theta, W_r, W_i, x):
+    def forward(self, theta, x):
         # Solving optimal wmmse parameters with deep learning inspired by:
         #  [1] W. Xia, G. Zheng, Y. Zhu, J. Zhang, J. Wang, and A. P. Petropulu, “A deep learning framework for
         #  optimization of MISO downlink beamforming,” IEEE Trans. Commun., vol. 68, no. 3, pp. 1866–1880, Mar. 2020,
         #  doi: 10.1109/TCOMM.2019.2960361.
 
-        W = torch.reshape(W_r + 1j*W_i, (-1, self.M_AP, self.K_UE))
-        W = normalizethetaW(theta, W)[1]
-        Wr_in = torch.flatten(torch.real(W), start_dim=1)
-        Wi_in = torch.flatten(torch.imag(W), start_dim=1)
+        W_r = x[1].float()
+        W_i = x[2].float()
+        Wr_in = torch.flatten(W_r, start_dim=1)
+        Wi_in = torch.flatten(W_i, start_dim=1)
         Har = x[3].float() + 1j*x[4].float()
         Hru = x[5].float() + 1j*x[6].float()
         Hau = x[7].float() + 1j*x[8].float()
@@ -413,39 +263,33 @@ class WupdateLayer(nn.Module):
         h_r = torch.flatten(torch.real(H), start_dim=1)
         h_i = torch.flatten(torch.imag(H), start_dim=1)
 
-        har_r = x[3].float()
-        har_i = x[4].float()
-        hru_r = x[5].float()
-        hru_i = x[6].float()
-        hau_r = x[7].float()
-        hau_i = x[8].float()
-        har_r = torch.flatten(har_r, start_dim=1)
-        har_i = torch.flatten(har_i, start_dim=1)
-        hru_r = torch.flatten(hru_r, start_dim=1)
-        hru_i = torch.flatten(hru_i, start_dim=1)
-        hau_r = torch.flatten(hau_r, start_dim=1)
-        hau_i = torch.flatten(hau_i, start_dim=1)
+        W_in = torch.cat((Wr_in, Wi_in, h_r, h_i), 1)
+        W_out = self.linear_W(W_in)
+        Wr =          W_out[:, 0*self.K_UE*self.M_AP:1*self.K_UE*self.M_AP]
+        Wi =          W_out[:, 1*self.K_UE*self.M_AP:2*self.K_UE*self.M_AP]
+        W = Wr + 1j*Wi
+        W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
 
-        snr_ = torch.eye(self.M_AP, device=device) * 10 ** (-trainparams['snr_dB'] / 10)
-        snr_ = snr_.reshape((1, self.M_AP, self.M_AP))
-        snr_ = snr_.repeat(theta.shape[0], 1, 1)
-
-        x_in = torch.cat((Wr_in, Wi_in, h_r, h_i, theta, har_r, har_i, hru_r, hru_i, hau_r, hau_i), 1)
-        x_out = self.linear_UL(x_in)
-        Ur =          x_out[:, 0*self.K_UE:1*self.K_UE]
-        Ui =          x_out[:, 1*self.K_UE:2*self.K_UE]
-        L = torch.abs(x_out[:, 2*self.K_UE:3*self.K_UE])
+        UL_in = torch.cat((Wr, Wi, h_r, h_i), 1)
+        UL_out = self.linear_UL(UL_in)
+        Ur =          UL_out[:, 0*self.K_UE:1*self.K_UE]
+        Ui =          UL_out[:, 1*self.K_UE:2*self.K_UE]
+        L = torch.abs(UL_out[:, 2*self.K_UE:3*self.K_UE])
         U = Ur + 1j*Ui
+
+        nsr = torch.eye(self.M_AP, device=device) * 10 ** (-trainparams['snr_dB'] / 10)
+        nsr = nsr.reshape((1, self.M_AP, self.M_AP))
+        nsr = nsr.repeat(theta.shape[0], 1, 1)
+        S = torch.zeros((theta.shape[0], self.M_AP, self.M_AP), dtype=torch.cfloat, device=device)
+        for j in range(self.K_UE):
+            HHj = torch.einsum("bp, bq -> bpq", torch.conj(H[:,j,:]), H[:,j,:]) # m x m correlation matrix
+            Uj = U[:,j]
+            Lj = L[:,j]
+            S += torch.square(torch.abs(Uj[:,None,None])) * Lj[:,None,None] * (nsr + HHj)
         for k in range(self.K_UE):
-            Sk = torch.zeros((theta.shape[0], self.M_AP, self.M_AP), dtype=torch.cfloat, device=device)
-            for j in range(self.K_UE):
-                HHj = torch.einsum("bp, bq -> bpq", torch.conj(H[:,j,:]), H[:,j,:]) # m x m correlation matrix
-                Uj = U[:,j]
-                Lj = L[:,j]
-                Sk += torch.square(torch.abs(Uj[:,None,None])) * Lj[:,None,None] * (snr_ + HHj)
             Uk = U[:,k]
             Lk = L[:,k]
-            W[:, :, k] = Uk[:,None] * Lk[:,None] * torch.linalg.solve(Sk, torch.conj(H[:,k,:]))
+            W[:, :, k] = Uk[:,None] * Lk[:,None] * torch.linalg.solve(S, torch.conj(H[:,k,:]))
         W = normalizethetaW(theta, W)[1]
         Wr_out = torch.real(W)
         Wi_out = torch.imag(W)
@@ -463,12 +307,13 @@ class AutoQEncoder(nn.Module):
         self.encoder_layer = EncoderLayer(K_UE, M_AP, N_RIS, Nc_enc).to(dev)
         self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
         self.decoder_layer = DecoderLayer(N_RIS, Nc_enc).to(dev)
-        self.w_update_layer = WupdateLayer(K_UE, M_AP, N_RIS).to(dev)
+        self.w_update_layer = WupdateLayer(K_UE, M_AP).to(dev)
     def forward(self, x):
-        theta_enc, Wr, Wi = self.encoder_layer(x)
+        theta     = x[0].float()
+        theta_enc = self.encoder_layer(theta)
         theta_qnt = self.quantizer_layer(theta_enc)
         theta_dec = self.decoder_layer(theta_qnt)
-        Wr, Wi = self.w_update_layer(theta_dec, Wr, Wi, x)
+        Wr, Wi = self.w_update_layer(theta_dec, x)
         W = Wr + 1j*Wi
         W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
         theta_out, W_out = normalizethetaW(theta_dec, W)
@@ -704,8 +549,8 @@ if __name__ == "__main__":
 
     # path_dir = "/home/alex96/scratch/"
     path_dir = "MATLAB/"
-    dataset_dir = path_dir + "datasets/HDRISData/15/"
-    results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/00/"
+    dataset_dir = path_dir + "datasets/HDRISData/16/"
+    results_dir = "logs/MU-MISO_AchievableRateExperiments/00/"
     if len(sys.argv) > 1:
         results_dir = results_dir + sys.argv[1] + "/"
     results_file = "results.csv"
@@ -728,9 +573,9 @@ if __name__ == "__main__":
     ####################################################################################################################
     trainparams = {'train_test_split': 0.9, # split between train/test data
                   'train_val_split': 0.9,  # after the train/test split, split train data into train/val data
-                  'lr': 0.01, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
+                  'lr': 0.001, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 128, #2**np.random.randint(6, 11), # batch training size
+                  'batch_size': 1024, #2**np.random.randint(6, 11), # batch training size
                   'epochs': 500,  # total training duration
                   'epoch_val': 100, # validate early stop every epoch number
                   'epoch_patience': 20, # number of epochs before loss decrease
@@ -746,8 +591,8 @@ if __name__ == "__main__":
     # print('Using OneCycleLR Scheduler, with SGD.')
     print('Using ADAM with learning rate decay')
 
-    Nc_array = 2**np.array(range(1,8))
-    # Nc_array = [100]
+    # Nc_array = 2**np.array(range(1,8))
+    Nc_array = [100]
 
     num_dirs = 25 # number of directories to use which includes data samples
 
