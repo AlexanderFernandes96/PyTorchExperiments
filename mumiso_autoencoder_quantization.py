@@ -236,26 +236,29 @@ class DecoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_enc):
         super(DecoderLayer, self).__init__()
         self.linear_decoder = nn.Sequential(
-            nn.Linear(Nc_enc, 64),
+            nn.Linear(Nc_enc, N_RIS),
             nn.ReLU(),
-            nn.BatchNorm1d(64),
+            nn.BatchNorm1d(N_RIS),
+            nn.Linear(N_RIS, N_RIS),
+            nn.ReLU(),
+            nn.BatchNorm1d(N_RIS),
         )
-        self.cnn_decoder = nn.Sequential(
-            nn.Upsample(scale_factor=2),
-            nn.ConvTranspose2d(64, 32, 3, padding=0),
-            nn.ReLU(),
-            nn.BatchNorm2d(32),
-            nn.ConvTranspose2d(32, 16, 3, padding=0),
-            nn.ReLU(),
-            nn.BatchNorm2d(16),
-            nn.ConvTranspose2d(16, 8, 3, padding=0),
-            nn.ReLU(),
-            nn.BatchNorm2d(8),
-            nn.ConvTranspose2d(8, 1, 3, padding=0),
-            nn.ReLU(),
-            nn.BatchNorm2d(1),
-        )
-        self.reshape_dim = (64, 1, 1)
+        # self.cnn_decoder = nn.Sequential(
+        #     nn.Upsample(scale_factor=2),
+        #     nn.ConvTranspose2d(N_RIS, 64, 3, padding=0),
+        #     nn.ReLU(),
+        #     nn.BatchNorm2d(64),
+        #     nn.ConvTranspose2d(64, 32, 3, padding=0),
+        #     nn.ReLU(),
+        #     nn.BatchNorm2d(32),
+        #     nn.ConvTranspose2d(32, 16, 3, padding=0),
+        #     nn.ReLU(),
+        #     nn.BatchNorm2d(16),
+        #     nn.ConvTranspose2d(16, 1, 3, padding=0),
+        #     nn.ReLU(),
+        #     nn.BatchNorm2d(1),
+        # )
+        # self.reshape_dim = (N_RIS, 1, 1)
         self.out_layer = nn.Sequential(
             nn.Linear(N_RIS, N_RIS), # best to make output layer a linear operator
             # nn.LeakyReLU(), # LeakyReLU or ReLU will make negative phase shifts not work
@@ -264,10 +267,10 @@ class DecoderLayer(nn.Module):
 
     def forward(self, theta_qnt):
         theta_dec = self.linear_decoder(theta_qnt)
-        theta_cnn = self.cnn_decoder(theta_dec.view(theta_dec.size(0), *self.reshape_dim))
-        theta_cnn = torch.flatten(theta_cnn, start_dim=1)
-        theta_out = self.out_layer(theta_cnn)
-        # theta_out = self.out_layer(theta_dec)
+        # theta_cnn = self.cnn_decoder(theta_dec.view(theta_dec.size(0), *self.reshape_dim))
+        # theta_cnn = torch.flatten(theta_cnn, start_dim=1)
+        # theta_out = self.out_layer(theta_cnn)
+        theta_out = self.out_layer(theta_dec)
         return theta_out
         # return torch.angle(torch.exp(1j * theta_out))
 
@@ -722,7 +725,7 @@ if __name__ == "__main__":
     Nc_array = [100]
     # Nc_array = [1024]
 
-    num_dirs = 25 # number of directories to use which includes data samples
+    num_dirs = 10 # number of directories to use which includes data samples
 
     ####################################################################################################################
     # Load RIS data from .csv files
