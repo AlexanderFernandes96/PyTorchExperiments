@@ -514,9 +514,10 @@ def batchSumRate(theta, W, Hau, Har, Hru):
         R[:,k] = torch.log2(torch.ones(theta.shape[0], device=device) + torch.div(S, N))
     return torch.einsum("bk -> b", R)
 
-def Loss(theta_opt, theta, W, Hau, Har, Hru):
-    dist = torch.angle(torch.exp(1j * (theta - theta_opt)))
-    return torch.mean(torch.square(dist)) - torch.sum(batchSumRate(theta, W, Hau, Har, Hru))
+def Loss(theta, W, Hau, Har, Hru):
+    # dist = torch.angle(torch.exp(1j * (theta - theta_opt)))
+    # return torch.mean(torch.abs(dist)) - torch.sum(batchSumRate(theta, W, Hau, Har, Hru))
+    return -torch.sum(batchSumRate(theta, W, Hau, Har, Hru))
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams, model, dev):
@@ -558,7 +559,7 @@ class Trainer(object):
                     input, theta_opt, Wopt, Hau, Har, Hru = data
                     self.optimizer.zero_grad()                              # clear gradients of all variables to optimize
                     theta_out, W_out = self.model(input)                    # forward pass inputs into network
-                    loss = Loss(theta_opt, theta_out, W_out, Hau, Har, Hru)            # calculate batch loss
+                    loss = Loss(theta_out, W_out, Hau, Har, Hru)            # calculate batch loss
                     loss.backward()                                         # back propagate gradients through AQE network
                     self.optimizer.step()                                   # single optimization step to update variables
                     # self.scheduler.step()                                 # One Cycle LR adjust learning rate each step
@@ -578,7 +579,7 @@ class Trainer(object):
                 for i, data in (enumerate(val_loader)):
                     input, theta_opt, Wopt, Hau, Har, Hru = data
                     theta_out, W_out = self.model(input)                # forward pass inputs into AQE network
-                    loss = Loss(theta_opt, theta_out, W_out, Hau, Har, Hru)        # calculate batch loss
+                    loss = Loss(theta_out, W_out, Hau, Har, Hru)        # calculate batch loss
                     val_loss += loss.item()                             # update validation loss
                     val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
@@ -688,7 +689,7 @@ if __name__ == "__main__":
                   'batch_size': 1024, #2**np.random.randint(6, 11), # batch training size
                   'epochs': 1000,  # total training duration
                   'epoch_val': 100, # validate early stop every epoch number
-                  'epoch_patience': 20, # number of epochs before loss decrease
+                  'epoch_patience': 50, # number of epochs before loss decrease
                   'epoch_echo': True, # flag to display epoch print losses
                   # 'step_size': 10, # step size for scheduler optimizer
                   # 'Nc_enc': 100, # number of quantizers, values that N is compressed/encoded into
