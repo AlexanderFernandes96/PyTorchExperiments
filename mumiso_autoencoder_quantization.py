@@ -49,36 +49,68 @@ class EncoderLayer(nn.Module):
         self.K_UE = K_UE
         self.M_AP = M_AP
         self.N_RIS = N_RIS
-        ## Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
-        ## Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
+        self.Nc_enc = Nc_enc
+        ## height: Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
+        ## width:  Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
         self.cnn_encoder = nn.Sequential(
-            nn.Conv2d(1, 32, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(32),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=0, bias=False), # 6
+            nn.Conv2d(1, 64, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
             nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(64, 128, 3, padding=0, bias=False), # 4
+            nn.Conv2d(64, 128, 3, padding=0, bias=False), # 6
             nn.BatchNorm2d(128),
             nn.ReLU(),
-            nn.Conv2d(128, 256, 3, padding=0, bias=False), # 2
+            nn.Conv2d(128, 256, 3, padding=0, bias=False), # 4
             nn.BatchNorm2d(256),
+            nn.ReLU(),
+            nn.Conv2d(256, 512, 3, padding=0, bias=False), # 2
+            nn.BatchNorm2d(512),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
         )
+        # p = 0.2 # dropout probability
         self.linear_encoder = nn.Sequential(
-            nn.Linear(256, 256),
+            nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS + 512, 2048),
             nn.ReLU(),
+            # nn.Dropout(p),
+            nn.BatchNorm1d(2048),
+            nn.Linear(2048, 1024),
+            nn.ReLU(),
+            # nn.Dropout(p),
+            nn.BatchNorm1d(1024),
+            nn.Linear(1024, 512),
+            nn.ReLU(),
+            # nn.Dropout(p),
+            nn.BatchNorm1d(512),
+            nn.Linear(512, 256),
+            nn.ReLU(),
+            # nn.Dropout(p),
+            nn.BatchNorm1d(256),
             nn.Linear(256, 128),
             nn.ReLU(),
-            nn.Linear(128, Nc_enc),
+            # nn.Dropout(p),
+            nn.BatchNorm1d(128),
+            nn.Linear(128, Nc_enc + 2*K_UE*M_AP),
         )
 
-    def forward(self, theta):
+    def forward(self, x):
+        theta = x[0].float()
+        w_r   = torch.flatten(x[1], 1).float()
+        w_i   = torch.flatten(x[2], 1).float()
+        hra_r = torch.flatten(x[3], 1).float()
+        hra_i = torch.flatten(x[4], 1).float()
+        hur_r = torch.flatten(x[5], 1).float()
+        hur_i = torch.flatten(x[6], 1).float()
+        hua_r = torch.flatten(x[7], 1).float()
+        hua_i = torch.flatten(x[8], 1).float()
         theta_rec = torch.reshape(theta, (-1, 1, trainparams['Nw_RIS'], trainparams['Nh_RIS'])).float()
         theta_cnn = self.cnn_encoder(theta_rec)
-        theta_enc = self.linear_encoder(torch.flatten(theta_cnn, start_dim=1))
-        return theta_enc
+        theta_cnn = torch.flatten(theta_cnn, start_dim=1)
+        x_in = torch.cat((theta_cnn, theta, w_r, w_i, hra_r, hra_i, hur_r, hur_i, hua_r, hua_i), 1)
+        x_out = self.linear_encoder(x_in)
+        theta_enc = x_out[:, 0:self.Nc_enc]
+        Wr = x_out[:, self.Nc_enc:self.Nc_enc+(self.K_UE*self.M_AP)]
+        Wi = x_out[:, self.Nc_enc+(self.K_UE*self.M_AP):self.Nc_enc+2*(self.K_UE*self.M_AP)]
+        return theta_enc, Wr, Wi
 
 class DNN(nn.Module):
     def __init__(self, K_UE, M_AP, N_RIS):
@@ -103,12 +135,12 @@ class DNN(nn.Module):
             nn.Linear(4*H, H),
         )
     def forward(self, x):
-        hra_r = torch.flatten(x[1], 1).float()
-        hra_i = torch.flatten(x[2], 1).float()
-        hur_r = torch.flatten(x[3], 1).float()
-        hur_i = torch.flatten(x[4], 1).float()
-        hua_r = torch.flatten(x[5], 1).float()
-        hua_i = torch.flatten(x[6], 1).float()
+        hra_r = torch.flatten(x[3], 1).float()
+        hra_i = torch.flatten(x[4], 1).float()
+        hur_r = torch.flatten(x[5], 1).float()
+        hur_i = torch.flatten(x[6], 1).float()
+        hua_r = torch.flatten(x[7], 1).float()
+        hua_i = torch.flatten(x[8], 1).float()
         x_in = torch.cat((hra_r, hra_i, hur_r, hur_i, hua_r, hua_i), 1)
         x_out = self.linear_encoder(x_in)
         theta = x_out[:, 0:self.N_RIS]
@@ -128,15 +160,15 @@ class QuantizerLayer(nn.Module):
         self.a = torch.nn.Parameter(
             data=torch.from_numpy(
                 np.ones(C_code_words-1) * np.pi / ( C_code_words )
-            ), requires_grad=False)
+            ), requires_grad=True)
         spacing = np.linspace(-1, 1, C_code_words + 1) * np.pi
         self.b = torch.nn.Parameter(
             data=torch.from_numpy(
                 np.delete(spacing,[0,-1])
                 # np.random.rand(C_code_words - 1, 1) * 2 * np.pi - 3 * np.pi),
             ), requires_grad=True)
-        # c_slope = 0.5
-        c_slope = 10
+        c_slope = 0.5
+        # c_slope = 10
         if len(self.b) > 1:
             self.c = torch.nn.Parameter(
                 # data=torch.from_numpy((15 / np.mean(np.diff(self.b.data.numpy()))) * np.ones(C_code_words - 1)),
@@ -186,27 +218,29 @@ class DecoderLayer(nn.Module):
         self.linear_decoder = nn.Sequential(
             nn.Linear(Nc_enc, 128),
             nn.ReLU(),
+            nn.BatchNorm1d(128),
             nn.Linear(128, 256),
             nn.ReLU(),
-            nn.Linear(256, 256),
+            nn.BatchNorm1d(256),
+            nn.Linear(256, 512),
             nn.ReLU(),
         )
         self.cnn_decoder = nn.Sequential(
             nn.Upsample(scale_factor=2),
+            nn.ConvTranspose2d(512, 256, 3, padding=0),
+            nn.ReLU(),
+            nn.BatchNorm2d(256),
             nn.ConvTranspose2d(256, 128, 3, padding=0),
             nn.ReLU(),
             nn.BatchNorm2d(128),
             nn.ConvTranspose2d(128, 64, 3, padding=0),
             nn.ReLU(),
             nn.BatchNorm2d(64),
-            nn.ConvTranspose2d(64, 32, 3, padding=0),
-            nn.ReLU(),
-            nn.BatchNorm2d(32),
-            nn.ConvTranspose2d(32, 1, 3, padding=0),
+            nn.ConvTranspose2d(64, 1, 3, padding=0),
             nn.ReLU(),
             nn.BatchNorm2d(1),
         )
-        self.reshape_dim = (256, 1, 1)
+        self.reshape_dim = (512, 1, 1)
         self.out_layer = nn.Sequential(
             nn.Linear(N_RIS, N_RIS), # best to make output layer a linear operator
             # nn.LeakyReLU(), # LeakyReLU or ReLU will make negative phase shifts not work
@@ -223,64 +257,139 @@ class DecoderLayer(nn.Module):
 
 
 class WupdateLayer(nn.Module):
-    def __init__(self, K_UE, M_AP):
+    def __init__(self, K_UE, M_AP, N_RIS):
         super(WupdateLayer, self).__init__()
         self.K_UE = K_UE
         self.M_AP = M_AP
+        p = 0.2 # dropout probability
         self.linear_W = nn.Sequential(
-            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
+            # nn.Linear(4*K_UE*M_AP + 2*N_RIS + 2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP), 1024),
+            # nn.ReLU(),
+            # nn.Dropout(p),
+            # nn.BatchNorm1d(1024),
+            # nn.Linear(1024, 512),
+            # nn.ReLU(),
+            # nn.Dropout(p),
+            # nn.BatchNorm1d(512),
+            # nn.Linear(512, 256),
+            # nn.ReLU(),
+            # nn.Dropout(p),
+            # nn.BatchNorm1d(256),
+            # nn.Linear(256, 128),
+            # nn.ReLU(),
+            # nn.Dropout(p),
+            # nn.BatchNorm1d(128),
+            # nn.Linear(128, 64),
+            # nn.ReLU(),
+            # nn.Dropout(p),
+            # nn.BatchNorm1d(64),
+            # nn.Linear(64, 2*K_UE*M_AP),
+            nn.Linear(4*K_UE*M_AP, 64),
+            nn.BatchNorm1d(64),
             nn.ReLU(),
-            nn.Linear(4*K_UE*M_AP, 3*K_UE*M_AP),
+            nn.Linear(64, 64),
+            nn.BatchNorm1d(64),
             nn.ReLU(),
-            nn.Linear(3*K_UE*M_AP, 3*K_UE*M_AP),
+            nn.Linear(64, 32),
+            nn.BatchNorm1d(32),
             nn.ReLU(),
-            nn.Linear(3*K_UE*M_AP, 2*K_UE*M_AP),
+            nn.Linear(32, 2*K_UE*M_AP),
         )
         self.linear_UL = nn.Sequential(
-            nn.Linear(4*K_UE*M_AP, 6*K_UE),
+            # nn.Linear(4*K_UE*M_AP + 2*N_RIS + 2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP), 1024),
+            # nn.ReLU(),
+            # nn.Dropout(p),
+            # nn.BatchNorm1d(1024),
+            # nn.Linear(1024, 512),
+            # nn.ReLU(),
+            # nn.Dropout(p),
+            # nn.BatchNorm1d(512),
+            # nn.Linear(512, 256),
+            # nn.ReLU(),
+            # nn.Dropout(p),
+            # nn.BatchNorm1d(256),
+            # nn.Linear(256, 128),
+            # nn.ReLU(),
+            # nn.Dropout(p),
+            # nn.BatchNorm1d(128),
+            # nn.Linear(128, 64),
+            # nn.ReLU(),
+            # nn.Dropout(p),
+            # nn.BatchNorm1d(64),
+            # nn.Linear(64, 3*K_UE)
+            nn.Linear(4*K_UE*M_AP, 64),
+            nn.BatchNorm1d(64),
             nn.ReLU(),
-            nn.Linear(6*K_UE, 5*K_UE),
+            nn.Linear(64, 64),
+            nn.BatchNorm1d(64),
             nn.ReLU(),
-            nn.Linear(5*K_UE, 4*K_UE),
+            nn.Linear(64, 32),
+            nn.BatchNorm1d(32),
             nn.ReLU(),
-            nn.Linear(4*K_UE, 3*K_UE)
+            nn.Linear(32, 3*K_UE),
         )
 
-    def forward(self, theta, x):
+    def forward(self, theta, W_r, W_i, x):
         # Solving optimal wmmse parameters with deep learning inspired by:
         #  [1] W. Xia, G. Zheng, Y. Zhu, J. Zhang, J. Wang, and A. P. Petropulu, “A deep learning framework for
         #  optimization of MISO downlink beamforming,” IEEE Trans. Commun., vol. 68, no. 3, pp. 1866–1880, Mar. 2020,
         #  doi: 10.1109/TCOMM.2019.2960361.
 
-        W_r = x[1].float()
-        W_i = x[2].float()
-        Wr_in = torch.flatten(W_r, start_dim=1)
-        Wi_in = torch.flatten(W_i, start_dim=1)
+        theta_c = torch.exp(1j * theta) # complex
+        W_in = W_r + 1j*W_i
+        W_in = torch.reshape(W_in, (-1, self.M_AP, self.K_UE))
+        normfactor = torch.linalg.matrix_norm(W_in, ord='fro')
+        W_in = (10 ** (trainparams['snr_dB'] / 10)) * W_in / normfactor[:, None, None] # normalize W
+        W_in_r = torch.flatten(torch.real(W_in), start_dim=1)
+        W_in_i = torch.flatten(torch.imag(W_in), start_dim=1)
+        # theta_r = torch.real(theta_c)
+        # theta_i = torch.imag(theta_c)
+        # theta_opt = x[0].float()
+        # Wr_opt = torch.flatten(x[1].float(), start_dim=1)
+        # Wi_opt = torch.flatten(x[2].float(), start_dim=1)
         Har = x[3].float() + 1j*x[4].float()
         Hru = x[5].float() + 1j*x[6].float()
         Hau = x[7].float() + 1j*x[8].float()
-        H = Hau + torch.einsum("bkn, bnm -> bkm", Hru, torch.einsum("bn, bnm -> bnm", torch.exp(1j*theta), Har))
+        H = Hau + torch.einsum("bkn, bnm -> bkm", Hru, torch.einsum("bn, bnm -> bnm", theta_c, Har))
         h_r = torch.flatten(torch.real(H), start_dim=1)
         h_i = torch.flatten(torch.imag(H), start_dim=1)
 
-        W_in = torch.cat((Wr_in, Wi_in, h_r, h_i), 1)
-        W_out = self.linear_W(W_in)
-        Wr =          W_out[:, 0*self.K_UE*self.M_AP:1*self.K_UE*self.M_AP]
-        Wi =          W_out[:, 1*self.K_UE*self.M_AP:2*self.K_UE*self.M_AP]
+        # hra_r = torch.flatten(x[3], 1).float()
+        # hra_i = torch.flatten(x[4], 1).float()
+        # hur_r = torch.flatten(x[5], 1).float()
+        # hur_i = torch.flatten(x[6], 1).float()
+        # hua_r = torch.flatten(x[7], 1).float()
+        # hua_i = torch.flatten(x[8], 1).float()
+
+        # x_in = torch.cat((W_r, W_i, h_r, h_i, theta_r, theta_i, hra_r, hra_i, hur_r, hur_i, hua_r, hua_i), 1)
+        # x_in = torch.cat((theta_opt, Wr_opt, Wi_opt, W_r, W_i, h_r, h_i), 1)
+        # x_in = torch.cat((Wr_opt, Wi_opt, W_r, W_i, h_r, h_i), 1)
+        x_in = torch.cat((W_in_r, W_in_i, h_r, h_i), 1)
+        W_lin = self.linear_W(x_in)
+        Wr = W_lin[:, 0*self.K_UE*self.M_AP:1*self.K_UE*self.M_AP]
+        Wi = W_lin[:, 1*self.K_UE*self.M_AP:2*self.K_UE*self.M_AP]
         W = Wr + 1j*Wi
         W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
+        normfactor = torch.linalg.matrix_norm(W, ord='fro')
+        W = (10 ** (trainparams['snr_dB'] / 10)) * W / normfactor[:, None, None] # normalize W
 
+        Wr = torch.flatten(torch.real(W), 1)
+        Wi = torch.flatten(torch.imag(W), 1)
+        # UL_in = torch.cat((Wr, Wi, h_r, h_i, theta_r, theta_i, hra_r, hra_i, hur_r, hur_i, hua_r, hua_i), 1)
+        # UL_in = torch.cat((theta_opt, Wr_opt, Wi_opt, Wr, Wi, h_r, h_i), 1)
+        # UL_in = torch.cat((Wr_opt, Wi_opt, Wr, Wi, h_r, h_i), 1)
         UL_in = torch.cat((Wr, Wi, h_r, h_i), 1)
         UL_out = self.linear_UL(UL_in)
-        Ur =          UL_out[:, 0*self.K_UE:1*self.K_UE]
-        Ui =          UL_out[:, 1*self.K_UE:2*self.K_UE]
+        Ur = UL_out[:, 0*self.K_UE:1*self.K_UE]
+        Ui = UL_out[:, 1*self.K_UE:2*self.K_UE]
         L = torch.abs(UL_out[:, 2*self.K_UE:3*self.K_UE])
         U = Ur + 1j*Ui
 
         nsr = torch.eye(self.M_AP, device=device) * 10 ** (-trainparams['snr_dB'] / 10)
         nsr = nsr.reshape((1, self.M_AP, self.M_AP))
-        nsr = nsr.repeat(theta.shape[0], 1, 1)
+        nsr.repeat(theta.shape[0], 1, 1)
         S = torch.zeros((theta.shape[0], self.M_AP, self.M_AP), dtype=torch.cfloat, device=device)
+        W_out = torch.zeros((theta.shape[0], self.M_AP, self.K_UE), dtype=torch.cfloat, device=device)
         for j in range(self.K_UE):
             HHj = torch.einsum("bp, bq -> bpq", torch.conj(H[:,j,:]), H[:,j,:]) # m x m correlation matrix
             Uj = U[:,j]
@@ -289,10 +398,12 @@ class WupdateLayer(nn.Module):
         for k in range(self.K_UE):
             Uk = U[:,k]
             Lk = L[:,k]
-            W[:, :, k] = Uk[:,None] * Lk[:,None] * torch.linalg.solve(S, torch.conj(H[:,k,:]))
-        W = normalizethetaW(theta, W)[1]
-        Wr_out = torch.real(W)
-        Wi_out = torch.imag(W)
+            W_out[:, :, k] = Uk[:,None] * Lk[:,None] * torch.linalg.solve(S, torch.conj(H[:,k,:]))
+
+        normfactor = torch.linalg.matrix_norm(W_out, ord='fro')
+        W_out = W_out / normfactor[:, None, None] # normalize W
+        Wr_out = torch.real(W_out)
+        Wi_out = torch.imag(W_out)
 
         return Wr_out, Wi_out
 
@@ -307,15 +418,14 @@ class AutoQEncoder(nn.Module):
         self.encoder_layer = EncoderLayer(K_UE, M_AP, N_RIS, Nc_enc).to(dev)
         self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
         self.decoder_layer = DecoderLayer(N_RIS, Nc_enc).to(dev)
-        self.w_update_layer = WupdateLayer(K_UE, M_AP).to(dev)
+        self.w_update_layer = WupdateLayer(K_UE, M_AP, N_RIS).to(dev)
     def forward(self, x):
-        theta     = x[0].float()
-        theta_enc = self.encoder_layer(theta)
+        theta_enc, Wr, Wi = self.encoder_layer(x)
         theta_qnt = self.quantizer_layer(theta_enc)
         theta_dec = self.decoder_layer(theta_qnt)
-        Wr, Wi = self.w_update_layer(theta_dec, x)
-        W = Wr + 1j*Wi
-        W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
+        Wr_u, Wi_u = self.w_update_layer(theta_dec, Wr, Wi, x)
+        W = Wr_u + 1j*Wi_u
+        # W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
         theta_out, W_out = normalizethetaW(theta_dec, W)
         return theta_out.double(), W_out.cdouble()
 
@@ -404,9 +514,9 @@ def batchSumRate(theta, W, Hau, Har, Hru):
         R[:,k] = torch.log2(torch.ones(theta.shape[0], device=device) + torch.div(S, N))
     return torch.einsum("bk -> b", R)
 
-def Loss(theta, W, Hau, Har, Hru):
-    # dist = torch.angle(torch.exp(1j * (theta - theta_opt)))
-    return -torch.mean(batchSumRate(theta, W, Hau, Har, Hru))
+def Loss(theta_opt, theta, W, Hau, Har, Hru):
+    dist = torch.angle(torch.exp(1j * (theta - theta_opt)))
+    return torch.mean(torch.square(dist)) - torch.sum(batchSumRate(theta, W, Hau, Har, Hru))
 
 class Trainer(object):
     def __init__(self, train_loader, trainparams, model, dev):
@@ -447,12 +557,12 @@ class Trainer(object):
                 for i, data in (enumerate(self.train_loader)):
                     input, theta_opt, Wopt, Hau, Har, Hru = data
                     self.optimizer.zero_grad()                              # clear gradients of all variables to optimize
-                    theta_out, W_out = self.model(input)                              # forward pass inputs into network
-                    loss = Loss(theta_out, W_out, Hau, Har, Hru)                # calculate batch loss
+                    theta_out, W_out = self.model(input)                    # forward pass inputs into network
+                    loss = Loss(theta_opt, theta_out, W_out, Hau, Har, Hru)            # calculate batch loss
                     loss.backward()                                         # back propagate gradients through AQE network
                     self.optimizer.step()                                   # single optimization step to update variables
-                    # self.scheduler.step()                                   # One Cycle LR adjust learning rate each step
-                    train_loss += loss.item() * trainparams['batch_size']   # update training loss
+                    # self.scheduler.step()                                 # One Cycle LR adjust learning rate each step
+                    train_loss += loss.item()                               # update training loss
                     train_loss /= len(self.train_loader.dataset)            # normalize training loss
 
 
@@ -467,13 +577,13 @@ class Trainer(object):
 
                 for i, data in (enumerate(val_loader)):
                     input, theta_opt, Wopt, Hau, Har, Hru = data
-                    theta_out, W_out = self.model(input)                       # forward pass inputs into AQE network
-                    loss = Loss(theta_out, W_out, Hau, Har, Hru)                # calculate batch loss
-                    val_loss += loss.item() * trainparams['batch_size']  # update validation loss
+                    theta_out, W_out = self.model(input)                # forward pass inputs into AQE network
+                    loss = Loss(theta_opt, theta_out, W_out, Hau, Har, Hru)        # calculate batch loss
+                    val_loss += loss.item()                             # update validation loss
                     val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
                 before_lr = self.optimizer.param_groups[0]['lr']
-                self.scheduler.step(val_loss)                                   # decay learning rate
+                self.scheduler.step(val_loss)                           # decay learning rate
                 after_lr = self.optimizer.param_groups[0]['lr']
                 print(before_lr, '->', after_lr, flush=True)
 
@@ -532,7 +642,7 @@ class Trainer(object):
 
                 R_opt  += torch.sum(batchSumRate(theta_opt, Wopt, Hau, Har, Hru))
                 R      += torch.sum(batchSumRate(theta_model, W_model, Hau, Har, Hru))
-                R_rand += torch.sum(batchSumRate(theta_rand, Wopt, Hau, Har, Hru))
+                R_rand += torch.sum(batchSumRate(theta_rand, W_model, Hau, Har, Hru))
 
         # Achievable Rate
         R_opt  = R_opt / test_size
@@ -550,7 +660,7 @@ if __name__ == "__main__":
     # path_dir = "/home/alex96/scratch/"
     path_dir = "MATLAB/"
     dataset_dir = path_dir + "datasets/HDRISData/16/"
-    results_dir = "logs/MU-MISO_AchievableRateExperiments/00/"
+    results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/00/"
     if len(sys.argv) > 1:
         results_dir = results_dir + sys.argv[1] + "/"
     results_file = "results.csv"
@@ -573,10 +683,10 @@ if __name__ == "__main__":
     ####################################################################################################################
     trainparams = {'train_test_split': 0.9, # split between train/test data
                   'train_val_split': 0.9,  # after the train/test split, split train data into train/val data
-                  'lr': 0.001, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
+                  'lr': 0.01, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 1024, #2**np.random.randint(6, 11), # batch training size
-                  'epochs': 500,  # total training duration
+                  'epochs': 1000,  # total training duration
                   'epoch_val': 100, # validate early stop every epoch number
                   'epoch_patience': 20, # number of epochs before loss decrease
                   'epoch_echo': True, # flag to display epoch print losses
@@ -593,6 +703,7 @@ if __name__ == "__main__":
 
     # Nc_array = 2**np.array(range(1,8))
     Nc_array = [100]
+    # Nc_array = [1024]
 
     num_dirs = 25 # number of directories to use which includes data samples
 
@@ -695,7 +806,9 @@ if __name__ == "__main__":
     R_AQE_array = np.zeros(len(Nc_array))
     R_DQNN_array = np.zeros(len(Nc_array))
     R_linQ_array = np.zeros(len(Nc_array))
-    R_rand_array = np.zeros(len(Nc_array))
+    R_AQE_rand_array = np.zeros(len(Nc_array))
+    R_DQNN_rand_array = np.zeros(len(Nc_array))
+    R_linQ_rand_array = np.zeros(len(Nc_array))
     trainparamslist = []
     for i in range(len(Nc_array)):
         trainparams['Nc_enc'] = Nc_array[i]
@@ -745,25 +858,29 @@ if __name__ == "__main__":
         print("Saving losses to:", results_dir + "linQ_" + loss_file, flush=True)
         linQ_loss_df.to_csv(results_dir + "linQ_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
 
-        R_opt, R_AQE, R_rand = AQEtrainer.evaluate(test_loader, trainparams)
-        R_opt, R_DQNN, R_rand = dqnntrainer.evaluate(test_loader, trainparams)
-        R_linQ = linQtrainer.evaluate(test_loader, trainparams)[1]
+        R_opt, R_AQE, R_AQE_rand = AQEtrainer.evaluate(test_loader, trainparams)
+        R_opt, R_DQNN, R_DQNN_rand = dqnntrainer.evaluate(test_loader, trainparams)
+        R_opt, R_linQ, R_linQ_rand = linQtrainer.evaluate(test_loader, trainparams)
 
         print("-------------------------------------------------------------------------------------------------------")
         print("Training Model parameters:", flush=True)
         pprint.pprint(trainparams)
         print('Achievable Rate (bps/Hz) using RIS phase shifts with Transmit power SNR {:.2f} dB:'.format(trainparams['snr_dB']), flush=True)
-        print('optimum: ', R_opt, flush=True)
-        print('AQE net: ', R_AQE, flush=True)
-        print('DQNN:    ', R_DQNN, flush=True)
-        print('lin Q:   ', R_linQ, flush=True)
-        print('random:  ', R_rand, flush=True)
+        print('optimum:   ', R_opt, flush=True)
+        print('AQE net:   ', R_AQE, flush=True)
+        print('AQE rand:  ', R_AQE_rand, flush=True)
+        print('DQNN net:  ', R_DQNN, flush=True)
+        print('DQNN rand: ', R_DQNN_rand, flush=True)
+        print('linQ net:  ', R_linQ, flush=True)
+        print('linQ rand: ', R_linQ_rand, flush=True)
         print("-------------------------------------------------------------------------------------------------------\n\n")
         R_opt_array[i] = R_opt
         R_AQE_array[i] = R_AQE
         R_DQNN_array[i] = R_DQNN
         R_linQ_array[i] = R_linQ
-        R_rand_array[i] = R_rand
+        R_AQE_rand_array[i] = R_AQE_rand
+        R_DQNN_rand_array[i] = R_DQNN_rand
+        R_linQ_rand_array[i] = R_linQ_rand
 
         # x_vals, soft_quant, hard_quant = linQ.quantizer_layer.plot_vals()
         # fig, ax = plt.subplots()
@@ -784,12 +901,14 @@ if __name__ == "__main__":
     d = {'Nc': Nc_array,
          'R_opt': R_opt_array,
          'R_AQE': R_AQE_array,
+         'R_AQE_rand': R_AQE_rand_array,
          'R_DQNN': R_DQNN_array,
+         'R_DQNN_rand': R_DQNN_rand_array,
          'R_linQ': R_linQ_array,
-         'R_rand': R_rand_array}
+         'R_linQ_rand': R_linQ_rand_array}
     results_df = pandas.DataFrame(d)
     print('Bits per Quantizer:', trainparams['Q_bits'], flush=True)
-    print(results_df, flush=True)
+    print(results_df.to_string(), flush=True)
     print('Saving results to:', results_dir + results_file, flush=True)
     results_df.to_csv(results_dir + results_file, sep='\t', encoding='utf-8', index=False, header=True)
 
