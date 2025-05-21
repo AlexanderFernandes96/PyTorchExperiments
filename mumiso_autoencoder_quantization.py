@@ -52,44 +52,62 @@ class EncoderLayer(nn.Module):
         self.Nc_enc = Nc_enc
         ## height: Hout = floor((Hin + 2*padding[0] - dilation[0]*(kernel_size[0]-1) - 1)/stride[0] + 1)
         ## width:  Wout = floor((Win + 2*padding[1] - dilation[1]*(kernel_size[1]-1) - 1)/stride[1] + 1)
-        self.cnn_encoder = nn.Sequential(
-            nn.Conv2d(1, 64, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
-            nn.BatchNorm2d(64),
-            nn.ReLU(),
-            nn.Conv2d(64, 128, 3, padding=0, bias=False), # 6
-            nn.BatchNorm2d(128),
-            nn.ReLU(),
-            nn.Conv2d(128, 256, 3, padding=0, bias=False), # 4
-            nn.BatchNorm2d(256),
-            nn.ReLU(),
-            nn.Conv2d(256, 512, 3, padding=0, bias=False), # 2
-            nn.BatchNorm2d(512),
-            nn.ReLU(),
-            nn.MaxPool2d(2, 2),
-        )
+        # self.cnn_encoder = nn.Sequential(
+        #     nn.Conv2d(1, 64, 3, padding=0, bias=False), # 8 = 10 + 2*0 - (3-1)
+        #     nn.BatchNorm2d(64),
+        #     nn.ReLU(),
+        #     nn.Conv2d(64, 128, 3, padding=0, bias=False), # 6
+        #     nn.BatchNorm2d(128),
+        #     nn.ReLU(),
+        #     nn.Conv2d(128, 256, 3, padding=0, bias=False), # 4
+        #     nn.BatchNorm2d(256),
+        #     nn.ReLU(),
+        #     nn.Conv2d(256, 512, 3, padding=0, bias=False), # 2
+        #     nn.BatchNorm2d(512),
+        #     nn.ReLU(),
+        #     nn.MaxPool2d(2, 2),
+        # )
         # p = 0.2 # dropout probability
+        # self.linear_encoder = nn.Sequential(
+        #     # nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS + 512, 2048),
+        #     nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, 2048),
+        #     # nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP), 2048),
+        #     nn.ReLU(),
+        #     # nn.Dropout(p),
+        #     nn.BatchNorm1d(2048),
+        #     nn.Linear(2048, 1024),
+        #     nn.ReLU(),
+        #     # nn.Dropout(p),
+        #     nn.BatchNorm1d(1024),
+        #     nn.Linear(1024, 512),
+        #     nn.ReLU(),
+        #     # nn.Dropout(p),
+        #     nn.BatchNorm1d(512),
+        #     nn.Linear(512, 256),
+        #     nn.ReLU(),
+        #     # nn.Dropout(p),
+        #     nn.BatchNorm1d(256),
+        #     nn.Linear(256, 128),
+        #     nn.ReLU(),
+        #     # nn.Dropout(p),
+        #     nn.BatchNorm1d(128),
+        #     nn.Linear(128, Nc_enc + 2*K_UE*M_AP),
+        # )
+        H = N_RIS + 2 * K_UE * M_AP
         self.linear_encoder = nn.Sequential(
-            nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS + 512, 2048),
+            nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, 32*H),
             nn.ReLU(),
-            # nn.Dropout(p),
-            nn.BatchNorm1d(2048),
-            nn.Linear(2048, 1024),
+            nn.BatchNorm1d(32*H),
+            nn.Linear(32*H, 16*H),
             nn.ReLU(),
-            # nn.Dropout(p),
-            nn.BatchNorm1d(1024),
-            nn.Linear(1024, 512),
+            nn.BatchNorm1d(16*H),
+            nn.Linear(16*H, 8*H),
             nn.ReLU(),
-            # nn.Dropout(p),
-            nn.BatchNorm1d(512),
-            nn.Linear(512, 256),
+            nn.BatchNorm1d(8*H),
+            nn.Linear(8*H, 4*H),
             nn.ReLU(),
-            # nn.Dropout(p),
-            nn.BatchNorm1d(256),
-            nn.Linear(256, 128),
-            nn.ReLU(),
-            # nn.Dropout(p),
-            nn.BatchNorm1d(128),
-            nn.Linear(128, Nc_enc + 2*K_UE*M_AP),
+            nn.BatchNorm1d(4*H),
+            nn.Linear(4*H, Nc_enc + 2*K_UE*M_AP),
         )
 
     def forward(self, x):
@@ -102,10 +120,12 @@ class EncoderLayer(nn.Module):
         hur_i = torch.flatten(x[6], 1).float()
         hua_r = torch.flatten(x[7], 1).float()
         hua_i = torch.flatten(x[8], 1).float()
-        theta_rec = torch.reshape(theta, (-1, 1, trainparams['Nw_RIS'], trainparams['Nh_RIS'])).float()
-        theta_cnn = self.cnn_encoder(theta_rec)
-        theta_cnn = torch.flatten(theta_cnn, start_dim=1)
-        x_in = torch.cat((theta_cnn, theta, w_r, w_i, hra_r, hra_i, hur_r, hur_i, hua_r, hua_i), 1)
+        # theta_rec = torch.reshape(theta, (-1, 1, trainparams['Nw_RIS'], trainparams['Nh_RIS'])).float()
+        # theta_cnn = self.cnn_encoder(theta_rec)
+        # theta_cnn = torch.flatten(theta_cnn, start_dim=1)
+        # x_in = torch.cat((theta_cnn, theta, w_r, w_i, hra_r, hra_i, hur_r, hur_i, hua_r, hua_i), 1)
+        x_in = torch.cat((theta, w_r, w_i, hra_r, hra_i, hur_r, hur_i, hua_r, hua_i), 1)
+        # x_in = torch.cat((hra_r, hra_i, hur_r, hur_i, hua_r, hua_i), 1)
         x_out = self.linear_encoder(x_in)
         theta_enc = x_out[:, 0:self.Nc_enc]
         Wr = x_out[:, self.Nc_enc:self.Nc_enc+(self.K_UE*self.M_AP)]
@@ -216,31 +236,26 @@ class DecoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_enc):
         super(DecoderLayer, self).__init__()
         self.linear_decoder = nn.Sequential(
-            nn.Linear(Nc_enc, 128),
+            nn.Linear(Nc_enc, 64),
             nn.ReLU(),
-            nn.BatchNorm1d(128),
-            nn.Linear(128, 256),
-            nn.ReLU(),
-            nn.BatchNorm1d(256),
-            nn.Linear(256, 512),
-            nn.ReLU(),
+            nn.BatchNorm1d(64),
         )
         self.cnn_decoder = nn.Sequential(
             nn.Upsample(scale_factor=2),
-            nn.ConvTranspose2d(512, 256, 3, padding=0),
+            nn.ConvTranspose2d(64, 32, 3, padding=0),
             nn.ReLU(),
-            nn.BatchNorm2d(256),
-            nn.ConvTranspose2d(256, 128, 3, padding=0),
+            nn.BatchNorm2d(32),
+            nn.ConvTranspose2d(32, 16, 3, padding=0),
             nn.ReLU(),
-            nn.BatchNorm2d(128),
-            nn.ConvTranspose2d(128, 64, 3, padding=0),
+            nn.BatchNorm2d(16),
+            nn.ConvTranspose2d(16, 8, 3, padding=0),
             nn.ReLU(),
-            nn.BatchNorm2d(64),
-            nn.ConvTranspose2d(64, 1, 3, padding=0),
+            nn.BatchNorm2d(8),
+            nn.ConvTranspose2d(8, 1, 3, padding=0),
             nn.ReLU(),
             nn.BatchNorm2d(1),
         )
-        self.reshape_dim = (512, 1, 1)
+        self.reshape_dim = (64, 1, 1)
         self.out_layer = nn.Sequential(
             nn.Linear(N_RIS, N_RIS), # best to make output layer a linear operator
             # nn.LeakyReLU(), # LeakyReLU or ReLU will make negative phase shifts not work
@@ -252,6 +267,7 @@ class DecoderLayer(nn.Module):
         theta_cnn = self.cnn_decoder(theta_dec.view(theta_dec.size(0), *self.reshape_dim))
         theta_cnn = torch.flatten(theta_cnn, start_dim=1)
         theta_out = self.out_layer(theta_cnn)
+        # theta_out = self.out_layer(theta_dec)
         return theta_out
         # return torch.angle(torch.exp(1j * theta_out))
 
@@ -687,9 +703,9 @@ if __name__ == "__main__":
                   'lr': 0.01, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 1024, #2**np.random.randint(6, 11), # batch training size
-                  'epochs': 1000,  # total training duration
+                  'epochs': 100,  # total training duration
                   'epoch_val': 100, # validate early stop every epoch number
-                  'epoch_patience': 50, # number of epochs before loss decrease
+                  'epoch_patience': 20, # number of epochs before loss decrease
                   'epoch_echo': True, # flag to display epoch print losses
                   # 'step_size': 10, # step size for scheduler optimizer
                   # 'Nc_enc': 100, # number of quantizers, values that N is compressed/encoded into
