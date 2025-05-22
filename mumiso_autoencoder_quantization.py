@@ -242,10 +242,8 @@ class DecoderLayer(nn.Module):
         self.linear_decoder = nn.Sequential(
             nn.Linear(Nc_enc, N_RIS),
             nn.ReLU(),
-            # nn.BatchNorm1d(N_RIS),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            # nn.BatchNorm1d(N_RIS),
         )
         # self.cnn_decoder = nn.Sequential(
         #     nn.Upsample(scale_factor=2),
@@ -284,7 +282,7 @@ class WupdateLayer(nn.Module):
         super(WupdateLayer, self).__init__()
         self.K_UE = K_UE
         self.M_AP = M_AP
-        p = 0.2 # dropout probability
+        p = 0.5 # dropout probability
         self.linear_W = nn.Sequential(
             # nn.Linear(4*K_UE*M_AP + 2*N_RIS + 2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP), 1024),
             # nn.ReLU(),
@@ -307,13 +305,16 @@ class WupdateLayer(nn.Module):
             # nn.Dropout(p),
             # nn.BatchNorm1d(64),
             # nn.Linear(64, 2*K_UE*M_AP),
-            nn.Linear(4*K_UE*M_AP, 64),
-            # nn.BatchNorm1d(64),
+            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
             nn.ReLU(),
-            nn.Linear(64, 32),
-            # nn.BatchNorm1d(32),
+            nn.Dropout(p),
+            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
             nn.ReLU(),
-            nn.Linear(32, 2*K_UE*M_AP),
+            nn.Dropout(p),
+            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
+            nn.ReLU(),
+            nn.Dropout(p),
+            nn.Linear(4*K_UE*M_AP, 2*K_UE*M_AP),
         )
         self.linear_UL = nn.Sequential(
             # nn.Linear(4*K_UE*M_AP + 2*N_RIS + 2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP), 1024),
@@ -337,13 +338,16 @@ class WupdateLayer(nn.Module):
             # nn.Dropout(p),
             # nn.BatchNorm1d(64),
             # nn.Linear(64, 3*K_UE)
-            nn.Linear(4*K_UE*M_AP, 64),
-            # nn.BatchNorm1d(64),
+            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
             nn.ReLU(),
-            nn.Linear(64, 32),
-            # nn.BatchNorm1d(32),
+            nn.Dropout(p),
+            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
             nn.ReLU(),
-            nn.Linear(32, 3*K_UE),
+            nn.Dropout(p),
+            nn.Linear(4*K_UE*M_AP, 4*K_UE*M_AP),
+            nn.ReLU(),
+            nn.Dropout(p),
+            nn.Linear(4*K_UE*M_AP, 3*K_UE),
         )
 
     def forward(self, theta, W_r, W_i, x):
@@ -387,13 +391,13 @@ class WupdateLayer(nn.Module):
         W_lin = self.linear_W(x_in)
         Wr = W_lin[:, 0*self.K_UE*self.M_AP:1*self.K_UE*self.M_AP]
         Wi = W_lin[:, 1*self.K_UE*self.M_AP:2*self.K_UE*self.M_AP]
-        W = Wr + 1j*Wi
-        W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
-        normfactor = torch.linalg.matrix_norm(W, ord='fro')
-        W = (10 ** (trainparams['snr_dB'] / 10)) * W / normfactor[:, None, None] # normalize W
+        # W = Wr + 1j*Wi
+        # W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
+        # normfactor = torch.linalg.matrix_norm(W, ord='fro')
+        # W = (10 ** (trainparams['snr_dB'] / 10)) * W / normfactor[:, None, None] # normalize W
+        # Wr = torch.flatten(torch.real(W), 1)
+        # Wi = torch.flatten(torch.imag(W), 1)
 
-        Wr = torch.flatten(torch.real(W), 1)
-        Wi = torch.flatten(torch.imag(W), 1)
         # UL_in = torch.cat((Wr, Wi, h_r, h_i, theta_r, theta_i, hra_r, hra_i, hur_r, hur_i, hua_r, hua_i), 1)
         # UL_in = torch.cat((theta_opt, Wr_opt, Wi_opt, Wr, Wi, h_r, h_i), 1)
         # UL_in = torch.cat((Wr_opt, Wi_opt, Wr, Wi, h_r, h_i), 1)
@@ -419,8 +423,8 @@ class WupdateLayer(nn.Module):
             Lk = L[:,k]
             W_out[:, :, k] = Uk[:,None] * Lk[:,None] * torch.linalg.solve(S, torch.conj(H[:,k,:]))
 
-        normfactor = torch.linalg.matrix_norm(W_out, ord='fro')
-        W_out = W_out / normfactor[:, None, None] # normalize W
+        # normfactor = torch.linalg.matrix_norm(W_out, ord='fro')
+        # W_out = W_out / normfactor[:, None, None] # normalize W
         Wr_out = torch.real(W_out)
         Wi_out = torch.imag(W_out)
 
@@ -445,6 +449,23 @@ class AutoQEncoder(nn.Module):
         Wr_u, Wi_u = self.w_update_layer(theta_dec, Wr, Wi, x)
         W = Wr_u + 1j*Wi_u
         # W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
+        theta_out, W_out = normalizethetaW(theta_dec, W)
+        return theta_out.double(), W_out.cdouble()
+
+class EncoderQDecoder(nn.Module):
+    def __init__(self, K_UE, M_AP, N_RIS, Nc_enc, C_code_words, dev):
+        super(EncoderQDecoder, self).__init__()
+        self.K_UE = K_UE
+        self.M_AP = M_AP
+        self.encoder_layer = EncoderLayer(K_UE, M_AP, N_RIS, Nc_enc).to(dev)
+        self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
+        self.decoder_layer = DecoderLayer(N_RIS, Nc_enc).to(dev)
+    def forward(self, x):
+        theta_enc, Wr, Wi = self.encoder_layer(x)
+        theta_qnt = self.quantizer_layer(theta_enc)
+        theta_dec = self.decoder_layer(theta_qnt)
+        W = Wr + 1j*Wi
+        W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
         theta_out, W_out = normalizethetaW(theta_dec, W)
         return theta_out.double(), W_out.cdouble()
 
@@ -680,282 +701,304 @@ if __name__ == "__main__":
     print('Start Script')
     print('------------')
 
-    # path_dir = "/home/alex96/scratch/"
-    path_dir = "MATLAB/"
-    dataset_dir = path_dir + "datasets/HDRISData/MUMISO/10PdBm/"
-    results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/10PdBm/"
-    if len(sys.argv) > 1:
-        results_dir = results_dir + sys.argv[1] + "/"
-    results_file = "results.csv"
-    trainparams_file = "trainparams.csv"
+    PdBm_list = ['10PdBm', '15PdBm', '20PdBm', '25PdBm', '30PdBm', '35PdBm', '40PdBm']
+    for PdBm_dir in PdBm_list:
+        # path_dir = "/home/alex96/scratch/"
+        path_dir = "MATLAB/"
+        dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
+        results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + PdBm_dir + "/"
+        if len(sys.argv) > 1:
+            results_dir = results_dir + sys.argv[1] + "/"
+        results_file = "results.csv"
+        trainparams_file = "trainparams.csv"
 
-    print("make directory:", results_dir)
-    Path(path_dir).mkdir(parents=True, exist_ok=True)
-    Path(results_dir).mkdir(parents=True, exist_ok=True)
+        print("results directory:", results_dir)
+        Path(path_dir).mkdir(parents=True, exist_ok=True)
+        Path(results_dir).mkdir(parents=True, exist_ok=True)
 
-    # Make print statements go to file instead of stdout:
-    if path_dir == "/home/alex96/scratch/":
-        orig_stdout = sys.stdout
-        orig_stderr = sys.stderr
-        f_python_output = open(results_dir + "python_log.out", 'w')
-        sys.stdout = f_python_output
-        sys.stderr = f_python_output
+        # Make print statements go to file instead of stdout:
+        if path_dir == "/home/alex96/scratch/":
+            orig_stdout = sys.stdout
+            orig_stderr = sys.stderr
+            f_python_output = open(results_dir + "python_log.out", 'w')
+            sys.stdout = f_python_output
+            sys.stderr = f_python_output
 
-    ####################################################################################################################
-    # Training trainparams
-    ####################################################################################################################
-    trainparams = {'train_test_split': 0.9, # split between train/test data
-                  'train_val_split': 0.9,  # after the train/test split, split train data into train/val data
-                  'lr': 0.005, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
-                  # 'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 1024, #2**np.random.randint(7, 11), # batch training size
-                  'epochs': 1000,  # total training duration
-                  'epoch_val': 50, # validate early stop every epoch number
-                  'epoch_patience': 20, # number of epochs before loss decrease
-                  'epoch_echo': True, # flag to display epoch print losses
-                  # 'step_size': 10, # step size for scheduler optimizer
-                  # 'Nc_enc': 100, # number of quantizers, values that N is compressed/encoded into
-                  'Q_bits': 1, # number of bits of a quantizer
-                  # 'max_lr': 1, # maximum learning rate for Scheduler
-                  }
-    # for all numpy random generators, the range is: [low, high) where the low value is included but the high value is excluded.
+        ####################################################################################################################
+        # Training trainparams
+        ####################################################################################################################
+        trainparams = {'train_test_split': 0.9, # split between train/test data
+                      'train_val_split': 0.9,  # after the train/test split, split train data into train/val data
+                      'lr': 0.001, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
+                      # 'momentum': 0.9, # optimizer momentum for SGD
+                      'batch_size': 1024, #2**np.random.randint(7, 11), # batch training size
+                      'epochs': 1000,  # total training duration
+                      'epoch_val': 50, # validate early stop every epoch number
+                      'epoch_patience': 20, # number of epochs before loss decrease
+                      'epoch_echo': True, # flag to display epoch print losses
+                      # 'step_size': 10, # step size for scheduler optimizer
+                      # 'Nc_enc': 100, # number of quantizers, values that N is compressed/encoded into
+                      'Q_bits': 1, # number of bits of a quantizer
+                      # 'max_lr': 1, # maximum learning rate for Scheduler
+                      }
+        # for all numpy random generators, the range is: [low, high) where the low value is included but the high value is excluded.
 
 
-    # print('Using OneCycleLR Scheduler, with SGD.')
-    print('Using ADAM with learning rate decay')
+        # print('Using OneCycleLR Scheduler, with SGD.')
+        print('Using ADAM with learning rate decay')
 
-    # Nc_array = 2**np.array(range(1,8))
-    Nc_array = [100]
-    # Nc_array = [1024]
+        # Nc_array = 2**np.array(range(1,8))
+        Nc_array = [100]
+        # Nc_array = [1024]
 
-    num_dirs = 25 # number of directories to use which includes data samples
+        num_dirs = 25 # number of directories to use which includes data samples
 
-    ####################################################################################################################
-    # Load RIS data from .csv files
-    ####################################################################################################################
-    print('---------')
-    print('Load Data')
-    print('---------')
-    trainparams['mc_runs'] = 0
+        ####################################################################################################################
+        # Load RIS data from .csv files
+        ####################################################################################################################
+        print('---------')
+        print('Load Data')
+        print('---------')
+        trainparams['mc_runs'] = 0
 
-    for d in range(num_dirs):
-        sysmodelparams = pd.read_csv(dataset_dir + "/" + str(d) + "/" + "systemModelParameters.csv").iloc[0]
-        trainparams['mc_runs'] += int(sysmodelparams['mc_runs'])
-        trainparams['N_RIS'] = int(sysmodelparams['N'])
-        trainparams['Nw_RIS'] = int(sysmodelparams['Nw'])
-        trainparams['Nh_RIS'] = int(sysmodelparams['Nh'])
-        trainparams['M_AP'] = int(sysmodelparams['M'])
-        trainparams['K_UE'] = int(sysmodelparams['K'])
-        trainparams['P_dBm'] = sysmodelparams['PdBm']
-        trainparams['N_dBm'] = sysmodelparams['NdBm']
-        trainparams['snr_dB'] = sysmodelparams['SNRdB']
+        for d in range(num_dirs):
+            sysmodelparams = pd.read_csv(dataset_dir + "/" + str(d) + "/" + "systemModelParameters.csv").iloc[0]
+            trainparams['mc_runs'] += int(sysmodelparams['mc_runs'])
+            trainparams['N_RIS'] = int(sysmodelparams['N'])
+            trainparams['Nw_RIS'] = int(sysmodelparams['Nw'])
+            trainparams['Nh_RIS'] = int(sysmodelparams['Nh'])
+            trainparams['M_AP'] = int(sysmodelparams['M'])
+            trainparams['K_UE'] = int(sysmodelparams['K'])
+            trainparams['P_dBm'] = sysmodelparams['PdBm']
+            trainparams['N_dBm'] = sysmodelparams['NdBm']
+            trainparams['snr_dB'] = sysmodelparams['SNRdB']
 
-    print("Training Model parameters:", flush=True)
-    pprint.pprint(trainparams)
-
-    # Hau = (K, M)    AP  -> UE
-    # Har = (N, M)    AP  -> RIS
-    # Hru = (K, N)    RIS -> UE
-    # W   = (M, K)    UE stream -> AP
-    Hau = torch.zeros(trainparams['mc_runs'], trainparams['K_UE']*trainparams['M_AP'], dtype=torch.cdouble)
-    Har = torch.zeros(trainparams['mc_runs'], trainparams['N_RIS']*trainparams['M_AP'], dtype=torch.cdouble)
-    Hru = torch.zeros(trainparams['mc_runs'], trainparams['K_UE']*trainparams['N_RIS'], dtype=torch.cdouble)
-    RISopt = torch.zeros(trainparams['mc_runs'], trainparams['N_RIS'], dtype=torch.double)
-    Wopt = torch.zeros(trainparams['mc_runs'], trainparams['M_AP']*trainparams['K_UE'], dtype=torch.cdouble)
-
-    for d in range(num_dirs):
-        print(dataset_dir + str(d) + "/", flush=True)
-        sp = pd.read_csv(dataset_dir + str(d) + "/" + "systemModelParameters.csv").iloc[0]
-        print('Loading... (Hau)', flush=True)
-        Hau_ = load_complex(dataset_dir + str(d) + "/", "Hau_r", "Hau_i")
-        Hau[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hau_)
-        print('Loading... (Har)', flush=True)
-        Har_ = load_complex(dataset_dir + str(d) + "/", "Har_r", "Har_i")
-        Har[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Har_)
-        print('Loading... (Hru)', flush=True)
-        Hru_ = load_complex(dataset_dir + str(d) + "/", "Hru_r", "Hru_i")
-        Hru[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hru_)
-        print('Loading... RISopt.csv', flush=True)
-        RISopt_ = np.loadtxt(dataset_dir + str(d) + "/" + "RISopt.csv", delimiter=',')
-        RISopt[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(RISopt_)
-        print('Loading... (wopt)', flush=True)
-        wopt_ = load_complex(dataset_dir + str(d) + "/", "wopt_r", "wopt_i")
-        Wopt[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(wopt_)
-
-    # unvectorize by reshaping the stacked vector into Matrix along proper dimensions
-    Hau = torch.transpose(torch.reshape(Hau, (trainparams['mc_runs'], trainparams['M_AP'], trainparams['K_UE'])), 1, 2).to(device)
-    Har = torch.transpose(torch.reshape(Har, (trainparams['mc_runs'], trainparams['M_AP'], trainparams['N_RIS'])), 1, 2).to(device)
-    Hru = torch.transpose(torch.reshape(Hru, (trainparams['mc_runs'], trainparams['N_RIS'], trainparams['K_UE'])), 1, 2).to(device)
-    RISopt = RISopt.to(device)
-    Wopt = torch.transpose(torch.reshape(Wopt, (trainparams['mc_runs'], trainparams['K_UE'], trainparams['M_AP'])), 1, 2).to(device)
-
-    ################################################################################################################
-    # Create the Torch Dataset
-    ################################################################################################################
-    print('--------------')
-    print('Create Dataset')
-    print('--------------')
-    num_train_val = int(trainparams['train_test_split'] * trainparams['mc_runs'])
-    num_test = trainparams['mc_runs'] - num_train_val
-    num_train = int(trainparams['train_val_split'] * num_train_val)
-    num_val = num_train_val - num_train
-    train_set = [] # [[inputs0, labels0], [inputs1, labels1], ... ]
-    test_set = []
-    val_set = []
-    for i in tqdm(range(0, trainparams['mc_runs']), disable=DISABLE_TQDM):
-        input = [RISopt[i],
-                 torch.real(Wopt[i,:,:]), torch.imag(Wopt[i,:,:]),
-                 torch.real(Har[i,:,:]),  torch.imag(Har[i,:,:]),
-                 torch.real(Hru[i,:,:]),  torch.imag(Hru[i,:,:]),
-                 torch.real(Hau[i,:,:]),  torch.imag(Hau[i,:,:])]
-        data = [input, RISopt[i], Wopt[i,:,:], Hau[i,:,:], Har[i,:,:], Hru[i,:,:]]
-        if i < num_train:
-            train_set.append(data)
-        elif i >= num_train_val:
-            test_set.append(data)
-        else:
-            val_set.append(data)
-    train_set = LoadData(train_set)
-    test_set = LoadData(test_set)
-    val_set = LoadData(val_set)
-
-    ################################################################################################################
-    # Train & Test model with specific hyperparameters
-    ################################################################################################################
-    print('------------')
-    print('Train & Test')
-    print('------------')
-    R_opt_array = np.zeros(len(Nc_array))
-    R_AQE_array = np.zeros(len(Nc_array))
-    R_DQNN_array = np.zeros(len(Nc_array))
-    R_linQ_array = np.zeros(len(Nc_array))
-    R_AQE_rand_array = np.zeros(len(Nc_array))
-    R_DQNN_rand_array = np.zeros(len(Nc_array))
-    R_linQ_rand_array = np.zeros(len(Nc_array))
-    trainparamslist = []
-    for i in range(len(Nc_array)):
-        trainparams['Nc_enc'] = Nc_array[i]
-        bits = trainparams['Q_bits'] # bits per Quantizer
-        trainparams['C_code_words'] = 2**bits
-        trainparams['Nc_enc_compressed_ratio'] = trainparams['Nc_enc'] / trainparams['N_RIS']
-        trainparams['overall_bits'] = trainparams['Nc_enc'] * bits
-        train_loader = DataLoader(train_set, batch_size=trainparams['batch_size'])
-        test_loader = DataLoader(test_set, batch_size=trainparams['batch_size'])
-        val_loader = DataLoader(val_set, batch_size=trainparams['batch_size'])
-
-        AQEnet = AutoQEncoder(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
-        dqnn = DQNN(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['C_code_words'], device)
-        linQ = LinearQuantizer(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
-
-        AQEtrainer = Trainer(train_loader, trainparams, AQEnet, device)
-        total_params = sum(p.numel() for p in AQEtrainer.model.parameters())
-        print('AQE Number of parameters:', total_params, flush=True)
-        print(AQEtrainer.model, flush=True)
-
-        dqnntrainer = Trainer(train_loader, trainparams, dqnn, device)
-        total_params = sum(p.numel() for p in dqnntrainer.model.parameters())
-        print('DQNN Number of parameters:', total_params, flush=True)
-        print(dqnntrainer.model, flush=True)
-
-        linQtrainer = Trainer(train_loader, trainparams, linQ, device)
-        total_params = sum(p.numel() for p in linQtrainer.model.parameters())
-        print('linQ Number of parameters:', total_params, flush=True)
-        print(linQtrainer.model, flush=True)
-
-        AQEnet,     AQEnet_train_losses,    AQEnet_val_losses,  AQEnet_num_epochs   = AQEtrainer.train(val_loader, trainparams)
-        dqnn,       DQNNnet_train_losses,   DQNNnet_val_losses, DQNNnet_num_epochs  = dqnntrainer.train(val_loader, trainparams)
-        linQ,       linQ_train_losses,      linQ_val_losses,    linQ_num_epochs     = linQtrainer.train(val_loader, trainparams)
-
-        d_AQE = {"train": AQEnet_train_losses, "val": AQEnet_val_losses}
-        AQE_loss_df = pandas.DataFrame(d_AQE)
-        d_DQNN = {"train": DQNNnet_train_losses, "val": DQNNnet_val_losses}
-        DQNN_loss_df = pandas.DataFrame(d_DQNN)
-        d_linQ = {"train": linQ_train_losses, "val": linQ_val_losses}
-        linQ_loss_df = pandas.DataFrame(d_linQ)
-
-        loss_file = "loss" + str(i) + ".csv"
-        print("Saving losses to:", results_dir + "AQE_" + loss_file, flush=True)
-        AQE_loss_df.to_csv(results_dir + "AQE_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
-        print("Saving losses to:", results_dir + "DQNN_" + loss_file, flush=True)
-        DQNN_loss_df.to_csv(results_dir + "AQEC_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
-        print("Saving losses to:", results_dir + "linQ_" + loss_file, flush=True)
-        linQ_loss_df.to_csv(results_dir + "linQ_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
-
-        R_opt, R_AQE, R_AQE_rand = AQEtrainer.evaluate(test_loader, trainparams)
-        R_opt, R_DQNN, R_DQNN_rand = dqnntrainer.evaluate(test_loader, trainparams)
-        R_opt, R_linQ, R_linQ_rand = linQtrainer.evaluate(test_loader, trainparams)
-
-        print("-------------------------------------------------------------------------------------------------------")
         print("Training Model parameters:", flush=True)
         pprint.pprint(trainparams)
-        print('Achievable Rate (bps/Hz) using RIS phase shifts with Transmit power SNR {:.2f} dB:'.format(trainparams['snr_dB']), flush=True)
-        print('optimum:   ', R_opt, flush=True)
-        print('AQE net:   ', R_AQE, flush=True)
-        print('AQE rand:  ', R_AQE_rand, flush=True)
-        print('DQNN net:  ', R_DQNN, flush=True)
-        print('DQNN rand: ', R_DQNN_rand, flush=True)
-        print('linQ net:  ', R_linQ, flush=True)
-        print('linQ rand: ', R_linQ_rand, flush=True)
-        print("-------------------------------------------------------------------------------------------------------\n\n")
-        R_opt_array[i] = R_opt
-        R_AQE_array[i] = R_AQE
-        R_DQNN_array[i] = R_DQNN
-        R_linQ_array[i] = R_linQ
-        R_AQE_rand_array[i] = R_AQE_rand
-        R_DQNN_rand_array[i] = R_DQNN_rand
-        R_linQ_rand_array[i] = R_linQ_rand
 
-        # x_vals, soft_quant, hard_quant = linQ.quantizer_layer.plot_vals()
+        # Hau = (K, M)    AP  -> UE
+        # Har = (N, M)    AP  -> RIS
+        # Hru = (K, N)    RIS -> UE
+        # W   = (M, K)    UE stream -> AP
+        Hau = torch.zeros(trainparams['mc_runs'], trainparams['K_UE']*trainparams['M_AP'], dtype=torch.cdouble)
+        Har = torch.zeros(trainparams['mc_runs'], trainparams['N_RIS']*trainparams['M_AP'], dtype=torch.cdouble)
+        Hru = torch.zeros(trainparams['mc_runs'], trainparams['K_UE']*trainparams['N_RIS'], dtype=torch.cdouble)
+        RISopt = torch.zeros(trainparams['mc_runs'], trainparams['N_RIS'], dtype=torch.double)
+        Wopt = torch.zeros(trainparams['mc_runs'], trainparams['M_AP']*trainparams['K_UE'], dtype=torch.cdouble)
+
+        for d in range(num_dirs):
+            print(dataset_dir + str(d) + "/", flush=True)
+            sp = pd.read_csv(dataset_dir + str(d) + "/" + "systemModelParameters.csv").iloc[0]
+            print('Loading... (Hau)', flush=True)
+            Hau_ = load_complex(dataset_dir + str(d) + "/", "Hau_r", "Hau_i")
+            Hau[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hau_)
+            print('Loading... (Har)', flush=True)
+            Har_ = load_complex(dataset_dir + str(d) + "/", "Har_r", "Har_i")
+            Har[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Har_)
+            print('Loading... (Hru)', flush=True)
+            Hru_ = load_complex(dataset_dir + str(d) + "/", "Hru_r", "Hru_i")
+            Hru[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hru_)
+            print('Loading... RISopt.csv', flush=True)
+            RISopt_ = np.loadtxt(dataset_dir + str(d) + "/" + "RISopt.csv", delimiter=',')
+            RISopt[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(RISopt_)
+            print('Loading... (wopt)', flush=True)
+            wopt_ = load_complex(dataset_dir + str(d) + "/", "wopt_r", "wopt_i")
+            Wopt[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(wopt_)
+
+        # unvectorize by reshaping the stacked vector into Matrix along proper dimensions
+        Hau = torch.transpose(torch.reshape(Hau, (trainparams['mc_runs'], trainparams['M_AP'], trainparams['K_UE'])), 1, 2).to(device)
+        Har = torch.transpose(torch.reshape(Har, (trainparams['mc_runs'], trainparams['M_AP'], trainparams['N_RIS'])), 1, 2).to(device)
+        Hru = torch.transpose(torch.reshape(Hru, (trainparams['mc_runs'], trainparams['N_RIS'], trainparams['K_UE'])), 1, 2).to(device)
+        RISopt = RISopt.to(device)
+        Wopt = torch.transpose(torch.reshape(Wopt, (trainparams['mc_runs'], trainparams['K_UE'], trainparams['M_AP'])), 1, 2).to(device)
+
+        ################################################################################################################
+        # Create the Torch Dataset
+        ################################################################################################################
+        print('--------------')
+        print('Create Dataset')
+        print('--------------')
+        num_train_val = int(trainparams['train_test_split'] * trainparams['mc_runs'])
+        num_test = trainparams['mc_runs'] - num_train_val
+        num_train = int(trainparams['train_val_split'] * num_train_val)
+        num_val = num_train_val - num_train
+        train_set = [] # [[inputs0, labels0], [inputs1, labels1], ... ]
+        test_set = []
+        val_set = []
+        for i in tqdm(range(0, trainparams['mc_runs']), disable=DISABLE_TQDM):
+            input = [RISopt[i],
+                     torch.real(Wopt[i,:,:]), torch.imag(Wopt[i,:,:]),
+                     torch.real(Har[i,:,:]),  torch.imag(Har[i,:,:]),
+                     torch.real(Hru[i,:,:]),  torch.imag(Hru[i,:,:]),
+                     torch.real(Hau[i,:,:]),  torch.imag(Hau[i,:,:])]
+            data = [input, RISopt[i], Wopt[i,:,:], Hau[i,:,:], Har[i,:,:], Hru[i,:,:]]
+            if i < num_train:
+                train_set.append(data)
+            elif i >= num_train_val:
+                test_set.append(data)
+            else:
+                val_set.append(data)
+        train_set = LoadData(train_set)
+        test_set = LoadData(test_set)
+        val_set = LoadData(val_set)
+
+        ################################################################################################################
+        # Train & Test model with specific hyperparameters
+        ################################################################################################################
+        print('------------')
+        print('Train & Test')
+        print('------------')
+        R_opt_array = np.zeros(len(Nc_array))
+        R_AQE_array = np.zeros(len(Nc_array))
+        R_EQD_array = np.zeros(len(Nc_array))
+        R_DQNN_array = np.zeros(len(Nc_array))
+        R_linQ_array = np.zeros(len(Nc_array))
+        R_AQE_rand_array = np.zeros(len(Nc_array))
+        R_EQD_rand_array = np.zeros(len(Nc_array))
+        R_DQNN_rand_array = np.zeros(len(Nc_array))
+        R_linQ_rand_array = np.zeros(len(Nc_array))
+        trainparamslist = []
+        for i in range(len(Nc_array)):
+            trainparams['Nc_enc'] = Nc_array[i]
+            bits = trainparams['Q_bits'] # bits per Quantizer
+            trainparams['C_code_words'] = 2**bits
+            trainparams['Nc_enc_compressed_ratio'] = trainparams['Nc_enc'] / trainparams['N_RIS']
+            trainparams['overall_bits'] = trainparams['Nc_enc'] * bits
+            train_loader = DataLoader(train_set, batch_size=trainparams['batch_size'])
+            test_loader = DataLoader(test_set, batch_size=trainparams['batch_size'])
+            val_loader = DataLoader(val_set, batch_size=trainparams['batch_size'])
+
+            AQEnet = AutoQEncoder(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
+            EQDnet = EncoderQDecoder(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
+            dqnn = DQNN(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['C_code_words'], device)
+            linQ = LinearQuantizer(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
+
+            AQEtrainer = Trainer(train_loader, trainparams, AQEnet, device)
+            total_params = sum(p.numel() for p in AQEtrainer.model.parameters())
+            print('AQE Number of parameters:', total_params, flush=True)
+            print(AQEtrainer.model, flush=True)
+
+            EQDtrainer = Trainer(train_loader, trainparams, EQDnet, device)
+            total_params = sum(p.numel() for p in EQDtrainer.model.parameters())
+            print('EQD Number of parameters:', total_params, flush=True)
+            print(EQDtrainer.model, flush=True)
+
+            dqnntrainer = Trainer(train_loader, trainparams, dqnn, device)
+            total_params = sum(p.numel() for p in dqnntrainer.model.parameters())
+            print('DQNN Number of parameters:', total_params, flush=True)
+            print(dqnntrainer.model, flush=True)
+
+            linQtrainer = Trainer(train_loader, trainparams, linQ, device)
+            total_params = sum(p.numel() for p in linQtrainer.model.parameters())
+            print('linQ Number of parameters:', total_params, flush=True)
+            print(linQtrainer.model, flush=True)
+
+            AQEnet,     AQEnet_train_losses,    AQEnet_val_losses,  AQEnet_num_epochs   = AQEtrainer.train(val_loader, trainparams)
+            EQDnet,     EQDnet_train_losses,    EQDnet_val_losses,  EQDnet_num_epochs   = EQDtrainer.train(val_loader, trainparams)
+            dqnn,       DQNNnet_train_losses,   DQNNnet_val_losses, DQNNnet_num_epochs  = dqnntrainer.train(val_loader, trainparams)
+            linQ,       linQ_train_losses,      linQ_val_losses,    linQ_num_epochs     = linQtrainer.train(val_loader, trainparams)
+
+            d_AQE = {"train": AQEnet_train_losses, "val": AQEnet_val_losses}
+            AQE_loss_df = pandas.DataFrame(d_AQE)
+            d_EQD = {"train": EQDnet_train_losses, "val": EQDnet_val_losses}
+            EQD_loss_df = pandas.DataFrame(d_EQD)
+            d_DQNN = {"train": DQNNnet_train_losses, "val": DQNNnet_val_losses}
+            DQNN_loss_df = pandas.DataFrame(d_DQNN)
+            d_linQ = {"train": linQ_train_losses, "val": linQ_val_losses}
+            linQ_loss_df = pandas.DataFrame(d_linQ)
+
+            loss_file = "loss" + str(i) + ".csv"
+            print("Saving losses to:", results_dir + "AQE_" + loss_file, flush=True)
+            AQE_loss_df.to_csv(results_dir + "AQE_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+            print("Saving losses to:", results_dir + "EQD_" + loss_file, flush=True)
+            EQD_loss_df.to_csv(results_dir + "EQD_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+            print("Saving losses to:", results_dir + "DQNN_" + loss_file, flush=True)
+            DQNN_loss_df.to_csv(results_dir + "DQNN_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+            print("Saving losses to:", results_dir + "linQ_" + loss_file, flush=True)
+            linQ_loss_df.to_csv(results_dir + "linQ_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+
+            R_opt, R_AQE, R_AQE_rand = AQEtrainer.evaluate(test_loader, trainparams)
+            R_opt, R_EQD, R_EQD_rand = EQDtrainer.evaluate(test_loader, trainparams)
+            R_opt, R_DQNN, R_DQNN_rand = dqnntrainer.evaluate(test_loader, trainparams)
+            R_opt, R_linQ, R_linQ_rand = linQtrainer.evaluate(test_loader, trainparams)
+
+            print("-------------------------------------------------------------------------------------------------------")
+            print("Training Model parameters:", flush=True)
+            pprint.pprint(trainparams)
+            print('Achievable Rate (bps/Hz) using RIS phase shifts with Transmit power SNR {:.2f} dB:'.format(trainparams['snr_dB']), flush=True)
+            print('optimum:   ', R_opt, flush=True)
+            print('AQE net:   ', R_AQE, flush=True)
+            print('AQE rand:  ', R_AQE_rand, flush=True)
+            print('EQD net:   ', R_EQD, flush=True)
+            print('EQD rand:  ', R_EQD_rand, flush=True)
+            print('DQNN net:  ', R_DQNN, flush=True)
+            print('DQNN rand: ', R_DQNN_rand, flush=True)
+            print('linQ net:  ', R_linQ, flush=True)
+            print('linQ rand: ', R_linQ_rand, flush=True)
+            print("-------------------------------------------------------------------------------------------------------\n\n")
+            R_opt_array[i] = R_opt
+            R_AQE_array[i] = R_AQE
+            R_EQD_array[i] = R_EQD
+            R_DQNN_array[i] = R_DQNN
+            R_linQ_array[i] = R_linQ
+            R_AQE_rand_array[i] = R_AQE_rand
+            R_EQD_rand_array[i] = R_EQD_rand
+            R_DQNN_rand_array[i] = R_DQNN_rand
+            R_linQ_rand_array[i] = R_linQ_rand
+
+            # x_vals, soft_quant, hard_quant = linQ.quantizer_layer.plot_vals()
+            # fig, ax = plt.subplots()
+            # ax.plot(x_vals, soft_quant, label='Soft Quantizer')
+            # ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
+            # ax.set_title("Quantizer Values: bits = " + str(bits))
+            # ax.legend()
+            # plt.show(block=True)
+            # # plt.interactive(False)
+
+            trainparamslist.append(deepcopy(trainparams))
+
+        trainparams_df = pandas.DataFrame(trainparamslist)
+        print(trainparams_df, flush=True)
+        print('Saving parameters to:', results_dir + trainparams_file)
+        trainparams_df.to_csv(results_dir + trainparams_file, sep='\t', encoding='utf-8', index=False, header=True)
+
+        d = {'Nc': Nc_array,
+             'R_opt': R_opt_array,
+             'R_AQE': R_AQE_array,
+             'R_AQE_rand': R_AQE_rand_array,
+             'R_EQD': R_EQD_array,
+             'R_EQD_rand': R_EQD_rand_array,
+             'R_DQNN': R_DQNN_array,
+             'R_DQNN_rand': R_DQNN_rand_array,
+             'R_linQ': R_linQ_array,
+             'R_linQ_rand': R_linQ_rand_array}
+        results_df = pandas.DataFrame(d)
+        print('Bits per Quantizer:', trainparams['Q_bits'], flush=True)
+        print(results_df.to_string(), flush=True)
+        print('Saving results to:', results_dir + results_file, flush=True)
+        results_df.to_csv(results_dir + results_file, sep='\t', encoding='utf-8', index=False, header=True)
+
         # fig, ax = plt.subplots()
-        # ax.plot(x_vals, soft_quant, label='Soft Quantizer')
-        # ax.plot(x_vals, hard_quant, label='Hard Quantizer', linestyle='--')
-        # ax.set_title("Quantizer Values: bits = " + str(bits))
+        # ax.plot(Nc_array, R_opt_array, label='P_opt')
+        # ax.plot(Nc_array, R_AQE_array, label='P_AQE')
+        # ax.plot(Nc_array, R_linQ_array, label='P_linQ')
+        # ax.plot(Nc_array, R_rand_array, label='P_rand')
+        # ax.set_xlabel('Nc')
+        # ax.set_ylabel('Receive Power (dB)')
+        # ax.set_xscale('log', base=2)
         # ax.legend()
         # plt.show(block=True)
         # # plt.interactive(False)
 
-        trainparamslist.append(deepcopy(trainparams))
 
-    trainparams_df = pandas.DataFrame(trainparamslist)
-    print(trainparams_df, flush=True)
-    print('Saving parameters to:', results_dir + trainparams_file)
-    trainparams_df.to_csv(results_dir + trainparams_file, sep='\t', encoding='utf-8', index=False, header=True)
+        ################################################################################################################
+        # END PYTHON SCRIPT
+        ################################################################################################################
+        print('----------')
+        print('End Script')
+        print('----------')
 
-    d = {'Nc': Nc_array,
-         'R_opt': R_opt_array,
-         'R_AQE': R_AQE_array,
-         'R_AQE_rand': R_AQE_rand_array,
-         'R_DQNN': R_DQNN_array,
-         'R_DQNN_rand': R_DQNN_rand_array,
-         'R_linQ': R_linQ_array,
-         'R_linQ_rand': R_linQ_rand_array}
-    results_df = pandas.DataFrame(d)
-    print('Bits per Quantizer:', trainparams['Q_bits'], flush=True)
-    print(results_df.to_string(), flush=True)
-    print('Saving results to:', results_dir + results_file, flush=True)
-    results_df.to_csv(results_dir + results_file, sep='\t', encoding='utf-8', index=False, header=True)
-
-    # fig, ax = plt.subplots()
-    # ax.plot(Nc_array, R_opt_array, label='P_opt')
-    # ax.plot(Nc_array, R_AQE_array, label='P_AQE')
-    # ax.plot(Nc_array, R_linQ_array, label='P_linQ')
-    # ax.plot(Nc_array, R_rand_array, label='P_rand')
-    # ax.set_xlabel('Nc')
-    # ax.set_ylabel('Receive Power (dB)')
-    # ax.set_xscale('log', base=2)
-    # ax.legend()
-    # plt.show(block=True)
-    # # plt.interactive(False)
-
-
-    ################################################################################################################
-    # END PYTHON SCRIPT
-    ################################################################################################################
-    print('----------')
-    print('End Script')
-    print('----------')
-
-    if path_dir == "/home/alex96/scratch/":
-        sys.stdout = orig_stdout
-        f_python_output.close()
-        sys.stderr = orig_stderr
+        if path_dir == "/home/alex96/scratch/":
+            sys.stdout = orig_stdout
+            f_python_output.close()
+            sys.stderr = orig_stderr
