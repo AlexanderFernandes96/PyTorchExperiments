@@ -789,8 +789,8 @@ if __name__ == "__main__":
     else:
         PdBm_dir = '20PdBm'
 
-    # path_dir = "/home/alex96/scratch/"
-    path_dir = "MATLAB/"
+    path_dir = "/home/alex96/scratch/"
+    # path_dir = "MATLAB/"
     dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
     results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + PdBm_dir + "/"
     # if len(sys.argv) > 1:
@@ -818,7 +818,7 @@ if __name__ == "__main__":
                   'lr': 0.001, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
                   'batch_size': 1024, #2**np.random.randint(7, 11), # batch training size
-                  'epochs': 1,  # total training duration
+                  'epochs': 1000,  # total training duration
                   'epoch_val': 50, # validate early stop every epoch number
                   'epoch_patience': 20, # number of epochs before loss decrease
                   'epoch_echo': True, # flag to display epoch print losses
@@ -834,10 +834,10 @@ if __name__ == "__main__":
     print('Using ADAM with learning rate decay')
 
     # Nc_array = 2**np.array(range(1,8))
-    Nc_array = [32,100]
+    Nc_array = [8,16,32,64,100,128]
     # Nc_array = [1024]
 
-    num_dirs = 5 # number of directories to use which includes data samples
+    num_dirs = 25 # number of directories to use which includes data samples
 
     ####################################################################################################################
     # Load RIS data from .csv files
