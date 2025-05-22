@@ -184,7 +184,7 @@ class QuantizerLayer(nn.Module):
         self.a = torch.nn.Parameter(
             data=torch.from_numpy(
                 np.ones(C_code_words-1) * np.pi / ( C_code_words )
-            ), requires_grad=True)
+            ), requires_grad=False)
         spacing = np.linspace(-1, 1, C_code_words + 1) * np.pi
         self.b = torch.nn.Parameter(
             data=torch.from_numpy(
@@ -682,8 +682,8 @@ if __name__ == "__main__":
 
     # path_dir = "/home/alex96/scratch/"
     path_dir = "MATLAB/"
-    dataset_dir = path_dir + "datasets/HDRISData/16/"
-    results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/00/"
+    dataset_dir = path_dir + "datasets/HDRISData/MUMISO/10PdBm/"
+    results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/10PdBm/"
     if len(sys.argv) > 1:
         results_dir = results_dir + sys.argv[1] + "/"
     results_file = "results.csv"
