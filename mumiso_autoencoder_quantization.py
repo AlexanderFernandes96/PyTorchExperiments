@@ -67,7 +67,7 @@ class EncoderLayer(nn.Module):
         #     nn.ReLU(),
         #     nn.MaxPool2d(2, 2),
         # )
-        # p = 0.2 # dropout probability
+        p = 0.5 # dropout probability
         # self.linear_encoder = nn.Sequential(
         #     # nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS + 512, 2048),
         #     nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, 2048),
@@ -97,15 +97,19 @@ class EncoderLayer(nn.Module):
         self.linear_encoder = nn.Sequential(
             nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, 32*H),
             nn.ReLU(),
+            nn.Dropout(p),
             nn.BatchNorm1d(32*H),
             nn.Linear(32*H, 16*H),
             nn.ReLU(),
+            nn.Dropout(p),
             nn.BatchNorm1d(16*H),
             nn.Linear(16*H, 8*H),
             nn.ReLU(),
+            nn.Dropout(p),
             nn.BatchNorm1d(8*H),
             nn.Linear(8*H, 4*H),
             nn.ReLU(),
+            nn.Dropout(p),
             nn.BatchNorm1d(4*H),
             nn.Linear(4*H, Nc_enc + 2*K_UE*M_AP),
         )
@@ -238,10 +242,10 @@ class DecoderLayer(nn.Module):
         self.linear_decoder = nn.Sequential(
             nn.Linear(Nc_enc, N_RIS),
             nn.ReLU(),
-            nn.BatchNorm1d(N_RIS),
+            # nn.BatchNorm1d(N_RIS),
             nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
-            nn.BatchNorm1d(N_RIS),
+            # nn.BatchNorm1d(N_RIS),
         )
         # self.cnn_decoder = nn.Sequential(
         #     nn.Upsample(scale_factor=2),
@@ -304,13 +308,10 @@ class WupdateLayer(nn.Module):
             # nn.BatchNorm1d(64),
             # nn.Linear(64, 2*K_UE*M_AP),
             nn.Linear(4*K_UE*M_AP, 64),
-            nn.BatchNorm1d(64),
-            nn.ReLU(),
-            nn.Linear(64, 64),
-            nn.BatchNorm1d(64),
+            # nn.BatchNorm1d(64),
             nn.ReLU(),
             nn.Linear(64, 32),
-            nn.BatchNorm1d(32),
+            # nn.BatchNorm1d(32),
             nn.ReLU(),
             nn.Linear(32, 2*K_UE*M_AP),
         )
@@ -337,13 +338,10 @@ class WupdateLayer(nn.Module):
             # nn.BatchNorm1d(64),
             # nn.Linear(64, 3*K_UE)
             nn.Linear(4*K_UE*M_AP, 64),
-            nn.BatchNorm1d(64),
-            nn.ReLU(),
-            nn.Linear(64, 64),
-            nn.BatchNorm1d(64),
+            # nn.BatchNorm1d(64),
             nn.ReLU(),
             nn.Linear(64, 32),
-            nn.BatchNorm1d(32),
+            # nn.BatchNorm1d(32),
             nn.ReLU(),
             nn.Linear(32, 3*K_UE),
         )
@@ -355,12 +353,14 @@ class WupdateLayer(nn.Module):
         #  doi: 10.1109/TCOMM.2019.2960361.
 
         theta_c = torch.exp(1j * theta) # complex
-        W_in = W_r + 1j*W_i
-        W_in = torch.reshape(W_in, (-1, self.M_AP, self.K_UE))
-        normfactor = torch.linalg.matrix_norm(W_in, ord='fro')
-        W_in = (10 ** (trainparams['snr_dB'] / 10)) * W_in / normfactor[:, None, None] # normalize W
-        W_in_r = torch.flatten(torch.real(W_in), start_dim=1)
-        W_in_i = torch.flatten(torch.imag(W_in), start_dim=1)
+        # W_in = W_r + 1j*W_i
+        # W_in = torch.reshape(W_in, (-1, self.M_AP, self.K_UE))
+        # normfactor = torch.linalg.matrix_norm(W_in, ord='fro')
+        # W_in = (10 ** (trainparams['snr_dB'] / 10)) * W_in / normfactor[:, None, None] # normalize W
+        # W_in_r = torch.flatten(torch.real(W_in), start_dim=1)
+        # W_in_i = torch.flatten(torch.imag(W_in), start_dim=1)
+        W_in_r = W_r
+        W_in_i = W_i
         # theta_r = torch.real(theta_c)
         # theta_i = torch.imag(theta_c)
         # theta_opt = x[0].float()
@@ -551,7 +551,10 @@ class Trainer(object):
         # self.optimizer = optim.SGD(self.model.parameters(), lr=trainparams['lr'], momentum=trainparams['momentum'])
         # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=trainparams['max_lr'], steps_per_epoch=len(train_loader),
         #                                                      epochs=trainparams['epochs'])
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min', patience=int(trainparams['epoch_patience']))
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, 'min',
+                                                                    patience=int(trainparams['epoch_patience']),
+                                                                    eps=5e-5,
+                                                                    factor=0.8)
 
     def train(self, val_loader, trainparams):
 
@@ -703,11 +706,11 @@ if __name__ == "__main__":
     ####################################################################################################################
     trainparams = {'train_test_split': 0.9, # split between train/test data
                   'train_val_split': 0.9,  # after the train/test split, split train data into train/val data
-                  'lr': 0.01, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
+                  'lr': 0.005, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 1024, #2**np.random.randint(6, 11), # batch training size
-                  'epochs': 100,  # total training duration
-                  'epoch_val': 100, # validate early stop every epoch number
+                  'batch_size': 1024, #2**np.random.randint(7, 11), # batch training size
+                  'epochs': 1000,  # total training duration
+                  'epoch_val': 50, # validate early stop every epoch number
                   'epoch_patience': 20, # number of epochs before loss decrease
                   'epoch_echo': True, # flag to display epoch print losses
                   # 'step_size': 10, # step size for scheduler optimizer
@@ -725,7 +728,7 @@ if __name__ == "__main__":
     Nc_array = [100]
     # Nc_array = [1024]
 
-    num_dirs = 10 # number of directories to use which includes data samples
+    num_dirs = 25 # number of directories to use which includes data samples
 
     ####################################################################################################################
     # Load RIS data from .csv files
