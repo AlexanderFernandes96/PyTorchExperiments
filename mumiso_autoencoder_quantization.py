@@ -141,23 +141,28 @@ class EncoderLayer(nn.Module):
 # doi: 10.1109/TCCN.2021.3128605.
 class DNN(nn.Module):
     def __init__(self, K_UE, M_AP, N_RIS):
+        super(DNN, self).__init__()
         H = N_RIS + 2*K_UE*M_AP
         self.K_UE = K_UE
         self.M_AP = M_AP
         self.N_RIS = N_RIS
-        super(DNN, self).__init__()
+        p = 0.5 # dropout probability
         self.linear_encoder = nn.Sequential(
             nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP), 32*H),
             nn.ReLU(),
+            nn.Dropout(p),
             nn.BatchNorm1d(32*H),
             nn.Linear(32*H, 16*H),
             nn.ReLU(),
+            nn.Dropout(p),
             nn.BatchNorm1d(16*H),
             nn.Linear(16*H, 8*H),
             nn.ReLU(),
+            nn.Dropout(p),
             nn.BatchNorm1d(8*H),
             nn.Linear(8*H, 4*H),
             nn.ReLU(),
+            nn.Dropout(p),
             nn.BatchNorm1d(4*H),
             nn.Linear(4*H, H),
         )
@@ -549,12 +554,12 @@ class ACFNet(nn.Module):
         super(ACFNet, self).__init__()
         self.K_UE = K_UE
         self.M_AP = M_AP
-        self.DNN_layer = DNN(K_UE, M_AP, N_RIS).to(dev)
+        self.mapping_network = DNN(K_UE, M_AP, N_RIS).to(dev)
         self.compression_network = ACFNetCompressionNetwork(N_RIS, N_enc).to(dev)
         self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
         self.decoder_network = ACFNetDecoderNetwork(N_RIS, N_enc).to(dev)
     def forward(self, x):
-        theta, W = self.DNN_layer(x)
+        theta, W = self.mapping_network(x)
         W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
         theta_enc = self.compression_network(theta)
         theta_qnt = self.quantizer_layer(theta_enc)
@@ -789,10 +794,11 @@ if __name__ == "__main__":
     else:
         PdBm_dir = '20PdBm'
 
-    path_dir = "/home/alex96/scratch/"
-    # path_dir = "MATLAB/"
-    dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
-    results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + PdBm_dir + "/"
+    # path_dir = "/home/alex96/scratch/"
+    path_dir = "MATLAB/"
+    trial = "00"
+    dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + trial + "/" + PdBm_dir + "/"
+    results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
     # if len(sys.argv) > 1:
     #     results_dir = results_dir + sys.argv[1] + "/"
     results_file = "results.csv"
@@ -957,7 +963,7 @@ if __name__ == "__main__":
 
         AQEnet = AutoQEncoder(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
         ACFnet = ACFNet(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
-        if trainparams['Nc_enc'] == 100:
+        if trainparams['Nc_enc'] == trainparams['N_RIS']:
             dqnn = DQNN(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['C_code_words'], device)
         linQ = LinearQuantizer(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
 
@@ -971,7 +977,7 @@ if __name__ == "__main__":
         print('ACF Number of parameters:', total_params, flush=True)
         print(ACFtrainer.model, flush=True)
 
-        if trainparams['Nc_enc'] == 100:
+        if trainparams['Nc_enc'] == trainparams['N_RIS']:
             dqnntrainer = Trainer(train_loader, trainparams, dqnn, device)
             total_params = sum(p.numel() for p in dqnntrainer.model.parameters())
             print('DQNN Number of parameters:', total_params, flush=True)
@@ -984,7 +990,7 @@ if __name__ == "__main__":
 
         AQEnet,     AQEnet_train_losses,    AQEnet_val_losses,  AQEnet_num_epochs   = AQEtrainer.train(val_loader, trainparams)
         ACFnet,     ACFnet_train_losses,    ACFnet_val_losses,  ACFnet_num_epochs   = ACFtrainer.train(val_loader, trainparams)
-        if trainparams['Nc_enc'] == 100:
+        if trainparams['Nc_enc'] == trainparams['N_RIS']:
             dqnn,       DQNNnet_train_losses,   DQNNnet_val_losses, DQNNnet_num_epochs  = dqnntrainer.train(val_loader, trainparams)
         linQ,       linQ_train_losses,      linQ_val_losses,    linQ_num_epochs     = linQtrainer.train(val_loader, trainparams)
 
@@ -992,7 +998,7 @@ if __name__ == "__main__":
         AQE_loss_df = pandas.DataFrame(d_AQE)
         d_ACF = {"train": ACFnet_train_losses, "val": ACFnet_val_losses}
         ACF_loss_df = pandas.DataFrame(d_ACF)
-        if trainparams['Nc_enc'] == 100:
+        if trainparams['Nc_enc'] == trainparams['N_RIS']:
             d_DQNN = {"train": DQNNnet_train_losses, "val": DQNNnet_val_losses}
             DQNN_loss_df = pandas.DataFrame(d_DQNN)
         d_linQ = {"train": linQ_train_losses, "val": linQ_val_losses}
@@ -1003,7 +1009,7 @@ if __name__ == "__main__":
         AQE_loss_df.to_csv(results_dir + "AQE_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
         print("Saving losses to:", results_dir + "ACF_" + loss_file, flush=True)
         ACF_loss_df.to_csv(results_dir + "ACF_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
-        if trainparams['Nc_enc'] == 100:
+        if trainparams['Nc_enc'] == trainparams['N_RIS']:
             print("Saving losses to:", results_dir + "DQNN_" + loss_file, flush=True)
             DQNN_loss_df.to_csv(results_dir + "DQNN_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
         print("Saving losses to:", results_dir + "linQ_" + loss_file, flush=True)
@@ -1011,7 +1017,7 @@ if __name__ == "__main__":
 
         R_opt, R_opt_rand, R_AQE, R_AQE_rand = AQEtrainer.evaluate(test_loader, trainparams)
         R_opt, R_opt_rand, R_ACF, R_ACF_rand = ACFtrainer.evaluate(test_loader, trainparams)
-        if trainparams['Nc_enc'] == 100:
+        if trainparams['Nc_enc'] == trainparams['N_RIS']:
             R_opt, R_opt_rand, R_DQNN, R_DQNN_rand = dqnntrainer.evaluate(test_loader, trainparams)
         R_opt, R_opt_rand, R_linQ, R_linQ_rand = linQtrainer.evaluate(test_loader, trainparams)
 
@@ -1022,26 +1028,26 @@ if __name__ == "__main__":
         print('optimum:   ', R_opt, flush=True)
         print('AQE net:   ', R_AQE, flush=True)
         print('ACF net:   ', R_ACF, flush=True)
-        if trainparams['Nc_enc'] == 100:
+        if trainparams['Nc_enc'] == trainparams['N_RIS']:
             print('DQNN net:  ', R_DQNN, flush=True)
         print('linQ net:  ', R_linQ, flush=True)
         print('opt rand:  ', R_opt_rand, flush=True)
         print('AQE rand:  ', R_AQE_rand, flush=True)
         print('ACF rand:  ', R_ACF_rand, flush=True)
-        if trainparams['Nc_enc'] == 100:
+        if trainparams['Nc_enc'] == trainparams['N_RIS']:
             print('DQNN rand: ', R_DQNN_rand, flush=True)
         print('linQ rand: ', R_linQ_rand, flush=True)
         print("-------------------------------------------------------------------------------------------------------\n\n")
         R_opt_array[i] = R_opt
         R_AQE_array[i] = R_AQE
         R_ACF_array[i] = R_ACF
-        if trainparams['Nc_enc'] == 100:
+        if trainparams['Nc_enc'] == trainparams['N_RIS']:
             R_DQNN_array[i] = R_DQNN
         R_linQ_array[i] = R_linQ
         R_opt_rand_array[i] = R_opt_rand
         R_AQE_rand_array[i] = R_AQE_rand
         R_ACF_rand_array[i] = R_ACF_rand
-        if trainparams['Nc_enc'] == 100:
+        if trainparams['Nc_enc'] == trainparams['N_RIS']:
             R_DQNN_rand_array[i] = R_DQNN_rand
         R_linQ_rand_array[i] = R_linQ_rand
 
