@@ -794,9 +794,9 @@ if __name__ == "__main__":
     else:
         PdBm_dir = '20PdBm'
 
-    # path_dir = "/home/alex96/scratch/"
-    path_dir = "MATLAB/"
-    trial = "01"
+    path_dir = "/home/alex96/scratch/"
+    # path_dir = "MATLAB/"
+    trial = "04"
     dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
     results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
     # if len(sys.argv) > 1:
@@ -819,11 +819,11 @@ if __name__ == "__main__":
     ####################################################################################################################
     # Training trainparams
     ####################################################################################################################
-    trainparams = {'train_test_split': 0.9, # split between train/test data
-                  'train_val_split': 0.9,  # after the train/test split, split train data into train/val data
+    trainparams = {'train_test_split': 0.8, # split between train/test data
+                  'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.001, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 1024, #2**np.random.randint(7, 11), # batch training size
+                  'batch_size': 128, #2**np.random.randint(7, 11), # batch training size
                   'epochs': 1000,  # total training duration
                   'epoch_val': 50, # validate early stop every epoch number
                   'epoch_patience': 20, # number of epochs before loss decrease
@@ -840,8 +840,9 @@ if __name__ == "__main__":
     print('Using ADAM with learning rate decay')
 
     # Nc_array = 2**np.array(range(1,8))
-    Nc_array = [8,16,32,64,100,128]
+    # Nc_array = [8,16,32,64,100,128]
     # Nc_array = [1024]
+    Nc_array = 10 * np.array(range(1,11))
 
     num_dirs = 25 # number of directories to use which includes data samples
 
