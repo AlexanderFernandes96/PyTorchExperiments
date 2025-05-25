@@ -3,7 +3,7 @@ clear all; close all; delete(gcp('nocreate')); clc;
 
 dir = "MU-MISO_AchievableRateExperiments/";
 results = zeros(6,11,7);
-trial = "01";
+trial = "03";
 opts = detectImportOptions(dir + trial + "/10PdBm/results.csv");
 NetNames = strrep(strrep(opts.VariableNames, 'R_', ''),'_',' ');
 results_10PdBm = readmatrix(dir + trial + "/10PdBm/results.csv");
