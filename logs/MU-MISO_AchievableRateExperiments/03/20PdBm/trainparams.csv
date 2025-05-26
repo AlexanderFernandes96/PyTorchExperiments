@@ -1,0 +1,7 @@
+train_test_split	train_val_split	lr	batch_size	epochs	epoch_val	epoch_patience	epoch_echo	Q_bits	mc_runs	N_RIS	Nw_RIS	Nh_RIS	M_AP	K_UE	P_dBm	N_dBm	snr_dB	Nc_enc	C_code_words	Nc_enc_compressed_ratio	overall_bits
+0.9	0.9	0.001	128	1000	50	20	True	1	100000	100	10	10	4	3	20.0	-30.6	50.6	8	2	0.08	8
+0.9	0.9	0.001	128	1000	50	20	True	1	100000	100	10	10	4	3	20.0	-30.6	50.6	16	2	0.16	16
+0.9	0.9	0.001	128	1000	50	20	True	1	100000	100	10	10	4	3	20.0	-30.6	50.6	32	2	0.32	32
+0.9	0.9	0.001	128	1000	50	20	True	1	100000	100	10	10	4	3	20.0	-30.6	50.6	64	2	0.64	64
+0.9	0.9	0.001	128	1000	50	20	True	1	100000	100	10	10	4	3	20.0	-30.6	50.6	100	2	1.0	100
+0.9	0.9	0.001	128	1000	50	20	True	1	100000	100	10	10	4	3	20.0	-30.6	50.6	128	2	1.28	128
