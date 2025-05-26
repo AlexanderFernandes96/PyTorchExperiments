@@ -792,10 +792,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         PdBm_dir = PdBm_list[int(sys.argv[1])]
     else:
-        PdBm_dir = '20PdBm'
+        PdBm_dir = '30PdBm'
 
-    path_dir = "/home/alex96/scratch/"
-    # path_dir = "MATLAB/"
+    # path_dir = "/home/alex96/scratch/"
+    path_dir = "MATLAB/"
     trial = "04"
     dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
     results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
@@ -841,8 +841,8 @@ if __name__ == "__main__":
 
     # Nc_array = 2**np.array(range(1,8))
     # Nc_array = [8,16,32,64,100,128]
-    # Nc_array = [1024]
-    Nc_array = 10 * np.array(range(1,11))
+    Nc_array = [100]
+    # Nc_array = 10 * np.array(range(1,11))
 
     num_dirs = 25 # number of directories to use which includes data samples
 

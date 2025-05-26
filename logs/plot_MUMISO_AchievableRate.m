@@ -3,7 +3,7 @@ clear all; close all; delete(gcp('nocreate')); clc;
 
 dir = "MU-MISO_AchievableRateExperiments/";
 results = zeros(6,11,7);
-trial = "03";
+trial = "04";
 opts = detectImportOptions(dir + trial + "/10PdBm/results.csv");
 NetNames = strrep(strrep(opts.VariableNames, 'R_', ''),'_',' ');
 results_10PdBm = readmatrix(dir + trial + "/10PdBm/results.csv");
@@ -21,7 +21,8 @@ results = cat(3,results_10PdBm, results_15PdBm, results_20PdBm, ...
 PdBm = [10, 15, 20, 25, 30, 35, 40];
 sz = size(results);
 
-b = 5; % Nc = 100
+% b = 5; % Nc = 100
+b = 10; % Nc = 100
 figure(1);
 for net = 2:7
     plot(PdBm, squeeze(results(b,net,:)), 'o-', 'DisplayName', NetNames{net})
@@ -33,9 +34,27 @@ title("Number of feedback bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
 ylabel('AchievableRate (bps/Hz)')
 legend('location', 'best')
+ylim([0, 25])
 
 
-bits = [1, 2, 3, 4, 6];
+
+b = 1;
+figure(2);
+for net = 2:7
+    plot(PdBm, squeeze(results(b,net,:)), 'o-', 'DisplayName', NetNames{net})
+    hold on;
+end
+hold off;
+grid on;
+title("Number of feedback bits: ", int2str(results(b,1,1)) + " bits");
+xlabel('Transmit Power (dBm)')
+ylabel('AchievableRate (bps/Hz)')
+legend('location', 'best')
+ylim([0, 25])
+
+
+% bits = [1,2,3,4,6];
+bits = 1:10;
 mark = {'o-', '', '', '', '', '', '*-'};
 for p = 1:7
     figure
@@ -49,6 +68,7 @@ for p = 1:7
     xlabel('Number of feedback bits')
     ylabel('AchievableRate (bps/Hz)')
     legend('location', 'best')
-    set (gca, 'Xscale', 'log');
-    set(gca,'XTick', results(bits,1,1));
+    ylim([0, 25])
+%     set (gca, 'Xscale', 'log');
+%     set(gca,'XTick', results(bits,1,1));
 end
