@@ -512,22 +512,22 @@ class AutoQEncoder(nn.Module):
         theta_out, W_out = normalizethetaW(theta_dec, W)
         return theta_out.double(), W_out.cdouble()
 
-# class EncoderQDecoder(nn.Module):
-#     def __init__(self, K_UE, M_AP, N_RIS, Nc_enc, C_code_words, dev):
-#         super(EncoderQDecoder, self).__init__()
-#         self.K_UE = K_UE
-#         self.M_AP = M_AP
-#         self.encoder_layer = EncoderLayer(K_UE, M_AP, N_RIS, Nc_enc).to(dev)
-#         self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
-#         self.decoder_layer = DecoderLayer(N_RIS, Nc_enc).to(dev)
-#     def forward(self, x):
-#         theta_enc, Wr, Wi = self.encoder_layer(x)
-#         theta_qnt = self.quantizer_layer(theta_enc)
-#         theta_dec = self.decoder_layer(theta_qnt)
-#         W = Wr + 1j*Wi
-#         W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
-#         theta_out, W_out = normalizethetaW(theta_dec, W)
-#         return theta_out.double(), W_out.cdouble()
+class AutoQEncoderNoWupdate(nn.Module):
+    def __init__(self, K_UE, M_AP, N_RIS, Nc_enc, C_code_words, dev):
+        super(AutoQEncoderNoWupdate, self).__init__()
+        self.K_UE = K_UE
+        self.M_AP = M_AP
+        self.encoder_layer = EncoderLayer(K_UE, M_AP, N_RIS, Nc_enc).to(dev)
+        self.quantizer_layer = QuantizerLayer(C_code_words, dev).to(dev)
+        self.decoder_layer = DecoderLayer(N_RIS, Nc_enc).to(dev)
+    def forward(self, x):
+        theta_enc, Wr, Wi = self.encoder_layer(x)
+        theta_qnt = self.quantizer_layer(theta_enc)
+        theta_dec = self.decoder_layer(theta_qnt)
+        W = Wr + 1j*Wi
+        W = torch.reshape(W, (-1, self.M_AP, self.K_UE))
+        theta_out, W_out = normalizethetaW(theta_dec, W)
+        return theta_out.double(), W_out.cdouble()
 
 # [1] W. Xu, L. Gan, and C. Huang, “A Robust Deep Learning-Based Beamforming Design for RIS-Assisted Multiuser MISO
 # Communications With Practical Constraints,” IEEE Trans. Cogn. Commun. Netw., vol. 8, no. 2, pp. 694–706, Jun. 2022,
@@ -794,9 +794,9 @@ if __name__ == "__main__":
     else:
         PdBm_dir = '30PdBm'
 
-    # path_dir = "/home/alex96/scratch/"
-    path_dir = "MATLAB/"
-    trial = "04"
+    path_dir = "/home/alex96/scratch/"
+    # path_dir = "MATLAB/"
+    trial = "06"
     dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
     results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
     # if len(sys.argv) > 1:
@@ -841,8 +841,8 @@ if __name__ == "__main__":
 
     # Nc_array = 2**np.array(range(1,8))
     # Nc_array = [8,16,32,64,100,128]
-    Nc_array = [100]
-    # Nc_array = 10 * np.array(range(1,11))
+    # Nc_array = [100]
+    Nc_array = 10 * np.array(range(1,11))
 
     num_dirs = 25 # number of directories to use which includes data samples
 
@@ -942,15 +942,17 @@ if __name__ == "__main__":
     print('Train & Test')
     print('------------')
     R_opt_array = np.zeros(len(Nc_array))
-    R_AQE_array = np.zeros(len(Nc_array))
-    R_ACF_array = np.zeros(len(Nc_array))
-    R_DQNN_array = np.zeros(len(Nc_array))
-    R_linQ_array = np.zeros(len(Nc_array))
+    # R_AQE_array = np.zeros(len(Nc_array))
+    R_AQEnoW_array = np.zeros(len(Nc_array))
+    # R_ACF_array = np.zeros(len(Nc_array))
+    # R_DQNN_array = np.zeros(len(Nc_array))
+    # R_linQ_array = np.zeros(len(Nc_array))
     R_opt_rand_array = np.zeros(len(Nc_array))
-    R_AQE_rand_array = np.zeros(len(Nc_array))
-    R_ACF_rand_array = np.zeros(len(Nc_array))
-    R_DQNN_rand_array = np.zeros(len(Nc_array))
-    R_linQ_rand_array = np.zeros(len(Nc_array))
+    # R_AQE_rand_array = np.zeros(len(Nc_array))
+    R_AQEnoW_rand_array = np.zeros(len(Nc_array))
+    # R_ACF_rand_array = np.zeros(len(Nc_array))
+    # R_DQNN_rand_array = np.zeros(len(Nc_array))
+    # R_linQ_rand_array = np.zeros(len(Nc_array))
     trainparamslist = []
     for i in range(len(Nc_array)):
         trainparams['Nc_enc'] = Nc_array[i]
@@ -962,95 +964,111 @@ if __name__ == "__main__":
         test_loader = DataLoader(test_set, batch_size=trainparams['batch_size'])
         val_loader = DataLoader(val_set, batch_size=trainparams['batch_size'])
 
-        AQEnet = AutoQEncoder(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
-        ACFnet = ACFNet(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
-        if trainparams['Nc_enc'] == trainparams['N_RIS']:
-            dqnn = DQNN(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['C_code_words'], device)
-        linQ = LinearQuantizer(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
+        # AQEnet = AutoQEncoder(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
+        AQEnoWnet = AutoQEncoderNoWupdate(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
+        # ACFnet = ACFNet(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
+        # if trainparams['Nc_enc'] == trainparams['N_RIS']:
+        #     dqnn = DQNN(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['C_code_words'], device)
+        # linQ = LinearQuantizer(trainparams['K_UE'], trainparams['M_AP'], trainparams['N_RIS'], trainparams['Nc_enc'], trainparams['C_code_words'], device)
 
-        AQEtrainer = Trainer(train_loader, trainparams, AQEnet, device)
-        total_params = sum(p.numel() for p in AQEtrainer.model.parameters())
-        print('AQE Number of parameters:', total_params, flush=True)
-        print(AQEtrainer.model, flush=True)
+        # AQEtrainer = Trainer(train_loader, trainparams, AQEnet, device)
+        # total_params = sum(p.numel() for p in AQEtrainer.model.parameters())
+        # print('AQE Number of parameters:', total_params, flush=True)
+        # print(AQEtrainer.model, flush=True)
 
-        ACFtrainer = Trainer(train_loader, trainparams, ACFnet, device)
-        total_params = sum(p.numel() for p in ACFtrainer.model.parameters())
-        print('ACF Number of parameters:', total_params, flush=True)
-        print(ACFtrainer.model, flush=True)
+        AQEnoWtrainer = Trainer(train_loader, trainparams, AQEnoWnet, device)
+        total_params = sum(p.numel() for p in AQEnoWtrainer.model.parameters())
+        print('AQEnoW Number of parameters:', total_params, flush=True)
+        print(AQEnoWtrainer.model, flush=True)
 
-        if trainparams['Nc_enc'] == trainparams['N_RIS']:
-            dqnntrainer = Trainer(train_loader, trainparams, dqnn, device)
-            total_params = sum(p.numel() for p in dqnntrainer.model.parameters())
-            print('DQNN Number of parameters:', total_params, flush=True)
-            print(dqnntrainer.model, flush=True)
+        # ACFtrainer = Trainer(train_loader, trainparams, ACFnet, device)
+        # total_params = sum(p.numel() for p in ACFtrainer.model.parameters())
+        # print('ACF Number of parameters:', total_params, flush=True)
+        # print(ACFtrainer.model, flush=True)
 
-        linQtrainer = Trainer(train_loader, trainparams, linQ, device)
-        total_params = sum(p.numel() for p in linQtrainer.model.parameters())
-        print('linQ Number of parameters:', total_params, flush=True)
-        print(linQtrainer.model, flush=True)
+        # if trainparams['Nc_enc'] == trainparams['N_RIS']:
+        #     dqnntrainer = Trainer(train_loader, trainparams, dqnn, device)
+        #     total_params = sum(p.numel() for p in dqnntrainer.model.parameters())
+        #     print('DQNN Number of parameters:', total_params, flush=True)
+        #     print(dqnntrainer.model, flush=True)
 
-        AQEnet,     AQEnet_train_losses,    AQEnet_val_losses,  AQEnet_num_epochs   = AQEtrainer.train(val_loader, trainparams)
-        ACFnet,     ACFnet_train_losses,    ACFnet_val_losses,  ACFnet_num_epochs   = ACFtrainer.train(val_loader, trainparams)
-        if trainparams['Nc_enc'] == trainparams['N_RIS']:
-            dqnn,       DQNNnet_train_losses,   DQNNnet_val_losses, DQNNnet_num_epochs  = dqnntrainer.train(val_loader, trainparams)
-        linQ,       linQ_train_losses,      linQ_val_losses,    linQ_num_epochs     = linQtrainer.train(val_loader, trainparams)
+        # linQtrainer = Trainer(train_loader, trainparams, linQ, device)
+        # total_params = sum(p.numel() for p in linQtrainer.model.parameters())
+        # print('linQ Number of parameters:', total_params, flush=True)
+        # print(linQtrainer.model, flush=True)
 
-        d_AQE = {"train": AQEnet_train_losses, "val": AQEnet_val_losses}
-        AQE_loss_df = pandas.DataFrame(d_AQE)
-        d_ACF = {"train": ACFnet_train_losses, "val": ACFnet_val_losses}
-        ACF_loss_df = pandas.DataFrame(d_ACF)
-        if trainparams['Nc_enc'] == trainparams['N_RIS']:
-            d_DQNN = {"train": DQNNnet_train_losses, "val": DQNNnet_val_losses}
-            DQNN_loss_df = pandas.DataFrame(d_DQNN)
-        d_linQ = {"train": linQ_train_losses, "val": linQ_val_losses}
-        linQ_loss_df = pandas.DataFrame(d_linQ)
+        # AQEnet,     AQEnet_train_losses,    AQEnet_val_losses,  AQEnet_num_epochs   = AQEtrainer.train(val_loader, trainparams)
+        AQEnoWnet,     AQEnoWnet_train_losses,    AQEnoWnet_val_losses,  AQEnoWnet_num_epochs   = AQEnoWtrainer.train(val_loader, trainparams)
+        # ACFnet,     ACFnet_train_losses,    ACFnet_val_losses,  ACFnet_num_epochs   = ACFtrainer.train(val_loader, trainparams)
+        # if trainparams['Nc_enc'] == trainparams['N_RIS']:
+        #     dqnn,       DQNNnet_train_losses,   DQNNnet_val_losses, DQNNnet_num_epochs  = dqnntrainer.train(val_loader, trainparams)
+        # linQ,       linQ_train_losses,      linQ_val_losses,    linQ_num_epochs     = linQtrainer.train(val_loader, trainparams)
+
+        # d_AQE = {"train": AQEnet_train_losses, "val": AQEnet_val_losses}
+        # AQE_loss_df = pandas.DataFrame(d_AQE)
+        d_AQEnoW = {"train": AQEnoWnet_train_losses, "val": AQEnoWnet_val_losses}
+        AQEnoW_loss_df = pandas.DataFrame(d_AQEnoW)
+        # d_ACF = {"train": ACFnet_train_losses, "val": ACFnet_val_losses}
+        # ACF_loss_df = pandas.DataFrame(d_ACF)
+        # if trainparams['Nc_enc'] == trainparams['N_RIS']:
+        #     d_DQNN = {"train": DQNNnet_train_losses, "val": DQNNnet_val_losses}
+        #     DQNN_loss_df = pandas.DataFrame(d_DQNN)
+        # d_linQ = {"train": linQ_train_losses, "val": linQ_val_losses}
+        # linQ_loss_df = pandas.DataFrame(d_linQ)
 
         loss_file = "loss" + str(i) + ".csv"
-        print("Saving losses to:", results_dir + "AQE_" + loss_file, flush=True)
-        AQE_loss_df.to_csv(results_dir + "AQE_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
-        print("Saving losses to:", results_dir + "ACF_" + loss_file, flush=True)
-        ACF_loss_df.to_csv(results_dir + "ACF_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
-        if trainparams['Nc_enc'] == trainparams['N_RIS']:
-            print("Saving losses to:", results_dir + "DQNN_" + loss_file, flush=True)
-            DQNN_loss_df.to_csv(results_dir + "DQNN_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
-        print("Saving losses to:", results_dir + "linQ_" + loss_file, flush=True)
-        linQ_loss_df.to_csv(results_dir + "linQ_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+        # print("Saving losses to:", results_dir + "AQE_" + loss_file, flush=True)
+        # AQE_loss_df.to_csv(results_dir + "AQE_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+        print("Saving losses to:", results_dir + "AQEnoW_" + loss_file, flush=True)
+        AQEnoW_loss_df.to_csv(results_dir + "AQEnoW_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+        # print("Saving losses to:", results_dir + "ACF_" + loss_file, flush=True)
+        # ACF_loss_df.to_csv(results_dir + "ACF_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+        # if trainparams['Nc_enc'] == trainparams['N_RIS']:
+        #     print("Saving losses to:", results_dir + "DQNN_" + loss_file, flush=True)
+        #     DQNN_loss_df.to_csv(results_dir + "DQNN_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
+        # print("Saving losses to:", results_dir + "linQ_" + loss_file, flush=True)
+        # linQ_loss_df.to_csv(results_dir + "linQ_" + loss_file, sep='\t', encoding='utf-8', index=False, header=True)
 
-        R_opt, R_opt_rand, R_AQE, R_AQE_rand = AQEtrainer.evaluate(test_loader, trainparams)
-        R_opt, R_opt_rand, R_ACF, R_ACF_rand = ACFtrainer.evaluate(test_loader, trainparams)
-        if trainparams['Nc_enc'] == trainparams['N_RIS']:
-            R_opt, R_opt_rand, R_DQNN, R_DQNN_rand = dqnntrainer.evaluate(test_loader, trainparams)
-        R_opt, R_opt_rand, R_linQ, R_linQ_rand = linQtrainer.evaluate(test_loader, trainparams)
+        # R_opt, R_opt_rand, R_AQE, R_AQE_rand = AQEtrainer.evaluate(test_loader, trainparams)
+        R_opt, R_opt_rand, R_AQEnoW, R_AQEnoW_rand = AQEnoWtrainer.evaluate(test_loader, trainparams)
+        # R_opt, R_opt_rand, R_ACF, R_ACF_rand = ACFtrainer.evaluate(test_loader, trainparams)
+        # if trainparams['Nc_enc'] == trainparams['N_RIS']:
+        #     R_opt, R_opt_rand, R_DQNN, R_DQNN_rand = dqnntrainer.evaluate(test_loader, trainparams)
+        # R_opt, R_opt_rand, R_linQ, R_linQ_rand = linQtrainer.evaluate(test_loader, trainparams)
 
         print("-------------------------------------------------------------------------------------------------------")
         print("Training Model parameters:", flush=True)
         pprint.pprint(trainparams)
         print('Achievable Rate (bps/Hz) using RIS phase shifts with Transmit power SNR {:.2f} dB:'.format(trainparams['snr_dB']), flush=True)
         print('optimum:   ', R_opt, flush=True)
-        print('AQE net:   ', R_AQE, flush=True)
-        print('ACF net:   ', R_ACF, flush=True)
-        if trainparams['Nc_enc'] == trainparams['N_RIS']:
-            print('DQNN net:  ', R_DQNN, flush=True)
-        print('linQ net:  ', R_linQ, flush=True)
-        print('opt rand:  ', R_opt_rand, flush=True)
-        print('AQE rand:  ', R_AQE_rand, flush=True)
-        print('ACF rand:  ', R_ACF_rand, flush=True)
-        if trainparams['Nc_enc'] == trainparams['N_RIS']:
-            print('DQNN rand: ', R_DQNN_rand, flush=True)
-        print('linQ rand: ', R_linQ_rand, flush=True)
+        # print('AQE net:   ', R_AQE, flush=True)
+        print('AQEnoW net:   ', R_AQEnoW, flush=True)
+        # print('ACF net:   ', R_ACF, flush=True)
+        # if trainparams['Nc_enc'] == trainparams['N_RIS']:
+        #     print('DQNN net:  ', R_DQNN, flush=True)
+        # print('linQ net:  ', R_linQ, flush=True)
+        # print('opt rand:  ', R_opt_rand, flush=True)
+        # print('AQE rand:  ', R_AQE_rand, flush=True)
+        print('AQEnoW rand:  ', R_AQEnoW_rand, flush=True)
+        # print('ACF rand:  ', R_ACF_rand, flush=True)
+        # if trainparams['Nc_enc'] == trainparams['N_RIS']:
+        #     print('DQNN rand: ', R_DQNN_rand, flush=True)
+        # print('linQ rand: ', R_linQ_rand, flush=True)
         print("-------------------------------------------------------------------------------------------------------\n\n")
         R_opt_array[i] = R_opt
-        R_AQE_array[i] = R_AQE
-        R_ACF_array[i] = R_ACF
-        if trainparams['Nc_enc'] == trainparams['N_RIS']:
-            R_DQNN_array[i] = R_DQNN
-        R_linQ_array[i] = R_linQ
+        # R_AQE_array[i] = R_AQE
+        R_AQEnoW_array[i] = R_AQEnoW
+        # R_ACF_array[i] = R_ACF
+        # if trainparams['Nc_enc'] == trainparams['N_RIS']:
+        #     R_DQNN_array[i] = R_DQNN
+        # R_linQ_array[i] = R_linQ
         R_opt_rand_array[i] = R_opt_rand
-        R_AQE_rand_array[i] = R_AQE_rand
-        R_ACF_rand_array[i] = R_ACF_rand
-        if trainparams['Nc_enc'] == trainparams['N_RIS']:
-            R_DQNN_rand_array[i] = R_DQNN_rand
-        R_linQ_rand_array[i] = R_linQ_rand
+        # R_AQE_rand_array[i] = R_AQE_rand
+        R_AQEnoW_rand_array[i] = R_AQEnoW_rand
+        # R_ACF_rand_array[i] = R_ACF_rand
+        # if trainparams['Nc_enc'] == trainparams['N_RIS']:
+        #     R_DQNN_rand_array[i] = R_DQNN_rand
+        # R_linQ_rand_array[i] = R_linQ_rand
 
         # x_vals, soft_quant, hard_quant = linQ.quantizer_layer.plot_vals()
         # fig, ax = plt.subplots()
@@ -1068,17 +1086,24 @@ if __name__ == "__main__":
     print('Saving parameters to:', results_dir + trainparams_file)
     trainparams_df.to_csv(results_dir + trainparams_file, sep='\t', encoding='utf-8', index=False, header=True)
 
+    # d = {'Nc': Nc_array,
+    #      'R_opt': R_opt_array,
+    #      'R_AQE': R_AQE_array,
+    #      'R_AQEnoW': R_AQEnoW_array,
+    #      'R_ACF': R_ACF_array,
+    #      'R_DQNN': R_DQNN_array,
+    #      'R_linQ': R_linQ_array,
+    #      'R_opt_rand': R_opt_rand_array,
+    #      'R_AQE_rand': R_AQE_rand_array,
+    #      'R_AQEnoW_rand': R_AQEnoW_rand_array,
+    #      'R_ACF_rand': R_ACF_rand_array,
+    #      'R_DQNN_rand': R_DQNN_rand_array,
+    #      'R_linQ_rand': R_linQ_rand_array}
     d = {'Nc': Nc_array,
          'R_opt': R_opt_array,
-         'R_AQE': R_AQE_array,
-         'R_ACF': R_ACF_array,
-         'R_DQNN': R_DQNN_array,
-         'R_linQ': R_linQ_array,
+         'R_AQEnoW': R_AQEnoW_array,
          'R_opt_rand': R_opt_rand_array,
-         'R_AQE_rand': R_AQE_rand_array,
-         'R_ACF_rand': R_ACF_rand_array,
-         'R_DQNN_rand': R_DQNN_rand_array,
-         'R_linQ_rand': R_linQ_rand_array}
+         'R_AQEnoW_rand': R_AQEnoW_rand_array}
     results_df = pandas.DataFrame(d)
     print('Bits per Quantizer:', trainparams['Q_bits'], flush=True)
     print(results_df.to_string(), flush=True)
