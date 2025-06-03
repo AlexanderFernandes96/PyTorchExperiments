@@ -13,21 +13,26 @@
 % indigo = [75,0,130]./255;
 % red = [255, 0, 0]./255;
 
-% https://colorbrewer2.org/#type=qualitative&scheme=Accent&n=5
-red =  [228,26,28]./255;
-blue = [55,126,184]./255;
-green = [77,175,74]./255;
-purple = [152,78,163]./255;
-orange =   [255,127,0]./255;
+% https://colorbrewer2.org/#type=qualitative&scheme=Paired&n=6
+colour_list = {...
+    [27,158,119]./255, ...
+    [217,95,2]./255, ...
+    [117,112,179]./255, ...
+    [231,41,138]./255, ...
+    [102,166,30]./255, ...
+    [230,171,2]./255 ...
+};
 
-colour_list = {red, blue, green, purple, orange};
-marker_list = {'o', 's', 'd', '^', 'v', 'x', '+', '*', '<', '>'};
+linewidth = 1.5;
+
+marker_list = {'o', '*', 'v', 'p', 's', '+'};
 
 dir = "MU-MISO_AchievableRateExperiments/";
 results = zeros(6,11,7);
-trial = "04modified";
+trial = "plot";
 opts = detectImportOptions(dir + trial + "/10PdBm/results.csv");
-NetNames = strrep(strrep(opts.VariableNames, 'R_', ''),'_',' ');
+% NetNames = strrep(strrep(opts.VariableNames, 'R_', ''),'_',' ');
+NetNames = {'Nc','opt','AQE-WMMSE','AQE','ACFNet','DQNN','linQ','opt rand','AQE-WMMSE rand','AQE rand','ACFNet rand','DQNN rand','linQ rand'};
 results_10PdBm = readmatrix(dir + trial + "/10PdBm/results.csv");
 results_15PdBm = readmatrix(dir + trial + "/15PdBm/results.csv");
 results_20PdBm = readmatrix(dir + trial + "/20PdBm/results.csv");
@@ -47,17 +52,18 @@ b = 10;
 c = 1;
 m = 1;
 figure(1);
-for net = 2:6
+for net = 2:7
     plot(PdBm, squeeze(results(b,net,:)), '-', 'Color', colour_list{c}, ...
-        'Marker', marker_list{m}, 'DisplayName', NetNames{net})
+        'Marker', marker_list{m}, 'DisplayName', NetNames{net}, 'LineWidth', linewidth)
     c = c+1;
     m = m+1;
     hold on;
 end
 c = 1;
-for net = 7:11
+m = 1;
+for net = 8:13
     plot(PdBm, squeeze(results(b,net,:)), '--', 'Color', colour_list{c}, ...
-        'Marker', marker_list{m}, 'DisplayName', NetNames{net})
+        'Marker', marker_list{m}, 'DisplayName', NetNames{net}, 'LineWidth', linewidth)
     c = c+1;
     m = m+1;
 end
@@ -65,27 +71,30 @@ hold off;
 grid on;
 % title("Number of feedback bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
-ylabel('AchievableRate (bps/Hz)')
+ylabel('Achievable Rate (bps/Hz)')
 legend('NumColumns', 2, 'location', 'best')
 ylim([0, 25])
 
-b = 9;
-m = 1;
+b = 4;
+m = 2;
 figure(2);
-c = 1;
-for net = [3,4,6]
+c = 2;
+for net = [3,4,5,7]
     plot(PdBm, squeeze(results(b,net,:)), 'o-', 'Color', colour_list{c}, ...
-        'Marker', marker_list{m}, 'DisplayName', strcat(NetNames{net}, " (", int2str(results(b,1,1)), " bits)"))
+        'Marker', marker_list{m}, 'LineWidth', linewidth, ...
+        'DisplayName', strcat(NetNames{net}, " (", int2str(results(b,1,1)), " bits)"))
     c = c+1;
     m = m+1;
     hold on;
 end
-plot(PdBm, squeeze(results(b,2,:)), 'k+-', 'DisplayName', strcat(NetNames{2}))
+plot(PdBm, squeeze(results(b,2,:)), '+-', 'Color', colour_list{1}, 'Marker', marker_list{1}, 'DisplayName', strcat(NetNames{2}), 'LineWidth', linewidth)
 b = 1;
-c = 1;
-for net = [3,4,6]
+c = 2;
+m = 2;
+for net = [3,4,5,7]
     plot(PdBm, squeeze(results(b,net,:)), '*--', 'Color', colour_list{c}, ...
-        'Marker', marker_list{m}, 'DisplayName', strcat(NetNames{net}, " (", int2str(results(b,1,1)), " bits)"))
+        'Marker', marker_list{m}, 'LineWidth', linewidth, ...
+        'DisplayName', strcat(NetNames{net}, " (", int2str(results(b,1,1)), " bits)"))
     c = c+1;
     m = m+1;
 end
@@ -93,29 +102,32 @@ hold off;
 grid on;
 % title("Number of feedback bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
-ylabel('AchievableRate (bps/Hz)')
-legend('NumColumns', 2, 'location', 'best')
+ylabel('Achievable Rate (bps/Hz)')
+legend('NumColumns', 2, 'location', 'northwest')
 ylim([0, 25])
 
 
 bits = 1:10;
 mark = {'o-', '', '', '', '', '', '*-'};
 figure(3);
-p = 6;
+p = 7;
 c = 1;
 m = 1;
-for net = [2, 3, 4, 6]
+for net = [2,3,4,5,7]
     plot(results(bits,1,1), squeeze(results(bits,net,p)), 'o-', 'Color', colour_list{c}, ...
-        'Marker', marker_list{m}, 'DisplayName', strcat(NetNames{net}, " (", int2str(PdBm(p)), " dBm)"))
+        'Marker', marker_list{m}, 'LineWidth', linewidth, ...
+        'DisplayName', strcat(NetNames{net}, " (", int2str(PdBm(p)), " dBm)"))
     c = c+1;
     m = m+1;
     hold on;
 end
 p = 2;
 c = 1;
-for net = [2, 3, 4, 6]
+m = 1;
+for net = [2,3,4,5,7]
     plot(results(bits,1,1), squeeze(results(bits,net,p)), '*--', 'Color', colour_list{c}, ...
-        'Marker', marker_list{m}, 'DisplayName', strcat(NetNames{net}, " (", int2str(PdBm(p)), " dBm)"))
+        'Marker', marker_list{m}, 'LineWidth', linewidth, ...
+        'DisplayName', strcat(NetNames{net}, " (", int2str(PdBm(p)), " dBm)"))
     c = c+1;
     m = m+1;
     hold on;
@@ -124,7 +136,7 @@ hold off;
 set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
 % title("Transmit Power: ", int2str(PdBm(p)) + " (dBm)");
 xlabel('Number of feedback bits')
-ylabel('AchievableRate (bps/Hz)')
+ylabel('Achievable Rate (bps/Hz)')
 legend('NumColumns', 2, 'location', 'best')
 % legend('location', 'eastoutside')
 ylim([0, 25])
