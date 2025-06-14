@@ -2,7 +2,7 @@
 % This script is a scratch pad to plot data from MU-MISO_AchievableRate/
 % clear all; close all; delete(gcp('nocreate')); clc;
 
-%% Plot parameters
+%% Figure 1-3, Load Data and Plot parameters
 % Colours
 % green = [27,158,119]./255;
 % orange = [217,95,2]./255;
@@ -25,7 +25,7 @@ colour_list = {...
 
 linewidth = 1.5;
 
-marker_list = {'o', '*', 'v', 'p', 's', '+'};
+marker_list = {'p', '^', 'v', 'o', 's', '+'};
 
 dir = "MU-MISO_AchievableRateExperiments/";
 results = zeros(6,11,7);
@@ -47,12 +47,14 @@ results = cat(3,results_10PdBm, results_15PdBm, results_20PdBm, ...
 
 PdBm = [10, 15, 20, 25, 30, 35, 40];
 sz = size(results);
+ftsz = 15;
 
+%% Figure 1 - Rate vs Tx, 100 feedback bits
 b = 10;
 c = 1;
 m = 1;
 figure(1);
-for net = 2:7
+for net = [2,3,4,5,7,6]
     plot(PdBm, squeeze(results(b,net,:)), '-', 'Color', colour_list{c}, ...
         'Marker', marker_list{m}, 'DisplayName', NetNames{net}, 'LineWidth', linewidth)
     c = c+1;
@@ -61,7 +63,7 @@ for net = 2:7
 end
 c = 1;
 m = 1;
-for net = 8:13
+for net = [8,9,10,11,13,12]
     plot(PdBm, squeeze(results(b,net,:)), '--', 'Color', colour_list{c}, ...
         'Marker', marker_list{m}, 'DisplayName', NetNames{net}, 'LineWidth', linewidth)
     c = c+1;
@@ -74,39 +76,45 @@ xlabel('Transmit Power (dBm)')
 ylabel('Achievable Rate (bps/Hz)')
 legend('NumColumns', 2, 'location', 'best')
 ylim([0, 25])
+fontsize(gca,ftsz,"pixels")
 
-b = 4;
+%% Figure 2 - Rate vs Tx, 10 & 40 feedback bits
+b1 = 4; b2 = 1;
 m = 2;
 figure(2);
 c = 2;
+plot(PdBm, squeeze(results(b1,2,:)), '+-', 'Color', colour_list{1}, 'Marker', marker_list{1}, 'DisplayName', strcat(NetNames{2}), 'LineWidth', linewidth)
+hold on;
 for net = [3,4,5,7]
-    plot(PdBm, squeeze(results(b,net,:)), 'o-', 'Color', colour_list{c}, ...
+    plot(PdBm, squeeze(results(b1,net,:)), 'o-', 'Color', colour_list{c}, ...
         'Marker', marker_list{m}, 'LineWidth', linewidth, ...
-        'DisplayName', strcat(NetNames{net}, " (", int2str(results(b,1,1)), " bits)"))
-    c = c+1;
-    m = m+1;
-    hold on;
-end
-plot(PdBm, squeeze(results(b,2,:)), '+-', 'Color', colour_list{1}, 'Marker', marker_list{1}, 'DisplayName', strcat(NetNames{2}), 'LineWidth', linewidth)
-b = 1;
-c = 2;
-m = 2;
-for net = [3,4,5,7]
-    plot(PdBm, squeeze(results(b,net,:)), '*--', 'Color', colour_list{c}, ...
+        'DisplayName', strcat(NetNames{net}, " (", int2str(results(b1,1,1)), " bits)"))
+    plot(PdBm, squeeze(results(b2,net,:)), '*--', 'Color', colour_list{c}, ...
         'Marker', marker_list{m}, 'LineWidth', linewidth, ...
-        'DisplayName', strcat(NetNames{net}, " (", int2str(results(b,1,1)), " bits)"))
+        'DisplayName', strcat(NetNames{net}, " (", int2str(results(b2,1,1)), " bits)"))
     c = c+1;
     m = m+1;
 end
+% b2 = 1;
+% c = 2;
+% m = 2;
+% for net = [3,4,5,7]
+%     plot(PdBm, squeeze(results(b,net,:)), '*--', 'Color', colour_list{c}, ...
+%         'Marker', marker_list{m}, 'LineWidth', linewidth, ...
+%         'DisplayName', strcat(NetNames{net}, " (", int2str(results(b,1,1)), " bits)"))
+%     c = c+1;
+%     m = m+1;
+% end
 hold off;
 grid on;
 % title("Number of feedback bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
 ylabel('Achievable Rate (bps/Hz)')
-legend('NumColumns', 2, 'location', 'northwest')
+legend('NumColumns', 1, 'location', 'northwest')
 ylim([0, 25])
+fontsize(gca,ftsz,"pixels")
 
-
+%% Figure 3 - Rate vs Bits, 40 & 15 Tx dBm
 bits = 1:10;
 mark = {'o-', '', '', '', '', '', '*-'};
 figure(3);
@@ -121,7 +129,7 @@ for net = [2,3,4,5,7]
     m = m+1;
     hold on;
 end
-p = 2;
+p = 3;
 c = 1;
 m = 1;
 for net = [2,3,4,5,7]
@@ -142,25 +150,59 @@ legend('NumColumns', 2, 'location', 'best')
 ylim([0, 25])
 % set (gca, 'Xscale', 'log');
 % set(gca,'XTick', results(bits,1,1));
+fontsize(gca,ftsz,"pixels")
+
+%% Figure 4 - Train/Val Loss Setup 1
+% linewidth = 2;
+ftsz = 20;
+linewidth = 3;
+figure(4);
+loss = '3'; % 40 bits
+AQEWMMSE_loss = readmatrix(dir + trial + "/40PdBm/AQE_loss" + loss + ".csv");
+AQE_loss = readmatrix(dir + trial + "/06/40PdBm/AQEnoW_loss" + loss + ".csv");
+ACF_loss = readmatrix(dir + trial + "/40PdBm/ACF_loss" + loss + ".csv");
+linQ_loss = readmatrix(dir + trial + "/40PdBm/linQ_loss" + loss + ".csv");
+
+plot(64000*AQEWMMSE_loss(:,1), '-', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE train', 'LineWidth', linewidth)
+hold on;
+plot(16000*AQEWMMSE_loss(:,2), '--', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE val', 'LineWidth', linewidth)
+plot(64000*AQE_loss(:,1), '-', 'Color', colour_list{3}, 'DisplayName', 'AQE train', 'LineWidth', linewidth)
+plot(16000*AQE_loss(:,2), '--', 'Color', colour_list{3}, 'DisplayName', 'AQE val', 'LineWidth', linewidth)
+plot(64000*ACF_loss(:,1), '-', 'Color', colour_list{4}, 'DisplayName', 'ACF train', 'LineWidth', linewidth)
+plot(16000*ACF_loss(:,2), '--', 'Color', colour_list{4}, 'DisplayName', 'ACF val', 'LineWidth', linewidth)
+plot(64000*linQ_loss(:,1), '-', 'Color', colour_list{5}, 'DisplayName', 'linQ train', 'LineWidth', linewidth)
+plot(16000*linQ_loss(:,2), '--', 'Color', colour_list{5}, 'DisplayName', 'linQ val', 'LineWidth', linewidth)
+hold off;
+
+xlabel('Epoch')
+ylabel('Loss')
+legend('NumColumns', 2, 'location', 'best')
+ylim([-2700, -900])
+fontsize(gca,ftsz,"pixels")
 
 
-% % bits = [1,2,3,4,6];
-% bits = 1:10;
-% mark = {'o-', '', '', '', '', '', '*-'};
-% for p = 1:7
-%     figure
-%     for net = [2, 3, 4, 6, 7]
-%             plot(results(bits,1,1), squeeze(results(bits,net,p)), 'o-', 'DisplayName', NetNames{net})
-%             hold on;
-%     end
-%     hold off;
-%     set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
-%     title("Transmit Power: ", int2str(PdBm(p)) + " (dBm)");
-%     xlabel('Number of feedback bits')
-%     ylabel('AchievableRate (bps/Hz)')
-%     legend('location', 'best')
-%     ylim([0, 25])
-% %     set (gca, 'Xscale', 'log');
-% %     set(gca,'XTick', results(bits,1,1));
-% end
-% bits = [1,2,3,4,6];
+%% Figure 5 - Train/Val Loss Setup 2
+% linewidth = 2;
+figure(5);
+loss = '3'; % 40 bits
+AQEWMMSE_loss = readmatrix(dir + trial + "/20PdBm/AQE_loss" + loss + ".csv");
+AQE_loss = readmatrix(dir + trial + "/06/20PdBm/AQEnoW_loss" + loss + ".csv");
+ACF_loss = readmatrix(dir + trial + "/20PdBm/ACF_loss" + loss + ".csv");
+linQ_loss = readmatrix(dir + trial + "/20PdBm/linQ_loss" + loss + ".csv");
+
+plot(64000*AQEWMMSE_loss(:,1), '-', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE train', 'LineWidth', linewidth)
+hold on;
+plot(16000*AQEWMMSE_loss(:,2), '--', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE val', 'LineWidth', linewidth)
+plot(64000*AQE_loss(:,1), '-', 'Color', colour_list{3}, 'DisplayName', 'AQE train', 'LineWidth', linewidth)
+plot(16000*AQE_loss(:,2), '--', 'Color', colour_list{3}, 'DisplayName', 'AQE val', 'LineWidth', linewidth)
+plot(64000*ACF_loss(:,1), '-', 'Color', colour_list{4}, 'DisplayName', 'ACF train', 'LineWidth', linewidth)
+plot(16000*ACF_loss(:,2), '--', 'Color', colour_list{4}, 'DisplayName', 'ACF val', 'LineWidth', linewidth)
+plot(64000*linQ_loss(:,1), '-', 'Color', colour_list{5}, 'DisplayName', 'linQ train', 'LineWidth', linewidth)
+plot(16000*linQ_loss(:,2), '--', 'Color', colour_list{5}, 'DisplayName', 'linQ val', 'LineWidth', linewidth)
+hold off;
+
+xlabel('Epoch')
+ylabel('Loss')
+legend('NumColumns', 2, 'location', 'best')
+% ylim([-2700, -900])
+fontsize(gca,ftsz,"pixels")
