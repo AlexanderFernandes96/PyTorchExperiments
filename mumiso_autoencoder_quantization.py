@@ -701,7 +701,7 @@ class Trainer(object):
                     self.optimizer.step()                                   # single optimization step to update variables
                     # self.scheduler.step()                                 # One Cycle LR adjust learning rate each step
                     train_loss += loss.item()                               # update training loss
-                    train_loss /= len(self.train_loader.dataset)            # normalize training loss
+                    # train_loss /= len(self.train_loader.dataset)            # normalize training loss
 
 
             # Validate the model
@@ -718,7 +718,7 @@ class Trainer(object):
                     theta_out, W_out = self.model(input)                # forward pass inputs into AQE network
                     loss = Loss(theta_out, W_out, Hau, Har, Hru)        # calculate batch loss
                     val_loss += loss.item()                             # update validation loss
-                    val_loss /= len(val_loader.dataset)                 # normalize validation loss
+                    # val_loss /= len(val_loader.dataset)                 # normalize validation loss
 
                 before_lr = self.optimizer.param_groups[0]['lr']
                 self.scheduler.step(val_loss)                           # decay learning rate
