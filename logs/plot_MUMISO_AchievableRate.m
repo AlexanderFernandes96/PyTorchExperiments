@@ -118,7 +118,7 @@ fontsize(gca,ftsz,"pixels")
 bits = 1:10;
 mark = {'o-', '', '', '', '', '', '*-'};
 figure(3);
-p = 7;
+p = 6;
 c = 1;
 m = 1;
 for net = [2,3,4,5,7]
@@ -129,7 +129,7 @@ for net = [2,3,4,5,7]
     m = m+1;
     hold on;
 end
-p = 3;
+p = 2;
 c = 1;
 m = 1;
 for net = [2,3,4,5,7]
@@ -158,26 +158,32 @@ ftsz = 20;
 linewidth = 3;
 figure(4);
 loss = '3'; % 40 bits
-AQEWMMSE_loss = readmatrix(dir + trial + "/40PdBm/AQE_loss" + loss + ".csv");
-AQE_loss = readmatrix(dir + trial + "/06/40PdBm/AQEnoW_loss" + loss + ".csv");
-ACF_loss = readmatrix(dir + trial + "/40PdBm/ACF_loss" + loss + ".csv");
-linQ_loss = readmatrix(dir + trial + "/40PdBm/linQ_loss" + loss + ".csv");
+AQEWMMSE_loss = readmatrix(dir + trial + "/35PdBm/AQE_loss" + loss + ".csv");
+% AQE_loss = readmatrix(dir + trial + "/06/40PdBm/AQEnoW_loss" + loss + ".csv");
+AQE_loss = readmatrix(dir + trial + "/35PdBm/AQEnoW_loss" + loss + ".csv");
+ACF_loss = readmatrix(dir + trial + "/35PdBm/ACF_loss" + loss + ".csv");
+linQ_loss = readmatrix(dir + trial + "/35PdBm/linQ_loss" + loss + ".csv");
 
-plot(64000*AQEWMMSE_loss(:,1), '-', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE train', 'LineWidth', linewidth)
+train_num = 64000;
+val_num = 16000;
+% train_num = 1;
+% val_num = 1;
+
+plot(train_num*AQEWMMSE_loss(:,1), '-', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE train', 'LineWidth', linewidth)
 hold on;
-plot(16000*AQEWMMSE_loss(:,2), '--', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE val', 'LineWidth', linewidth)
-plot(64000*AQE_loss(:,1), '-', 'Color', colour_list{3}, 'DisplayName', 'AQE train', 'LineWidth', linewidth)
-plot(16000*AQE_loss(:,2), '--', 'Color', colour_list{3}, 'DisplayName', 'AQE val', 'LineWidth', linewidth)
-plot(64000*ACF_loss(:,1), '-', 'Color', colour_list{4}, 'DisplayName', 'ACF train', 'LineWidth', linewidth)
-plot(16000*ACF_loss(:,2), '--', 'Color', colour_list{4}, 'DisplayName', 'ACF val', 'LineWidth', linewidth)
-plot(64000*linQ_loss(:,1), '-', 'Color', colour_list{5}, 'DisplayName', 'linQ train', 'LineWidth', linewidth)
-plot(16000*linQ_loss(:,2), '--', 'Color', colour_list{5}, 'DisplayName', 'linQ val', 'LineWidth', linewidth)
+plot(val_num*AQEWMMSE_loss(:,2), '--', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE val', 'LineWidth', linewidth)
+plot(train_num*AQE_loss(:,1), '-', 'Color', colour_list{3}, 'DisplayName', 'AQE train', 'LineWidth', linewidth)
+plot(val_num*AQE_loss(:,2), '--', 'Color', colour_list{3}, 'DisplayName', 'AQE val', 'LineWidth', linewidth)
+plot(train_num*ACF_loss(:,1), '-', 'Color', colour_list{4}, 'DisplayName', 'ACF train', 'LineWidth', linewidth)
+plot(val_num*ACF_loss(:,2), '--', 'Color', colour_list{4}, 'DisplayName', 'ACF val', 'LineWidth', linewidth)
+plot(train_num*linQ_loss(:,1), '-', 'Color', colour_list{5}, 'DisplayName', 'linQ train', 'LineWidth', linewidth)
+plot(val_num*linQ_loss(:,2), '--', 'Color', colour_list{5}, 'DisplayName', 'linQ val', 'LineWidth', linewidth)
 hold off;
 
 xlabel('Epoch')
 ylabel('Loss')
 legend('NumColumns', 2, 'location', 'best')
-ylim([-2700, -900])
+% ylim([-2700, -900])
 fontsize(gca,ftsz,"pixels")
 set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
 
@@ -186,20 +192,21 @@ set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
 % linewidth = 2;
 figure(5);
 loss = '3'; % 40 bits
-AQEWMMSE_loss = readmatrix(dir + trial + "/20PdBm/AQE_loss" + loss + ".csv");
-AQE_loss = readmatrix(dir + trial + "/06/20PdBm/AQEnoW_loss" + loss + ".csv");
-ACF_loss = readmatrix(dir + trial + "/20PdBm/ACF_loss" + loss + ".csv");
-linQ_loss = readmatrix(dir + trial + "/20PdBm/linQ_loss" + loss + ".csv");
+AQEWMMSE_loss = readmatrix(dir + trial + "/15PdBm/AQE_loss" + loss + ".csv");
+% AQE_loss = readmatrix(dir + trial + "/06/20PdBm/AQEnoW_loss" + loss + ".csv");
+AQE_loss = readmatrix(dir + trial + "/15PdBm/AQEnoW_loss" + loss + ".csv");
+ACF_loss = readmatrix(dir + trial + "/15PdBm/ACF_loss" + loss + ".csv");
+linQ_loss = readmatrix(dir + trial + "/15PdBm/linQ_loss" + loss + ".csv");
 
-plot(64000*AQEWMMSE_loss(:,1), '-', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE train', 'LineWidth', linewidth)
+plot(train_num*AQEWMMSE_loss(:,1), '-', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE train', 'LineWidth', linewidth)
 hold on;
-plot(16000*AQEWMMSE_loss(:,2), '--', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE val', 'LineWidth', linewidth)
-plot(64000*AQE_loss(:,1), '-', 'Color', colour_list{3}, 'DisplayName', 'AQE train', 'LineWidth', linewidth)
-plot(16000*AQE_loss(:,2), '--', 'Color', colour_list{3}, 'DisplayName', 'AQE val', 'LineWidth', linewidth)
-plot(64000*ACF_loss(:,1), '-', 'Color', colour_list{4}, 'DisplayName', 'ACF train', 'LineWidth', linewidth)
-plot(16000*ACF_loss(:,2), '--', 'Color', colour_list{4}, 'DisplayName', 'ACF val', 'LineWidth', linewidth)
-plot(64000*linQ_loss(:,1), '-', 'Color', colour_list{5}, 'DisplayName', 'linQ train', 'LineWidth', linewidth)
-plot(16000*linQ_loss(:,2), '--', 'Color', colour_list{5}, 'DisplayName', 'linQ val', 'LineWidth', linewidth)
+plot(val_num*AQEWMMSE_loss(:,2), '--', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE val', 'LineWidth', linewidth)
+plot(train_num*AQE_loss(:,1), '-', 'Color', colour_list{3}, 'DisplayName', 'AQE train', 'LineWidth', linewidth)
+plot(val_num*AQE_loss(:,2), '--', 'Color', colour_list{3}, 'DisplayName', 'AQE val', 'LineWidth', linewidth)
+plot(train_num*ACF_loss(:,1), '-', 'Color', colour_list{4}, 'DisplayName', 'ACF train', 'LineWidth', linewidth)
+plot(val_num*ACF_loss(:,2), '--', 'Color', colour_list{4}, 'DisplayName', 'ACF val', 'LineWidth', linewidth)
+plot(train_num*linQ_loss(:,1), '-', 'Color', colour_list{5}, 'DisplayName', 'linQ train', 'LineWidth', linewidth)
+plot(val_num*linQ_loss(:,2), '--', 'Color', colour_list{5}, 'DisplayName', 'linQ val', 'LineWidth', linewidth)
 hold off;
 
 xlabel('Epoch')
