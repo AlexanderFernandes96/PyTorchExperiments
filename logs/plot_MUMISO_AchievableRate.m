@@ -179,6 +179,7 @@ ylabel('Loss')
 legend('NumColumns', 2, 'location', 'best')
 ylim([-2700, -900])
 fontsize(gca,ftsz,"pixels")
+set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
 
 
 %% Figure 5 - Train/Val Loss Setup 2
@@ -206,3 +207,4 @@ ylabel('Loss')
 legend('NumColumns', 2, 'location', 'best')
 % ylim([-2700, -900])
 fontsize(gca,ftsz,"pixels")
+set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
