@@ -32,7 +32,7 @@ results = zeros(6,11,7);
 trial = "plot";
 opts = detectImportOptions(dir + trial + "/10PdBm/results.csv");
 % NetNames = strrep(strrep(opts.VariableNames, 'R_', ''),'_',' ');
-NetNames = {'Nc','opt','AQE-WMMSE','AQE','ACFNet','DQNN','linQ','opt rand','AQE-WMMSE rand','AQE rand','ACFNet rand','DQNN rand','linQ rand'};
+NetNames = {'Nc','Upper Bound','AQE-WMMSE','AQE','ACFNet','DQNN','linQ','Upper Bound rand','AQE-WMMSE rand','AQE rand','ACFNet rand','DQNN rand','linQ rand'};
 results_10PdBm = readmatrix(dir + trial + "/10PdBm/results.csv");
 results_15PdBm = readmatrix(dir + trial + "/15PdBm/results.csv");
 results_20PdBm = readmatrix(dir + trial + "/20PdBm/results.csv");
@@ -73,7 +73,7 @@ hold off;
 grid on;
 % title("Number of feedback bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
-ylabel('Achievable Rate (bps/Hz)')
+ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 2, 'location', 'best')
 ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
@@ -109,7 +109,7 @@ hold off;
 grid on;
 % title("Number of feedback bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
-ylabel('Achievable Rate (bps/Hz)')
+ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 1, 'location', 'northwest')
 ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
@@ -144,7 +144,7 @@ hold off;
 set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
 % title("Transmit Power: ", int2str(PdBm(p)) + " (dBm)");
 xlabel('Number of feedback bits')
-ylabel('Achievable Rate (bps/Hz)')
+ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 2, 'location', 'best')
 % legend('location', 'eastoutside')
 ylim([0, 25])
