@@ -32,7 +32,7 @@ results = zeros(6,11,7);
 trial = "plot";
 opts = detectImportOptions(dir + trial + "/10PdBm/results.csv");
 % NetNames = strrep(strrep(opts.VariableNames, 'R_', ''),'_',' ');
-NetNames = {'Nc','opt','AQE-WMMSE','AQE','ACFNet','DQNN','linQ','opt rand','AQE-WMMSE rand','AQE rand','ACFNet rand','DQNN rand','linQ rand'};
+NetNames = {'Nc','Upper Bound','AQE-WMMSE','AQE','ACFNet','DQNN','linQ','Upper Bound rand','AQE-WMMSE rand','AQE rand','ACFNet rand','DQNN rand','linQ rand'};
 results_10PdBm = readmatrix(dir + trial + "/10PdBm/results.csv");
 results_15PdBm = readmatrix(dir + trial + "/15PdBm/results.csv");
 results_20PdBm = readmatrix(dir + trial + "/20PdBm/results.csv");
@@ -49,7 +49,7 @@ PdBm = [10, 15, 20, 25, 30, 35, 40];
 sz = size(results);
 ftsz = 15;
 
-%% Figure 1 - Rate vs Tx, 100 control bits
+%% Figure 1 - Rate vs Tx, 100 feedback bits
 b = 10;
 c = 1;
 m = 1;
@@ -71,14 +71,14 @@ for net = [8,9,10,11,13,12]
 end
 hold off;
 grid on;
-% title("Number of control bits: ", int2str(results(b,1,1)) + " bits");
+% title("Number of feedback bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
-ylabel('Achievable Rate (bps/Hz)')
+ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 2, 'location', 'best')
 ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
 
-%% Figure 2 - Rate vs Tx, 10 & 40 control bits
+%% Figure 2 - Rate vs Tx, 10 & 40 feedback bits
 b1 = 4; b2 = 1;
 m = 2;
 figure(2);
@@ -107,9 +107,9 @@ end
 % end
 hold off;
 grid on;
-% title("Number of control bits: ", int2str(results(b,1,1)) + " bits");
+% title("Number of feedback bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
-ylabel('Achievable Rate (bps/Hz)')
+ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 1, 'location', 'northwest')
 ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
@@ -143,8 +143,8 @@ end
 hold off;
 set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
 % title("Transmit Power: ", int2str(PdBm(p)) + " (dBm)");
-xlabel('Number of control bits')
-ylabel('Achievable Rate (bps/Hz)')
+xlabel('Number of feedback bits')
+ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 2, 'location', 'best')
 % legend('location', 'eastoutside')
 ylim([0, 25])
