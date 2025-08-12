@@ -49,7 +49,7 @@ PdBm = [10, 15, 20, 25, 30, 35, 40];
 sz = size(results);
 ftsz = 15;
 
-%% Figure 1 - Rate vs Tx, 100 feedback bits
+%% Figure 1 - Rate vs Tx, 100 control bits
 b = 10;
 c = 1;
 m = 1;
@@ -71,14 +71,14 @@ for net = [8,9,10,11,13,12]
 end
 hold off;
 grid on;
-% title("Number of feedback bits: ", int2str(results(b,1,1)) + " bits");
+% title("Number of control bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
 ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 2, 'location', 'best')
 ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
 
-%% Figure 2 - Rate vs Tx, 10 & 40 feedback bits
+%% Figure 2 - Rate vs Tx, 10 & 40 control bits
 b1 = 4; b2 = 1;
 m = 2;
 figure(2);
@@ -107,7 +107,7 @@ end
 % end
 hold off;
 grid on;
-% title("Number of feedback bits: ", int2str(results(b,1,1)) + " bits");
+% title("Number of control bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
 ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 1, 'location', 'northwest')
@@ -143,7 +143,7 @@ end
 hold off;
 set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
 % title("Transmit Power: ", int2str(PdBm(p)) + " (dBm)");
-xlabel('Number of feedback bits')
+xlabel('Number of control bits')
 ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 2, 'location', 'best')
 % legend('location', 'eastoutside')
