@@ -1,6 +1,6 @@
 %% Start
 % This script is a scratch pad to plot data from MU-MISO_AchievableRate/
-% clear all; close all; delete(gcp('nocreate')); clc;
+clear all; close all; delete(gcp('nocreate')); clc;
 
 %% Figure 1-3, Load Data and Plot parameters
 % Colours
@@ -28,19 +28,86 @@ linewidth = 1.5;
 marker_list = {'p', '^', 'v', 'o', 's', '+'};
 
 dir = "MU-MISO_AchievableRateExperiments/";
-results = zeros(6,11,7);
-trial = "plot";
-opts = detectImportOptions(dir + trial + "/10PdBm/results.csv");
+% results = zeros(6,11,7);
+% opts = detectImportOptions(dir + trial + "/10PdBm/results.csv");
 % NetNames = strrep(strrep(opts.VariableNames, 'R_', ''),'_',' ');
-NetNames = {'Nc','Upper Bound','AQE-WMMSE','AQE','ACFNet','DQNN','linQ','Upper Bound random','AQE-WMMSE random','AQE random','ACFNet random','DQNN random','linQ random'};
-results_10PdBm = readmatrix(dir + trial + "/10PdBm/results.csv");
-results_15PdBm = readmatrix(dir + trial + "/15PdBm/results.csv");
-results_20PdBm = readmatrix(dir + trial + "/20PdBm/results.csv");
-results_25PdBm = readmatrix(dir + trial + "/25PdBm/results.csv");
-results_30PdBm = readmatrix(dir + trial + "/30PdBm/results.csv");
-results_35PdBm = readmatrix(dir + trial + "/35PdBm/results.csv");
-results_40PdBm = readmatrix(dir + trial + "/40PdBm/results.csv");
 
+% % Single Trial - submitted results
+% trial = "plot";
+% results_10PdBm = readmatrix(dir + trial + "/10PdBm/results.csv");
+% results_15PdBm = readmatrix(dir + trial + "/15PdBm/results.csv");
+% results_20PdBm = readmatrix(dir + trial + "/20PdBm/results.csv");
+% results_25PdBm = readmatrix(dir + trial + "/25PdBm/results.csv");
+% results_30PdBm = readmatrix(dir + trial + "/30PdBm/results.csv");
+% results_35PdBm = readmatrix(dir + trial + "/35PdBm/results.csv");
+% results_40PdBm = readmatrix(dir + trial + "/40PdBm/results.csv");
+
+% Multiple Trial - resubmitted results
+trials = "repeated_trial_00";
+results_10PdBm00 = readmatrix(dir + trials + "/00/10PdBm/results.csv");
+results_15PdBm00 = readmatrix(dir + trials + "/00/15PdBm/results.csv");
+results_20PdBm00 = readmatrix(dir + trials + "/00/20PdBm/results.csv");
+results_25PdBm00 = readmatrix(dir + trials + "/00/25PdBm/results.csv");
+results_30PdBm00 = readmatrix(dir + trials + "/00/30PdBm/results.csv");
+results_35PdBm00 = readmatrix(dir + trials + "/00/35PdBm/results.csv");
+results_40PdBm00 = readmatrix(dir + trials + "/00/40PdBm/results.csv");
+results_10PdBm01 = readmatrix(dir + trials + "/01/10PdBm/results.csv");
+results_15PdBm01 = readmatrix(dir + trials + "/01/15PdBm/results.csv");
+results_20PdBm01 = readmatrix(dir + trials + "/01/20PdBm/results.csv");
+results_25PdBm01 = readmatrix(dir + trials + "/01/25PdBm/results.csv");
+results_30PdBm01 = readmatrix(dir + trials + "/01/30PdBm/results.csv");
+results_35PdBm01 = readmatrix(dir + trials + "/01/35PdBm/results.csv");
+results_40PdBm01 = readmatrix(dir + trials + "/01/40PdBm/results.csv");
+results_10PdBm02 = readmatrix(dir + trials + "/02/10PdBm/results.csv");
+results_15PdBm02 = readmatrix(dir + trials + "/02/15PdBm/results.csv");
+results_20PdBm02 = readmatrix(dir + trials + "/02/20PdBm/results.csv");
+results_25PdBm02 = readmatrix(dir + trials + "/02/25PdBm/results.csv");
+results_30PdBm02 = readmatrix(dir + trials + "/02/30PdBm/results.csv");
+results_35PdBm02 = readmatrix(dir + trials + "/02/35PdBm/results.csv");
+results_40PdBm02 = readmatrix(dir + trials + "/02/40PdBm/results.csv");
+results_10PdBm03 = readmatrix(dir + trials + "/03/10PdBm/results.csv");
+results_15PdBm03 = readmatrix(dir + trials + "/03/15PdBm/results.csv");
+results_20PdBm03 = readmatrix(dir + trials + "/03/20PdBm/results.csv");
+results_25PdBm03 = readmatrix(dir + trials + "/03/25PdBm/results.csv");
+results_30PdBm03 = readmatrix(dir + trials + "/03/30PdBm/results.csv");
+results_35PdBm03 = readmatrix(dir + trials + "/03/35PdBm/results.csv");
+results_40PdBm03 = readmatrix(dir + trials + "/03/40PdBm/results.csv");
+results_10PdBm04 = readmatrix(dir + trials + "/04/10PdBm/results.csv");
+results_15PdBm04 = readmatrix(dir + trials + "/04/15PdBm/results.csv");
+results_20PdBm04 = readmatrix(dir + trials + "/04/20PdBm/results.csv");
+results_25PdBm04 = readmatrix(dir + trials + "/04/25PdBm/results.csv");
+results_30PdBm04 = readmatrix(dir + trials + "/04/30PdBm/results.csv");
+results_35PdBm04 = readmatrix(dir + trials + "/04/35PdBm/results.csv");
+results_40PdBm04 = readmatrix(dir + trials + "/04/40PdBm/results.csv");
+
+results_10PdBm_mean = (results_10PdBm00 + results_10PdBm01 + results_10PdBm02 + results_10PdBm03 + results_10PdBm04) / 5;
+results_15PdBm_mean = (results_15PdBm00 + results_15PdBm01 + results_15PdBm02 + results_15PdBm03 + results_15PdBm04) / 5;
+results_20PdBm_mean = (results_20PdBm00 + results_20PdBm01 + results_20PdBm02 + results_20PdBm03 + results_20PdBm04) / 5;
+results_25PdBm_mean = (results_25PdBm00 + results_25PdBm01 + results_25PdBm02 + results_25PdBm03 + results_25PdBm04) / 5;
+results_30PdBm_mean = (results_30PdBm00 + results_30PdBm01 + results_30PdBm02 + results_30PdBm03 + results_30PdBm04) / 5;
+results_35PdBm_mean = (results_35PdBm00 + results_35PdBm01 + results_35PdBm02 + results_35PdBm03 + results_35PdBm04) / 5;
+results_40PdBm_mean = (results_40PdBm00 + results_40PdBm01 + results_40PdBm02 + results_40PdBm03 + results_40PdBm04) / 5;
+
+results_10PdBm_var = (results_10PdBm00.^2 + results_10PdBm01.^2 + results_10PdBm02.^2 + results_10PdBm03.^2 + results_10PdBm04.^2) / 5 - results_10PdBm_mean.^2;
+results_15PdBm_var = (results_15PdBm00.^2 + results_15PdBm01.^2 + results_15PdBm02.^2 + results_15PdBm03.^2 + results_15PdBm04.^2) / 5 - results_15PdBm_mean.^2;
+results_20PdBm_var = (results_20PdBm00.^2 + results_20PdBm01.^2 + results_20PdBm02.^2 + results_20PdBm03.^2 + results_20PdBm04.^2) / 5 - results_20PdBm_mean.^2;
+results_25PdBm_var = (results_25PdBm00.^2 + results_25PdBm01.^2 + results_25PdBm02.^2 + results_25PdBm03.^2 + results_25PdBm04.^2) / 5 - results_25PdBm_mean.^2;
+results_30PdBm_var = (results_30PdBm00.^2 + results_30PdBm01.^2 + results_30PdBm02.^2 + results_30PdBm03.^2 + results_30PdBm04.^2) / 5 - results_30PdBm_mean.^2;
+results_35PdBm_var = (results_35PdBm00.^2 + results_35PdBm01.^2 + results_35PdBm02.^2 + results_35PdBm03.^2 + results_35PdBm04.^2) / 5 - results_35PdBm_mean.^2;
+results_40PdBm_var = (results_40PdBm00.^2 + results_40PdBm01.^2 + results_40PdBm02.^2 + results_40PdBm03.^2 + results_40PdBm04.^2) / 5 - results_40PdBm_mean.^2;
+
+results_10PdBm = results_10PdBm_mean;
+results_15PdBm = results_15PdBm_mean;
+results_20PdBm = results_20PdBm_mean;
+results_25PdBm = results_25PdBm_mean;
+results_30PdBm = results_30PdBm_mean;
+results_35PdBm = results_35PdBm_mean;
+results_40PdBm = results_40PdBm_mean;
+
+% trial for loss curves
+trial = "repeated_trial_00/00";
+
+NetNames = {'Nc','Upper Bound','AQE-WMMSE','AQE','ACFNet','DQNN','linQ','Upper Bound random','AQE-WMMSE random','AQE random','ACFNet random','DQNN random','linQ random'};
 results = cat(3,results_10PdBm, results_15PdBm, results_20PdBm, ...
     results_25PdBm, results_30PdBm, results_35PdBm, results_40PdBm);
 
