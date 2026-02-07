@@ -8,7 +8,7 @@ addpath("src")
 systemModelParameters
 
 job_id = str2num(getenv("SLURM_ARRAY_TASK_ID"));
-dataDir = "~/scratch/datasets/HDRISData/MUMISO/10PdBm";
+dataDir = "~/scratch/datasets/HDRISData/MUMISO/10PdBm/";
 % job_id = 0;
 % dataDir = "datasets/HDRISData/17/";
 % rng(job_id)
@@ -70,6 +70,13 @@ SNR = 10^(SNRdB/10);
 Hru_mc = complex(zeros(mc_runs,N*K));
 Har_mc = complex(zeros(mc_runs,M*N));
 Hau_mc = complex(zeros(mc_runs,M*K));
+Hru_err_mc = complex(zeros(mc_runs,N*K));
+Har_err_mc = complex(zeros(mc_runs,M*N));
+Hau_err_mc = complex(zeros(mc_runs,M*K));
+nmse_Hru_mc = zeros(mc_runs,1);
+nmse_Har_mc = zeros(mc_runs,1);
+nmse_Hau_mc = zeros(mc_runs,1);
+nmse_h_mc = zeros(mc_runs,1);
 theta_mc = zeros(mc_runs,N); % optimal phase shifts
 w_mc = zeros(mc_runs,M*K); % optimal beamforming
 Ropt2_mc = zeros(mc_runs,1); % optimized receive signal (at the users)
@@ -80,7 +87,6 @@ mc_run_print = mc_runs;
 for mc_run = 1:mc_runs
 if mod(mc_run,mc_runs/mc_run_print) == 0
     fprintf('%i/%i\n', mc_run, mc_runs);
-    fprintf("Script Execution time:\n")
     fprintElapsedTime(TSTART);
 end
 %% Create system model via channel matrices
@@ -99,6 +105,34 @@ Hru = Hur.';
 Har = Hra.';
 Hau = Hua.';
 
+% Introduce Channel Estimation Errors:
+Hru_true = Hru;
+Har_true = Har;
+Hau_true = Hau;
+
+Hru_err = sqrt(CH_err*1/2)*(randn(K,N) + 1j*randn(K,N)) * norm(Hru_true,'fro');
+Har_err = sqrt(CH_err*1/2)*(randn(N,M) + 1j*randn(N,M)) * norm(Har_true,'fro');
+Hau_err = sqrt(CH_err*1/2)*(randn(K,M) + 1j*randn(K,M)) * norm(Hau_true,'fro');
+
+Hru = Hru_true + Hru_err;
+Har = Har_true + Har_err;
+Hau = Hau_true + Hau_err;
+
+HruHar_kr = khatrirao(Hru, Har.');
+h = [Hau(:); HruHar_kr(:)];
+HruHar_kr_true = khatrirao(Hru_true, Har_true.');
+h_true = [Hau_true(:); HruHar_kr_true(:)];
+
+nmse_Hru = norm(Hru_true - Hru,'fro')^2 / norm(Hru,'fro')^2;
+nmse_Har = norm(Har_true - Har,'fro')^2 / norm(Har,'fro')^2;
+nmse_Hau = norm(Hau_true - Hau,'fro')^2 / norm(Hau,'fro')^2;
+nmse_h = norm(h_true - h,'fro')^2 / norm(h,'fro')^2;
+
+nmse_Hru_mc(mc_run) = nmse_Hru;
+nmse_Har_mc(mc_run) = nmse_Har;
+nmse_Hau_mc(mc_run) = nmse_Hau;
+nmse_h_mc(mc_run) = nmse_h;
+% fprintf("nmse_Hru %.3e, nmse_Har %.3e, nmse_Hau %.3e\n", nmse_Hru, nmse_Har, nmse_Hau)
 
 % % User priorities chosen inversely proportional to the direct-link path-loss
 % uw = zeros(K,1);
@@ -350,11 +384,11 @@ else
     % Compare optimal phases vs random phases given optimal beamforming
     % with true channels
     for k = 1:K 
-        hau = Hau(k,:);
-        hru = Hru(k,:);
+        hau = Hau_true(k,:);
+        hru = Hru_true(k,:);
         theta_rand = 2*pi*rand(1,N) - pi;
-        h_opt = hau + hru*diag(exp(1j*theta_opt))*Har;
-        h_rand = hau + hru*diag(exp(1j*theta_rand))*Har;
+        h_opt = hau + hru*diag(exp(1j*theta_opt))*Har_true;
+        h_rand = hau + hru*diag(exp(1j*theta_rand))*Har_true;
         intf_opt = 10^(NdBm/10);
         intf_rand = 10^(NdBm/10);
         for l = 1:K
@@ -376,9 +410,12 @@ end
 % Example:     hur <=> Hur(:) for Hur = N by K matrix
 % vectorize:   hur = reshape(Hur, [N*K,1]), stack columns into one column
 % unvectorize: Hur = reshape(hur, [N,K]), unstack into K columns
-Hru_mc(mc_run,:) = Hru(:).';
-Har_mc(mc_run,:) = Har(:).';
-Hau_mc(mc_run,:) = Hau(:).';
+Hru_mc(mc_run,:) = Hru_true(:).';
+Har_mc(mc_run,:) = Har_true(:).';
+Hau_mc(mc_run,:) = Hau_true(:).';
+Hru_err_mc(mc_run,:) = Hru_err(:).';
+Har_err_mc(mc_run,:) = Har_err(:).';
+Hau_err_mc(mc_run,:) = Hau_err(:).';
 theta_mc(mc_run,:) = theta_opt.';  % optimized RIS phase shifts
 w_mc(mc_run,:) = w_opt;  % optimized beamforming matrix
 Ropt2_mc(mc_run,:) = sum(Ropt); % test receive signal is optimized
@@ -390,6 +427,9 @@ fprintf("\n------------------------------------------------------------\n")
 fprintf("Mean Sum Rate over montecarlo runs:\n");
 fprintf("Optimized RIS: %.4f +/- %.4f\n", mean(Ropt2_mc, 1), var(Ropt2_mc, 1));
 fprintf("Random RIS: %.4f +/- %.4f\n", mean(Rrand2_mc, 1), var(Rrand2_mc, 1));
+fprintf("Average Channel Error: nmse_h %.3e +/- %.3e\n", mean(nmse_h_mc), var(nmse_h_mc))
+fprintf("nmse_Hru %.3e +/- %.3e, nmse_Har %.3e +/- %.3e, nmse_Hau %.3e +/- %.3e\n", ...
+    mean(nmse_Hru_mc), var(nmse_Hru_mc), mean(nmse_Har_mc), var(nmse_Har_mc), mean(nmse_Hau_mc), var(nmse_Hau_mc))
 
 %% Save data
 save(fileSaveName + ".mat", vars2save{:})
@@ -416,7 +456,7 @@ writetable(Tab, dataDir + "systemModelParameters.csv")
 % writematrix(imag(Hra_mc), dataDir + "Hra_i.csv")
 % writematrix(imag(Hua_mc), dataDir + "Hua_i.csv")
 
-% Downlink
+% Downlink Channels
 % real
 writematrix(real(Hru_mc), dataDir + "Hru_r.csv") 
 writematrix(real(Har_mc), dataDir + "Har_r.csv")
@@ -425,6 +465,16 @@ writematrix(real(Hau_mc), dataDir + "Hau_r.csv")
 writematrix(imag(Hru_mc), dataDir + "Hru_i.csv") 
 writematrix(imag(Har_mc), dataDir + "Har_i.csv")
 writematrix(imag(Hau_mc), dataDir + "Hau_i.csv")
+
+% Downlink Channel errors
+% real
+writematrix(real(Hru_err_mc), dataDir + "Hru_err_r.csv") 
+writematrix(real(Har_err_mc), dataDir + "Har_err_r.csv")
+writematrix(real(Hau_err_mc), dataDir + "Hau_err_r.csv")
+% imaginary
+writematrix(imag(Hru_err_mc), dataDir + "Hru_err_i.csv") 
+writematrix(imag(Har_err_mc), dataDir + "Har_err_i.csv")
+writematrix(imag(Hau_err_mc), dataDir + "Hau_err_i.csv")
 
 % Save optimal RIS phase shifts (-pi <= theta < pi) and beamforming matrix
 writematrix(theta_mc, dataDir + "RISopt.csv") % N RIS elements

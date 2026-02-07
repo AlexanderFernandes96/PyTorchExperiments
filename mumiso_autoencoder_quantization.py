@@ -806,7 +806,7 @@ if __name__ == "__main__":
 
     path_dir = "/home/alex96/scratch/"
     # path_dir = "MATLAB/"
-    trial = "08"
+    trial = "09"
     dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
     results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
     # if len(sys.argv) > 1:
