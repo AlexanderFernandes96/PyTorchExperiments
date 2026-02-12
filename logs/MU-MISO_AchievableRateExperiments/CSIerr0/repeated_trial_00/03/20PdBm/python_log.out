@@ -1,0 +1,2132 @@
+Using ADAM with learning rate decay
+---------
+Load Data
+---------
+Training Model parameters:
+{'K_UE': 3,
+ 'M_AP': 4,
+ 'N_RIS': 100,
+ 'N_dBm': -30.6,
+ 'Nh_RIS': 10,
+ 'Nw_RIS': 10,
+ 'P_dBm': 20.0,
+ 'Q_bits': 1,
+ 'batch_size': 128,
+ 'epoch_echo': True,
+ 'epoch_patience': 20,
+ 'epoch_val': 50,
+ 'epochs': 1000,
+ 'lr': 0.001,
+ 'mc_runs': 100000,
+ 'snr_dB': 50.6,
+ 'train_test_split': 0.8,
+ 'train_val_split': 0.8}
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/0/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/1/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/2/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/3/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/4/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/5/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/6/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/7/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/8/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/9/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/10/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/11/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/12/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/13/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/14/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/15/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/16/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/17/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/18/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/19/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/20/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/21/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/22/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/23/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+/home/alex96/scratch/datasets/HDRISData/MUMISO_CSIerr0/20PdBm/24/
+Loading... (Hau error)
+Loading... (Har error)
+Loading... (Hru error)
+Loading... (Hau)
+Loading... (Har)
+Loading... (Hru)
+Loading... RISopt.csv
+Loading... (wopt)
+--------------
+Create Dataset
+--------------
+  0%|          | 0/100000 [00:00<?, ?it/s]  0%|          | 251/100000 [00:00<00:39, 2509.16it/s]  1%|          | 502/100000 [00:00<00:52, 1881.05it/s]  1%|          | 802/100000 [00:00<00:42, 2311.57it/s]  1%|          | 1106/100000 [00:00<00:38, 2568.78it/s]  1%|▏         | 1409/100000 [00:00<00:36, 2723.86it/s]  2%|▏         | 1713/100000 [00:00<00:34, 2825.03it/s]  2%|▏         | 2015/100000 [00:00<00:33, 2884.74it/s]  2%|▏         | 2319/100000 [00:00<00:33, 2930.37it/s]  3%|▎         | 2621/100000 [00:00<00:32, 2957.69it/s]  3%|▎         | 2922/100000 [00:01<00:32, 2972.31it/s]  3%|▎         | 3224/100000 [00:01<00:32, 2984.97it/s]  4%|▎         | 3531/100000 [00:01<00:32, 3008.48it/s]  4%|▍         | 3835/100000 [00:01<00:31, 3016.32it/s]  4%|▍         | 4138/100000 [00:01<00:31, 3008.58it/s]  4%|▍         | 4440/100000 [00:01<00:38, 2467.45it/s]  5%|▍         | 4745/100000 [00:01<00:36, 2617.43it/s]  5%|▌         | 5043/100000 [00:01<00:34, 2713.68it/s]  5%|▌         | 5342/100000 [00:01<00:33, 2789.81it/s]  6%|▌         | 5646/100000 [00:02<00:32, 2860.14it/s]  6%|▌         | 5950/100000 [00:02<00:32, 2910.14it/s]  6%|▋         | 6251/100000 [00:02<00:31, 2938.36it/s]  7%|▋         | 6553/100000 [00:02<00:31, 2960.94it/s]  7%|▋         | 6854/100000 [00:02<00:31, 2974.38it/s]  7%|▋         | 7157/100000 [00:02<00:31, 2988.48it/s]  7%|▋         | 7457/100000 [00:02<00:30, 2990.08it/s]  8%|▊         | 7762/100000 [00:02<00:30, 3007.08it/s]  8%|▊         | 8067/100000 [00:02<00:30, 3017.94it/s]  8%|▊         | 8370/100000 [00:03<00:41, 2202.83it/s]  9%|▊         | 8663/100000 [00:03<00:38, 2375.46it/s]  9%|▉         | 8966/100000 [00:03<00:35, 2539.59it/s]  9%|▉         | 9264/100000 [00:03<00:34, 2656.16it/s] 10%|▉         | 9568/100000 [00:03<00:32, 2759.73it/s] 10%|▉         | 9873/100000 [00:03<00:31, 2839.57it/s] 10%|█         | 10177/100000 [00:03<00:31, 2894.67it/s] 10%|█         | 10476/100000 [00:03<00:30, 2920.34it/s] 11%|█         | 10780/100000 [00:03<00:30, 2953.70it/s] 11%|█         | 11084/100000 [00:03<00:29, 2977.79it/s] 11%|█▏        | 11388/100000 [00:04<00:29, 2993.91it/s] 12%|█▏        | 11690/100000 [00:04<00:29, 2995.80it/s] 12%|█▏        | 11993/100000 [00:04<00:29, 3003.56it/s] 12%|█▏        | 12297/100000 [00:04<00:29, 3012.75it/s] 13%|█▎        | 12602/100000 [00:04<00:28, 3019.88it/s] 13%|█▎        | 12905/100000 [00:04<00:40, 2173.47it/s] 13%|█▎        | 13197/100000 [00:04<00:36, 2348.48it/s] 13%|█▎        | 13469/100000 [00:04<00:35, 2440.27it/s] 14%|█▍        | 13756/100000 [00:04<00:33, 2552.28it/s] 14%|█▍        | 14060/100000 [00:05<00:32, 2684.38it/s] 14%|█▍        | 14363/100000 [00:05<00:30, 2779.56it/s] 15%|█▍        | 14661/100000 [00:05<00:30, 2835.47it/s] 15%|█▍        | 14963/100000 [00:05<00:29, 2887.94it/s] 15%|█▌        | 15266/100000 [00:05<00:28, 2928.81it/s] 16%|█▌        | 15570/100000 [00:05<00:28, 2961.19it/s] 16%|█▌        | 15869/100000 [00:05<00:28, 2940.65it/s] 16%|█▌        | 16173/100000 [00:05<00:28, 2967.44it/s] 16%|█▋        | 16472/100000 [00:05<00:29, 2878.92it/s] 17%|█▋        | 16762/100000 [00:06<00:29, 2857.22it/s] 17%|█▋        | 17049/100000 [00:06<00:30, 2676.11it/s] 17%|█▋        | 17353/100000 [00:06<00:29, 2776.84it/s] 18%|█▊        | 17655/100000 [00:06<00:28, 2843.65it/s] 18%|█▊        | 17958/100000 [00:06<00:28, 2897.50it/s] 18%|█▊        | 18250/100000 [00:06<00:28, 2902.40it/s] 19%|█▊        | 18542/100000 [00:06<00:43, 1892.15it/s] 19%|█▉        | 18778/100000 [00:06<00:41, 1949.66it/s] 19%|█▉        | 19007/100000 [00:07<00:42, 1885.64it/s] 19%|█▉        | 19269/100000 [00:07<00:39, 2058.06it/s] 20%|█▉        | 19570/100000 [00:07<00:35, 2288.65it/s] 20%|█▉        | 19873/100000 [00:07<00:32, 2482.79it/s] 20%|██        | 20176/100000 [00:07<00:30, 2630.69it/s] 20%|██        | 20475/100000 [00:07<00:29, 2731.20it/s] 21%|██        | 20779/100000 [00:07<00:28, 2817.20it/s] 21%|██        | 21076/100000 [00:07<00:27, 2857.84it/s] 21%|██▏       | 21374/100000 [00:07<00:27, 2893.07it/s] 22%|██▏       | 21667/100000 [00:07<00:27, 2821.43it/s] 22%|██▏       | 21953/100000 [00:08<00:27, 2800.41it/s] 22%|██▏       | 22251/100000 [00:08<00:27, 2851.97it/s] 23%|██▎       | 22550/100000 [00:08<00:26, 2890.25it/s] 23%|██▎       | 22852/100000 [00:08<00:26, 2927.66it/s] 23%|██▎       | 23156/100000 [00:08<00:25, 2959.03it/s] 23%|██▎       | 23453/100000 [00:08<00:25, 2947.90it/s] 24%|██▍       | 23757/100000 [00:08<00:25, 2973.49it/s] 24%|██▍       | 24055/100000 [00:08<00:25, 2948.96it/s] 24%|██▍       | 24361/100000 [00:08<00:25, 2980.28it/s] 25%|██▍       | 24664/100000 [00:08<00:25, 2994.23it/s] 25%|██▍       | 24966/100000 [00:09<00:24, 3001.47it/s] 25%|██▌       | 25267/100000 [00:09<00:24, 2996.40it/s] 26%|██▌       | 25567/100000 [00:09<00:41, 1780.66it/s] 26%|██▌       | 25872/100000 [00:09<00:36, 2036.00it/s] 26%|██▌       | 26168/100000 [00:09<00:32, 2242.81it/s] 26%|██▋       | 26466/100000 [00:09<00:30, 2420.71it/s] 27%|██▋       | 26765/100000 [00:09<00:28, 2566.03it/s] 27%|██▋       | 27065/100000 [00:10<00:27, 2681.14it/s] 27%|██▋       | 27354/100000 [00:10<00:26, 2735.13it/s] 28%|██▊       | 27656/100000 [00:10<00:25, 2815.49it/s] 28%|██▊       | 27958/100000 [00:10<00:25, 2874.24it/s] 28%|██▊       | 28262/100000 [00:10<00:24, 2919.83it/s] 29%|██▊       | 28562/100000 [00:10<00:24, 2940.65it/s] 29%|██▉       | 28867/100000 [00:10<00:23, 2970.18it/s] 29%|██▉       | 29170/100000 [00:10<00:23, 2987.75it/s] 29%|██▉       | 29471/100000 [00:10<00:23, 2991.88it/s] 30%|██▉       | 29772/100000 [00:10<00:23, 2987.88it/s] 30%|███       | 30074/100000 [00:11<00:23, 2995.34it/s] 30%|███       | 30377/100000 [00:11<00:23, 3004.04it/s] 31%|███       | 30678/100000 [00:11<00:23, 2999.75it/s] 31%|███       | 30979/100000 [00:11<00:23, 2999.43it/s] 31%|███▏      | 31281/100000 [00:11<00:22, 3002.89it/s] 32%|███▏      | 31583/100000 [00:11<00:22, 3007.11it/s] 32%|███▏      | 31887/100000 [00:11<00:22, 3015.68it/s] 32%|███▏      | 32192/100000 [00:11<00:22, 3024.70it/s] 32%|███▏      | 32497/100000 [00:11<00:22, 3030.11it/s] 33%|███▎      | 32801/100000 [00:11<00:22, 3025.51it/s] 33%|███▎      | 33104/100000 [00:12<00:22, 3007.19it/s] 33%|███▎      | 33405/100000 [00:12<00:22, 3004.33it/s] 34%|███▎      | 33708/100000 [00:12<00:22, 3009.02it/s] 34%|███▍      | 34010/100000 [00:12<00:40, 1649.05it/s] 34%|███▍      | 34308/100000 [00:12<00:34, 1901.02it/s] 35%|███▍      | 34606/100000 [00:12<00:30, 2129.53it/s] 35%|███▍      | 34905/100000 [00:12<00:27, 2329.70it/s] 35%|███▌      | 35205/100000 [00:13<00:25, 2495.24it/s] 36%|███▌      | 35501/100000 [00:13<00:24, 2617.18it/s] 36%|███▌      | 35800/100000 [00:13<00:23, 2718.68it/s] 36%|███▌      | 36103/100000 [00:13<00:22, 2804.25it/s] 36%|███▋      | 36408/100000 [00:13<00:22, 2871.91it/s] 37%|███▋      | 36706/100000 [00:13<00:22, 2812.82it/s] 37%|███▋      | 37010/100000 [00:13<00:21, 2876.13it/s] 37%|███▋      | 37315/100000 [00:13<00:21, 2925.19it/s] 38%|███▊      | 37618/100000 [00:13<00:21, 2954.07it/s] 38%|███▊      | 37918/100000 [00:13<00:20, 2964.85it/s] 38%|███▊      | 38220/100000 [00:14<00:20, 2980.65it/s] 39%|███▊      | 38526/100000 [00:14<00:20, 3002.12it/s] 39%|███▉      | 38829/100000 [00:14<00:20, 3009.32it/s] 39%|███▉      | 39131/100000 [00:14<00:20, 3003.95it/s] 39%|███▉      | 39433/100000 [00:14<00:20, 3005.42it/s] 40%|███▉      | 39734/100000 [00:14<00:20, 2997.16it/s] 40%|████      | 40035/100000 [00:14<00:19, 3000.12it/s] 40%|████      | 40336/100000 [00:14<00:19, 2997.04it/s] 41%|████      | 40640/100000 [00:14<00:19, 3008.87it/s] 41%|████      | 40944/100000 [00:14<00:19, 3018.08it/s] 41%|████      | 41246/100000 [00:15<00:19, 3017.94it/s] 42%|████▏     | 41548/100000 [00:15<00:19, 2984.35it/s] 42%|████▏     | 41852/100000 [00:15<00:19, 2998.28it/s] 42%|████▏     | 42155/100000 [00:15<00:19, 3005.48it/s] 42%|████▏     | 42456/100000 [00:15<00:19, 2978.65it/s] 43%|████▎     | 42754/100000 [00:15<00:19, 2974.90it/s] 43%|████▎     | 43058/100000 [00:15<00:19, 2987.59it/s] 43%|████▎     | 43361/100000 [00:15<00:18, 3000.01it/s] 44%|████▎     | 43662/100000 [00:15<00:18, 2990.15it/s] 44%|████▍     | 43968/100000 [00:15<00:18, 3007.97it/s] 44%|████▍     | 44271/100000 [00:16<00:18, 3011.84it/s] 45%|████▍     | 44574/100000 [00:16<00:18, 3014.63it/s] 45%|████▍     | 44876/100000 [00:16<00:40, 1348.92it/s] 45%|████▌     | 45181/100000 [00:16<00:33, 1621.20it/s] 45%|████▌     | 45486/100000 [00:16<00:28, 1886.90it/s] 46%|████▌     | 45788/100000 [00:16<00:25, 2124.52it/s] 46%|████▌     | 46085/100000 [00:17<00:23, 2319.65it/s] 46%|████▋     | 46388/100000 [00:17<00:21, 2494.44it/s] 47%|████▋     | 46692/100000 [00:17<00:20, 2635.40it/s] 47%|████▋     | 46993/100000 [00:17<00:19, 2735.31it/s] 47%|████▋     | 47296/100000 [00:17<00:18, 2816.19it/s] 48%|████▊     | 47600/100000 [00:17<00:18, 2878.55it/s] 48%|████▊     | 47903/100000 [00:17<00:17, 2919.83it/s] 48%|████▊     | 48204/100000 [00:17<00:17, 2932.99it/s] 49%|████▊     | 48506/100000 [00:17<00:17, 2957.85it/s] 49%|████▉     | 48809/100000 [00:17<00:17, 2978.83it/s] 49%|████▉     | 49113/100000 [00:18<00:16, 2995.27it/s] 49%|████▉     | 49415/100000 [00:18<00:16, 2988.98it/s] 50%|████▉     | 49717/100000 [00:18<00:16, 2996.31it/s] 50%|█████     | 50022/100000 [00:18<00:16, 3010.49it/s] 50%|█████     | 50325/100000 [00:18<00:16, 3014.46it/s] 51%|█████     | 50627/100000 [00:18<00:16, 2984.33it/s] 51%|█████     | 50927/100000 [00:18<00:16, 2986.78it/s] 51%|█████     | 51228/100000 [00:18<00:16, 2991.67it/s] 52%|█████▏    | 51528/100000 [00:18<00:16, 2983.34it/s] 52%|█████▏    | 51828/100000 [00:18<00:16, 2987.44it/s] 52%|█████▏    | 52132/100000 [00:19<00:15, 3000.83it/s] 52%|█████▏    | 52435/100000 [00:19<00:15, 3007.30it/s] 53%|█████▎    | 52736/100000 [00:19<00:15, 3006.12it/s] 53%|█████▎    | 53040/100000 [00:19<00:15, 3015.75it/s] 53%|█████▎    | 53344/100000 [00:19<00:15, 3022.58it/s] 54%|█████▎    | 53647/100000 [00:19<00:15, 3022.95it/s] 54%|█████▍    | 53950/100000 [00:19<00:15, 3011.17it/s] 54%|█████▍    | 54252/100000 [00:19<00:15, 3010.76it/s] 55%|█████▍    | 54556/100000 [00:19<00:15, 3017.61it/s] 55%|█████▍    | 54859/100000 [00:19<00:14, 3019.24it/s] 55%|█████▌    | 55161/100000 [00:20<00:14, 2992.83it/s] 55%|█████▌    | 55463/100000 [00:20<00:14, 2999.79it/s] 56%|█████▌    | 55766/100000 [00:20<00:14, 3006.47it/s] 56%|█████▌    | 56068/100000 [00:20<00:14, 3010.20it/s] 56%|█████▋    | 56370/100000 [00:20<00:14, 3003.24it/s] 57%|█████▋    | 56674/100000 [00:20<00:14, 3011.96it/s] 57%|█████▋    | 56980/100000 [00:20<00:14, 3025.43it/s] 57%|█████▋    | 57285/100000 [00:20<00:14, 3030.18it/s] 58%|█████▊    | 57589/100000 [00:20<00:14, 3014.90it/s] 58%|█████▊    | 57891/100000 [00:20<00:13, 3013.92it/s] 58%|█████▊    | 58193/100000 [00:21<00:14, 2974.54it/s] 58%|█████▊    | 58491/100000 [00:21<00:32, 1258.42it/s] 59%|█████▉    | 58782/100000 [00:21<00:27, 1508.46it/s] 59%|█████▉    | 59084/100000 [00:21<00:23, 1777.04it/s] 59%|█████▉    | 59379/100000 [00:21<00:20, 2014.57it/s] 60%|█████▉    | 59680/100000 [00:22<00:18, 2236.87it/s] 60%|█████▉    | 59982/100000 [00:22<00:16, 2426.32it/s] 60%|██████    | 60284/100000 [00:22<00:15, 2578.54it/s] 61%|██████    | 60581/100000 [00:22<00:14, 2681.48it/s] 61%|██████    | 60883/100000 [00:22<00:14, 2773.54it/s] 61%|██████    | 61186/100000 [00:22<00:13, 2843.85it/s] 61%|██████▏   | 61487/100000 [00:22<00:13, 2890.80it/s] 62%|██████▏   | 61786/100000 [00:22<00:13, 2914.69it/s] 62%|██████▏   | 62088/100000 [00:22<00:12, 2944.38it/s] 62%|██████▏   | 62391/100000 [00:22<00:12, 2967.58it/s] 63%|██████▎   | 62694/100000 [00:23<00:12, 2985.61it/s] 63%|██████▎   | 62995/100000 [00:23<00:12, 2992.17it/s] 63%|██████▎   | 63300/100000 [00:23<00:12, 3004.34it/s] 64%|██████▎   | 63604/100000 [00:23<00:12, 3014.94it/s] 64%|██████▍   | 63907/100000 [00:23<00:12, 2994.34it/s] 64%|██████▍   | 64209/100000 [00:23<00:11, 2999.19it/s] 65%|██████▍   | 64512/100000 [00:23<00:11, 3006.13it/s] 65%|██████▍   | 64816/100000 [00:23<00:11, 3014.80it/s] 65%|██████▌   | 65118/100000 [00:23<00:11, 3012.13it/s] 65%|██████▌   | 65422/100000 [00:23<00:11, 3018.03it/s] 66%|██████▌   | 65726/100000 [00:24<00:11, 3023.50it/s] 66%|██████▌   | 66029/100000 [00:24<00:11, 3018.90it/s] 66%|██████▋   | 66331/100000 [00:24<00:11, 3008.25it/s] 67%|██████▋   | 66634/100000 [00:24<00:11, 3012.96it/s] 67%|██████▋   | 66938/100000 [00:24<00:10, 3019.03it/s] 67%|██████▋   | 67240/100000 [00:24<00:10, 2985.31it/s] 68%|██████▊   | 67540/100000 [00:24<00:10, 2988.43it/s] 68%|██████▊   | 67843/100000 [00:24<00:10, 2999.55it/s] 68%|██████▊   | 68146/100000 [00:24<00:10, 3007.33it/s] 68%|██████▊   | 68447/100000 [00:24<00:10, 2996.76it/s] 69%|██████▊   | 68747/100000 [00:25<00:10, 2983.17it/s] 69%|██████▉   | 69050/100000 [00:25<00:10, 2996.36it/s] 69%|██████▉   | 69353/100000 [00:25<00:10, 3004.61it/s] 70%|██████▉   | 69654/100000 [00:25<00:10, 3003.30it/s] 70%|██████▉   | 69959/100000 [00:25<00:09, 3014.91it/s] 70%|███████   | 70262/100000 [00:25<00:09, 3016.99it/s] 71%|███████   | 70565/100000 [00:25<00:09, 3019.52it/s] 71%|███████   | 70867/100000 [00:25<00:09, 3005.62it/s] 71%|███████   | 71170/100000 [00:25<00:09, 3010.79it/s] 71%|███████▏  | 71475/100000 [00:25<00:09, 3019.74it/s] 72%|███████▏  | 71777/100000 [00:26<00:09, 3016.48it/s] 72%|███████▏  | 72079/100000 [00:26<00:09, 2969.35it/s] 72%|███████▏  | 72380/100000 [00:26<00:09, 2981.27it/s] 73%|███████▎  | 72685/100000 [00:26<00:09, 2999.05it/s] 73%|███████▎  | 72990/100000 [00:26<00:08, 3011.40it/s] 73%|███████▎  | 73292/100000 [00:26<00:08, 2988.80it/s] 74%|███████▎  | 73596/100000 [00:26<00:08, 3002.17it/s] 74%|███████▍  | 73898/100000 [00:26<00:08, 3005.19it/s] 74%|███████▍  | 74199/100000 [00:26<00:08, 2974.88it/s] 74%|███████▍  | 74497/100000 [00:26<00:08, 2973.76it/s] 75%|███████▍  | 74795/100000 [00:27<00:08, 2974.69it/s] 75%|███████▌  | 75098/100000 [00:27<00:08, 2988.82it/s] 75%|███████▌  | 75398/100000 [00:27<00:08, 2975.65it/s] 76%|███████▌  | 75696/100000 [00:28<00:23, 1028.77it/s] 76%|███████▌  | 75995/100000 [00:28<00:18, 1279.70it/s] 76%|███████▋  | 76296/100000 [00:28<00:15, 1547.35it/s] 77%|███████▋  | 76598/100000 [00:28<00:12, 1813.39it/s] 77%|███████▋  | 76895/100000 [00:28<00:11, 2049.63it/s] 77%|███████▋  | 77183/100000 [00:28<00:10, 2237.84it/s] 77%|███████▋  | 77486/100000 [00:28<00:09, 2430.05it/s] 78%|███████▊  | 77791/100000 [00:28<00:08, 2589.09it/s] 78%|███████▊  | 78095/100000 [00:28<00:08, 2710.23it/s] 78%|███████▊  | 78394/100000 [00:28<00:07, 2786.71it/s] 79%|███████▊  | 78696/100000 [00:29<00:07, 2850.48it/s] 79%|███████▉  | 78998/100000 [00:29<00:07, 2896.97it/s] 79%|███████▉  | 79303/100000 [00:29<00:07, 2940.75it/s] 80%|███████▉  | 79604/100000 [00:29<00:06, 2951.94it/s] 80%|███████▉  | 79908/100000 [00:29<00:06, 2974.97it/s] 80%|████████  | 80212/100000 [00:29<00:06, 2993.58it/s] 81%|████████  | 80516/100000 [00:29<00:06, 3004.89it/s] 81%|████████  | 80819/100000 [00:29<00:06, 3011.29it/s] 81%|████████  | 81122/100000 [00:29<00:06, 3015.63it/s] 81%|████████▏ | 81425/100000 [00:29<00:06, 3018.45it/s] 82%|████████▏ | 81730/100000 [00:30<00:06, 3025.79it/s] 82%|████████▏ | 82033/100000 [00:30<00:05, 3025.33it/s] 82%|████████▏ | 82336/100000 [00:30<00:05, 3024.96it/s] 83%|████████▎ | 82639/100000 [00:30<00:05, 3024.72it/s] 83%|████████▎ | 82942/100000 [00:30<00:05, 3024.52it/s] 83%|████████▎ | 83246/100000 [00:30<00:05, 3026.30it/s] 84%|████████▎ | 83549/100000 [00:30<00:05, 3025.67it/s] 84%|████████▍ | 83853/100000 [00:30<00:05, 3028.88it/s] 84%|████████▍ | 84156/100000 [00:30<00:05, 3026.94it/s] 84%|████████▍ | 84459/100000 [00:30<00:05, 3025.07it/s] 85%|████████▍ | 84762/100000 [00:31<00:05, 3025.42it/s] 85%|████████▌ | 85065/100000 [00:31<00:04, 3023.35it/s] 85%|████████▌ | 85368/100000 [00:31<00:04, 3022.01it/s] 86%|████████▌ | 85671/100000 [00:31<00:04, 3021.14it/s] 86%|████████▌ | 85974/100000 [00:31<00:04, 3020.89it/s] 86%|████████▋ | 86278/100000 [00:31<00:04, 3025.55it/s] 87%|████████▋ | 86581/100000 [00:31<00:04, 3023.69it/s] 87%|████████▋ | 86884/100000 [00:31<00:04, 3022.99it/s] 87%|████████▋ | 87187/100000 [00:31<00:04, 3023.98it/s] 87%|████████▋ | 87490/100000 [00:31<00:04, 3025.15it/s] 88%|████████▊ | 87793/100000 [00:32<00:04, 3023.27it/s] 88%|████████▊ | 88096/100000 [00:32<00:03, 3022.55it/s] 88%|████████▊ | 88399/100000 [00:32<00:03, 3023.59it/s] 89%|████████▊ | 88704/100000 [00:32<00:03, 3028.96it/s] 89%|████████▉ | 89007/100000 [00:32<00:03, 3027.52it/s] 89%|████████▉ | 89310/100000 [00:32<00:03, 3026.10it/s] 90%|████████▉ | 89613/100000 [00:32<00:03, 3024.41it/s] 90%|████████▉ | 89916/100000 [00:32<00:03, 3024.40it/s] 90%|█████████ | 90219/100000 [00:32<00:03, 3024.28it/s] 91%|█████████ | 90522/100000 [00:32<00:03, 3023.07it/s] 91%|█████████ | 90825/100000 [00:33<00:03, 3022.40it/s] 91%|█████████ | 91129/100000 [00:33<00:02, 3027.13it/s] 91%|█████████▏| 91433/100000 [00:33<00:02, 3028.31it/s] 92%|█████████▏| 91737/100000 [00:33<00:02, 3030.13it/s] 92%|█████████▏| 92041/100000 [00:33<00:02, 3029.21it/s] 92%|█████████▏| 92344/100000 [00:33<00:02, 3028.16it/s] 93%|█████████▎| 92647/100000 [00:33<00:02, 3018.35it/s] 93%|█████████▎| 92949/100000 [00:33<00:02, 3016.23it/s] 93%|█████████▎| 93253/100000 [00:33<00:02, 3021.19it/s] 94%|█████████▎| 93556/100000 [00:33<00:02, 3013.65it/s] 94%|█████████▍| 93858/100000 [00:34<00:02, 3007.03it/s] 94%|█████████▍| 94159/100000 [00:34<00:01, 3002.27it/s] 94%|█████████▍| 94460/100000 [00:34<00:01, 3001.56it/s] 95%|█████████▍| 94761/100000 [00:34<00:01, 3004.04it/s] 95%|█████████▌| 95062/100000 [00:34<00:01, 3001.74it/s] 95%|█████████▌| 95363/100000 [00:34<00:01, 2998.12it/s] 96%|█████████▌| 95666/100000 [00:34<00:01, 3007.21it/s] 96%|█████████▌| 95967/100000 [00:34<00:01, 3005.12it/s] 96%|█████████▋| 96268/100000 [00:34<00:01, 3004.62it/s] 97%|█████████▋| 96571/100000 [00:34<00:01, 3009.30it/s] 97%|█████████▋| 96872/100000 [00:35<00:03, 864.97it/s]  97%|█████████▋| 97175/100000 [00:35<00:02, 1101.61it/s] 97%|█████████▋| 97460/100000 [00:36<00:01, 1337.96it/s] 98%|█████████▊| 97743/100000 [00:36<00:01, 1578.68it/s] 98%|█████████▊| 98046/100000 [00:36<00:01, 1850.97it/s] 98%|█████████▊| 98349/100000 [00:36<00:00, 2100.13it/s] 99%|█████████▊| 98652/100000 [00:36<00:00, 2315.33it/s] 99%|█████████▉| 98955/100000 [00:36<00:00, 2492.51it/s] 99%|█████████▉| 99259/100000 [00:36<00:00, 2635.05it/s]100%|█████████▉| 99561/100000 [00:36<00:00, 2738.50it/s]100%|█████████▉| 99866/100000 [00:36<00:00, 2825.33it/s]100%|██████████| 100000/100000 [00:36<00:00, 2710.14it/s]
+------------
+Train & Test
+------------
+Training Model parameters:
+{'K_UE': 3,
+ 'M_AP': 4,
+ 'N_RIS': 100,
+ 'N_dBm': -30.6,
+ 'Nh_RIS': 10,
+ 'Nw_RIS': 10,
+ 'P_dBm': 20.0,
+ 'Q_bits': 1,
+ 'batch_size': 128,
+ 'epoch_echo': True,
+ 'epoch_patience': 20,
+ 'epoch_val': 50,
+ 'epochs': 1000,
+ 'lr': 0.001,
+ 'mc_runs': 100000,
+ 'nmse_Har': 0.012644296185165554,
+ 'nmse_Hau': 0.0003812912070938822,
+ 'nmse_Hru': 0.009489400292020346,
+ 'snr_dB': 50.6,
+ 'train_test_split': 0.8,
+ 'train_val_split': 0.8}
+AQE Number of parameters: 16557368
+AutoQEncoder(
+  (encoder_layer): EncoderLayer(
+    (linear_encoder): Sequential(
+      (0): Linear(in_features=1548, out_features=3968, bias=True)
+      (1): ReLU()
+      (2): Dropout(p=0.5, inplace=False)
+      (3): BatchNorm1d(3968, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (4): Linear(in_features=3968, out_features=1984, bias=True)
+      (5): ReLU()
+      (6): Dropout(p=0.5, inplace=False)
+      (7): BatchNorm1d(1984, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (8): Linear(in_features=1984, out_features=992, bias=True)
+      (9): ReLU()
+      (10): Dropout(p=0.5, inplace=False)
+      (11): BatchNorm1d(992, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (12): Linear(in_features=992, out_features=496, bias=True)
+      (13): ReLU()
+      (14): Dropout(p=0.5, inplace=False)
+      (15): BatchNorm1d(496, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (16): Linear(in_features=496, out_features=40, bias=True)
+    )
+  )
+  (quantizer_layer): QuantizerLayer()
+  (decoder_layer): DecoderLayer(
+    (linear_decoder): Sequential(
+      (0): Linear(in_features=40, out_features=100, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=100, out_features=100, bias=True)
+      (3): ReLU()
+    )
+    (out_layer): Sequential(
+      (0): Linear(in_features=100, out_features=100, bias=True)
+    )
+  )
+  (w_update_layer): WupdateLayer(
+    (linear_W): Sequential(
+      (0): Linear(in_features=48, out_features=48, bias=True)
+      (1): ReLU()
+      (2): Dropout(p=0.5, inplace=False)
+      (3): Linear(in_features=48, out_features=48, bias=True)
+      (4): ReLU()
+      (5): Dropout(p=0.5, inplace=False)
+      (6): Linear(in_features=48, out_features=48, bias=True)
+      (7): ReLU()
+      (8): Dropout(p=0.5, inplace=False)
+      (9): Linear(in_features=48, out_features=24, bias=True)
+    )
+    (linear_UL): Sequential(
+      (0): Linear(in_features=48, out_features=48, bias=True)
+      (1): ReLU()
+      (2): Dropout(p=0.5, inplace=False)
+      (3): Linear(in_features=48, out_features=48, bias=True)
+      (4): ReLU()
+      (5): Dropout(p=0.5, inplace=False)
+      (6): Linear(in_features=48, out_features=48, bias=True)
+      (7): ReLU()
+      (8): Dropout(p=0.5, inplace=False)
+      (9): Linear(in_features=48, out_features=9, bias=True)
+    )
+  )
+)
+AQEnoW Number of parameters: 16541639
+AutoQEncoderNoWupdate(
+  (encoder_layer): EncoderLayer(
+    (linear_encoder): Sequential(
+      (0): Linear(in_features=1548, out_features=3968, bias=True)
+      (1): ReLU()
+      (2): Dropout(p=0.5, inplace=False)
+      (3): BatchNorm1d(3968, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (4): Linear(in_features=3968, out_features=1984, bias=True)
+      (5): ReLU()
+      (6): Dropout(p=0.5, inplace=False)
+      (7): BatchNorm1d(1984, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (8): Linear(in_features=1984, out_features=992, bias=True)
+      (9): ReLU()
+      (10): Dropout(p=0.5, inplace=False)
+      (11): BatchNorm1d(992, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (12): Linear(in_features=992, out_features=496, bias=True)
+      (13): ReLU()
+      (14): Dropout(p=0.5, inplace=False)
+      (15): BatchNorm1d(496, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (16): Linear(in_features=496, out_features=40, bias=True)
+    )
+  )
+  (quantizer_layer): QuantizerLayer()
+  (decoder_layer): DecoderLayer(
+    (linear_decoder): Sequential(
+      (0): Linear(in_features=40, out_features=100, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=100, out_features=100, bias=True)
+      (3): ReLU()
+    )
+    (out_layer): Sequential(
+      (0): Linear(in_features=100, out_features=100, bias=True)
+    )
+  )
+)
+ACF Number of parameters: 16190005
+ACFNet(
+  (mapping_network): DNN(
+    (linear_encoder): Sequential(
+      (0): Linear(in_features=1424, out_features=3968, bias=True)
+      (1): ReLU()
+      (2): Dropout(p=0.5, inplace=False)
+      (3): BatchNorm1d(3968, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (4): Linear(in_features=3968, out_features=1984, bias=True)
+      (5): ReLU()
+      (6): Dropout(p=0.5, inplace=False)
+      (7): BatchNorm1d(1984, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (8): Linear(in_features=1984, out_features=992, bias=True)
+      (9): ReLU()
+      (10): Dropout(p=0.5, inplace=False)
+      (11): BatchNorm1d(992, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (12): Linear(in_features=992, out_features=496, bias=True)
+      (13): ReLU()
+      (14): Dropout(p=0.5, inplace=False)
+      (15): BatchNorm1d(496, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (16): Linear(in_features=496, out_features=124, bias=True)
+    )
+  )
+  (compression_network): ACFNetCompressionNetwork(
+    (convolution_layer): Sequential(
+      (0): Conv2d(1, 3, kernel_size=(2, 2), stride=(1, 1))
+      (1): ReLU()
+    )
+    (dense_layer): Sequential(
+      (0): Linear(in_features=297, out_features=40, bias=True)
+    )
+  )
+  (quantizer_layer): QuantizerLayer()
+  (decoder_network): ACFNetDecoderNetwork(
+    (dense_layer1): Sequential(
+      (0): Linear(in_features=40, out_features=200, bias=True)
+    )
+    (convolution_layer): Sequential(
+      (0): Conv2d(1, 3, kernel_size=(2, 2), stride=(1, 1))
+      (1): ReLU()
+    )
+    (dense_layer2): Sequential(
+      (0): Linear(in_features=513, out_features=200, bias=True)
+    )
+  )
+)
+linQ Number of parameters: 8743
+LinearQuantizer(
+  (precoder_layer): Linear(in_features=24, out_features=24, bias=True)
+  (encoder_layer): Linear(in_features=100, out_features=40, bias=True)
+  (quantizer_layer): QuantizerLayer()
+  (decoder_layer): Linear(in_features=40, out_features=100, bias=True)
+)
+  0%|          | 0/1000 [00:00<?, ?it/s]0.001 -> 0.001
+Epoch: 0 	Training Loss: -0.0059966952 	Validation Loss: -0.0244048932 	Best Validation Loss: inf
+### Validation loss same/decreased (inf --> -0.0244048932)... saving model. ###
+  0%|          | 1/1000 [00:14<3:53:26, 14.02s/it]0.001 -> 0.001
+Epoch: 1 	Training Loss: -0.0064504954 	Validation Loss: -0.0258297818 	Best Validation Loss: -0.0244048932
+### Validation loss same/decreased (-0.0244048932 --> -0.0258297818)... saving model. ###
+  0%|          | 2/1000 [00:27<3:44:02, 13.47s/it]0.001 -> 0.001
+Epoch: 2 	Training Loss: -0.0067945789 	Validation Loss: -0.0262262704 	Best Validation Loss: -0.0258297818
+### Validation loss same/decreased (-0.0258297818 --> -0.0262262704)... saving model. ###
+  0%|          | 3/1000 [00:40<3:42:46, 13.41s/it]0.001 -> 0.001
+Epoch: 3 	Training Loss: -0.0070781888 	Validation Loss: -0.0274187369 	Best Validation Loss: -0.0262262704
+### Validation loss same/decreased (-0.0262262704 --> -0.0274187369)... saving model. ###
+  0%|          | 4/1000 [00:53<3:42:47, 13.42s/it]0.001 -> 0.001
+Epoch: 4 	Training Loss: -0.0072564095 	Validation Loss: -0.0274470372 	Best Validation Loss: -0.0274187369
+### Validation loss same/decreased (-0.0274187369 --> -0.0274470372)... saving model. ###
+  0%|          | 5/1000 [01:07<3:41:57, 13.38s/it]0.001 -> 0.001
+Epoch: 5 	Training Loss: -0.0073036715 	Validation Loss: -0.0282398089 	Best Validation Loss: -0.0274470372
+### Validation loss same/decreased (-0.0274470372 --> -0.0282398089)... saving model. ###
+  1%|          | 6/1000 [01:20<3:40:48, 13.33s/it]0.001 -> 0.001
+Epoch: 6 	Training Loss: -0.0074306396 	Validation Loss: -0.0279855405 	Best Validation Loss: -0.0282398089
+  1%|          | 7/1000 [01:33<3:41:36, 13.39s/it]0.001 -> 0.001
+Epoch: 7 	Training Loss: -0.0075211852 	Validation Loss: -0.0285461614 	Best Validation Loss: -0.0282398089
+### Validation loss same/decreased (-0.0282398089 --> -0.0285461614)... saving model. ###
+  1%|          | 8/1000 [01:47<3:40:48, 13.36s/it]0.001 -> 0.001
+Epoch: 8 	Training Loss: -0.0076593406 	Validation Loss: -0.0286490196 	Best Validation Loss: -0.0285461614
+### Validation loss same/decreased (-0.0285461614 --> -0.0286490196)... saving model. ###
+  1%|          | 9/1000 [02:00<3:40:00, 13.32s/it]0.001 -> 0.001
+Epoch: 9 	Training Loss: -0.0077273400 	Validation Loss: -0.0294098818 	Best Validation Loss: -0.0286490196
+### Validation loss same/decreased (-0.0286490196 --> -0.0294098818)... saving model. ###
+  1%|          | 10/1000 [02:13<3:39:03, 13.28s/it]0.001 -> 0.001
+Epoch: 10 	Training Loss: -0.0077556750 	Validation Loss: -0.0295902663 	Best Validation Loss: -0.0294098818
+### Validation loss same/decreased (-0.0294098818 --> -0.0295902663)... saving model. ###
+  1%|          | 11/1000 [02:26<3:38:07, 13.23s/it]0.001 -> 0.001
+Epoch: 11 	Training Loss: -0.0077840750 	Validation Loss: -0.0293957244 	Best Validation Loss: -0.0295902663
+  1%|          | 12/1000 [02:40<3:38:48, 13.29s/it]0.001 -> 0.001
+Epoch: 12 	Training Loss: -0.0078588021 	Validation Loss: -0.0294023007 	Best Validation Loss: -0.0295902663
+  1%|▏         | 13/1000 [02:53<3:38:52, 13.31s/it]0.001 -> 0.001
+Epoch: 13 	Training Loss: -0.0079006079 	Validation Loss: -0.0298305927 	Best Validation Loss: -0.0295902663
+### Validation loss same/decreased (-0.0295902663 --> -0.0298305927)... saving model. ###
+  1%|▏         | 14/1000 [03:06<3:38:22, 13.29s/it]0.001 -> 0.001
+Epoch: 14 	Training Loss: -0.0079210177 	Validation Loss: -0.0302655869 	Best Validation Loss: -0.0298305927
+### Validation loss same/decreased (-0.0298305927 --> -0.0302655869)... saving model. ###
+  2%|▏         | 15/1000 [03:19<3:37:23, 13.24s/it]0.001 -> 0.001
+Epoch: 15 	Training Loss: -0.0079572081 	Validation Loss: -0.0303435326 	Best Validation Loss: -0.0302655869
+### Validation loss same/decreased (-0.0302655869 --> -0.0303435326)... saving model. ###
+  2%|▏         | 16/1000 [03:33<3:37:22, 13.26s/it]0.001 -> 0.001
+Epoch: 16 	Training Loss: -0.0080183121 	Validation Loss: -0.0306144808 	Best Validation Loss: -0.0303435326
+### Validation loss same/decreased (-0.0303435326 --> -0.0306144808)... saving model. ###
+  2%|▏         | 17/1000 [03:46<3:37:34, 13.28s/it]0.001 -> 0.001
+Epoch: 17 	Training Loss: -0.0080237530 	Validation Loss: -0.0307743612 	Best Validation Loss: -0.0306144808
+### Validation loss same/decreased (-0.0306144808 --> -0.0307743612)... saving model. ###
+  2%|▏         | 18/1000 [03:59<3:38:02, 13.32s/it]0.001 -> 0.001
+Epoch: 18 	Training Loss: -0.0081292717 	Validation Loss: -0.0306450451 	Best Validation Loss: -0.0307743612
+  2%|▏         | 19/1000 [04:13<3:36:47, 13.26s/it]0.001 -> 0.001
+Epoch: 19 	Training Loss: -0.0081629001 	Validation Loss: -0.0309477965 	Best Validation Loss: -0.0307743612
+### Validation loss same/decreased (-0.0307743612 --> -0.0309477965)... saving model. ###
+  2%|▏         | 20/1000 [04:26<3:35:54, 13.22s/it]0.001 -> 0.001
+Epoch: 20 	Training Loss: -0.0081315559 	Validation Loss: -0.0308055671 	Best Validation Loss: -0.0309477965
+  2%|▏         | 21/1000 [04:39<3:35:53, 13.23s/it]0.001 -> 0.001
+Epoch: 21 	Training Loss: -0.0081912327 	Validation Loss: -0.0309156949 	Best Validation Loss: -0.0309477965
+  2%|▏         | 22/1000 [04:52<3:36:19, 13.27s/it]0.001 -> 0.001
+Epoch: 22 	Training Loss: -0.0082055771 	Validation Loss: -0.0310737147 	Best Validation Loss: -0.0309477965
+### Validation loss same/decreased (-0.0309477965 --> -0.0310737147)... saving model. ###
+  2%|▏         | 23/1000 [05:06<3:36:52, 13.32s/it]0.001 -> 0.001
+Epoch: 23 	Training Loss: -0.0082379557 	Validation Loss: -0.0309032695 	Best Validation Loss: -0.0310737147
+  2%|▏         | 24/1000 [05:19<3:35:41, 13.26s/it]0.001 -> 0.001
+Epoch: 24 	Training Loss: -0.0082172743 	Validation Loss: -0.0311809634 	Best Validation Loss: -0.0310737147
+### Validation loss same/decreased (-0.0310737147 --> -0.0311809634)... saving model. ###
+  2%|▎         | 25/1000 [05:32<3:35:25, 13.26s/it]0.001 -> 0.001
+Epoch: 25 	Training Loss: -0.0083077003 	Validation Loss: -0.0309432646 	Best Validation Loss: -0.0311809634
+  3%|▎         | 26/1000 [05:45<3:34:36, 13.22s/it]0.001 -> 0.001
+Epoch: 26 	Training Loss: -0.0082785662 	Validation Loss: -0.0310622514 	Best Validation Loss: -0.0311809634
+  3%|▎         | 27/1000 [05:58<3:34:03, 13.20s/it]0.001 -> 0.001
+Epoch: 27 	Training Loss: -0.0082863457 	Validation Loss: -0.0315814755 	Best Validation Loss: -0.0311809634
+### Validation loss same/decreased (-0.0311809634 --> -0.0315814755)... saving model. ###
+  3%|▎         | 28/1000 [06:12<3:35:22, 13.29s/it]0.001 -> 0.001
+Epoch: 28 	Training Loss: -0.0082497821 	Validation Loss: -0.0310697181 	Best Validation Loss: -0.0315814755
+  3%|▎         | 29/1000 [06:25<3:34:55, 13.28s/it]0.001 -> 0.001
+Epoch: 29 	Training Loss: -0.0083408248 	Validation Loss: -0.0312887704 	Best Validation Loss: -0.0315814755
+  3%|▎         | 30/1000 [06:38<3:34:28, 13.27s/it]0.001 -> 0.001
+Epoch: 30 	Training Loss: -0.0083864851 	Validation Loss: -0.0314774901 	Best Validation Loss: -0.0315814755
+  3%|▎         | 31/1000 [06:52<3:33:39, 13.23s/it]0.001 -> 0.001
+Epoch: 31 	Training Loss: -0.0083572463 	Validation Loss: -0.0315538701 	Best Validation Loss: -0.0315814755
+  3%|▎         | 32/1000 [07:05<3:33:25, 13.23s/it]0.001 -> 0.001
+Epoch: 32 	Training Loss: -0.0084637612 	Validation Loss: -0.0318688524 	Best Validation Loss: -0.0315814755
+### Validation loss same/decreased (-0.0315814755 --> -0.0318688524)... saving model. ###
+  3%|▎         | 33/1000 [07:18<3:32:59, 13.22s/it]0.001 -> 0.001
+Epoch: 33 	Training Loss: -0.0084150863 	Validation Loss: -0.0318119259 	Best Validation Loss: -0.0318688524
+  3%|▎         | 34/1000 [07:31<3:34:02, 13.29s/it]0.001 -> 0.001
+Epoch: 34 	Training Loss: -0.0085196351 	Validation Loss: -0.0319182200 	Best Validation Loss: -0.0318688524
+### Validation loss same/decreased (-0.0318688524 --> -0.0319182200)... saving model. ###
+  4%|▎         | 35/1000 [07:45<3:33:43, 13.29s/it]0.001 -> 0.001
+Epoch: 35 	Training Loss: -0.0084425864 	Validation Loss: -0.0317198826 	Best Validation Loss: -0.0319182200
+  4%|▎         | 36/1000 [07:58<3:32:46, 13.24s/it]0.001 -> 0.001
+Epoch: 36 	Training Loss: -0.0085548012 	Validation Loss: -0.0319386347 	Best Validation Loss: -0.0319182200
+### Validation loss same/decreased (-0.0319182200 --> -0.0319386347)... saving model. ###
+  4%|▎         | 37/1000 [08:11<3:32:33, 13.24s/it]0.001 -> 0.001
+Epoch: 37 	Training Loss: -0.0085789421 	Validation Loss: -0.0317648103 	Best Validation Loss: -0.0319386347
+  4%|▍         | 38/1000 [08:24<3:31:49, 13.21s/it]0.001 -> 0.001
+Epoch: 38 	Training Loss: -0.0085156610 	Validation Loss: -0.0320777034 	Best Validation Loss: -0.0319386347
+### Validation loss same/decreased (-0.0319386347 --> -0.0320777034)... saving model. ###
+  4%|▍         | 39/1000 [08:38<3:32:18, 13.26s/it]0.001 -> 0.001
+Epoch: 39 	Training Loss: -0.0085576577 	Validation Loss: -0.0319827397 	Best Validation Loss: -0.0320777034
+  4%|▍         | 40/1000 [08:51<3:32:35, 13.29s/it]0.001 -> 0.001
+Epoch: 40 	Training Loss: -0.0085437448 	Validation Loss: -0.0318966606 	Best Validation Loss: -0.0320777034
+  4%|▍         | 41/1000 [09:04<3:32:40, 13.31s/it]0.001 -> 0.001
+Epoch: 41 	Training Loss: -0.0085847953 	Validation Loss: -0.0316120791 	Best Validation Loss: -0.0320777034
+  4%|▍         | 42/1000 [09:17<3:31:37, 13.25s/it]0.001 -> 0.001
+Epoch: 42 	Training Loss: -0.0085119884 	Validation Loss: -0.0319524788 	Best Validation Loss: -0.0320777034
+  4%|▍         | 43/1000 [09:31<3:31:25, 13.26s/it]0.001 -> 0.001
+Epoch: 43 	Training Loss: -0.0086535820 	Validation Loss: -0.0322891214 	Best Validation Loss: -0.0320777034
+### Validation loss same/decreased (-0.0320777034 --> -0.0322891214)... saving model. ###
+  4%|▍         | 44/1000 [09:44<3:30:39, 13.22s/it]0.001 -> 0.001
+Epoch: 44 	Training Loss: -0.0086222435 	Validation Loss: -0.0324010397 	Best Validation Loss: -0.0322891214
+### Validation loss same/decreased (-0.0322891214 --> -0.0324010397)... saving model. ###
+  4%|▍         | 45/1000 [09:57<3:30:22, 13.22s/it]0.001 -> 0.001
+Epoch: 45 	Training Loss: -0.0086401479 	Validation Loss: -0.0323462524 	Best Validation Loss: -0.0324010397
+  5%|▍         | 46/1000 [10:10<3:31:16, 13.29s/it]0.001 -> 0.001
+Epoch: 46 	Training Loss: -0.0086453652 	Validation Loss: -0.0323798931 	Best Validation Loss: -0.0324010397
+  5%|▍         | 47/1000 [10:24<3:30:50, 13.27s/it]0.001 -> 0.001
+Epoch: 47 	Training Loss: -0.0086433154 	Validation Loss: -0.0321131102 	Best Validation Loss: -0.0324010397
+  5%|▍         | 48/1000 [10:37<3:30:25, 13.26s/it]0.001 -> 0.001
+Epoch: 48 	Training Loss: -0.0086812203 	Validation Loss: -0.0322965543 	Best Validation Loss: -0.0324010397
+  5%|▍         | 49/1000 [10:50<3:29:36, 13.22s/it]0.001 -> 0.001
+Epoch: 49 	Training Loss: -0.0086406358 	Validation Loss: -0.0323880439 	Best Validation Loss: -0.0324010397
+Validation early stop running loss decreased (inf --> -1.5265808712).
+  5%|▌         | 50/1000 [11:03<3:29:36, 13.24s/it]0.001 -> 0.001
+Epoch: 50 	Training Loss: -0.0087545853 	Validation Loss: -0.0322511506 	Best Validation Loss: -0.0324010397
+  5%|▌         | 51/1000 [11:17<3:29:46, 13.26s/it]0.001 -> 0.001
+Epoch: 51 	Training Loss: -0.0086869605 	Validation Loss: -0.0323171326 	Best Validation Loss: -0.0324010397
+  5%|▌         | 52/1000 [11:30<3:30:35, 13.33s/it]0.001 -> 0.001
+Epoch: 52 	Training Loss: -0.0086845017 	Validation Loss: -0.0322134032 	Best Validation Loss: -0.0324010397
+  5%|▌         | 53/1000 [11:43<3:29:28, 13.27s/it]0.001 -> 0.001
+Epoch: 53 	Training Loss: -0.0086674287 	Validation Loss: -0.0324412878 	Best Validation Loss: -0.0324010397
+### Validation loss same/decreased (-0.0324010397 --> -0.0324412878)... saving model. ###
+  5%|▌         | 54/1000 [11:56<3:28:30, 13.23s/it]0.001 -> 0.001
+Epoch: 54 	Training Loss: -0.0087383204 	Validation Loss: -0.0322654095 	Best Validation Loss: -0.0324412878
+  6%|▌         | 55/1000 [12:10<3:28:21, 13.23s/it]0.001 -> 0.001
+Epoch: 55 	Training Loss: -0.0087673381 	Validation Loss: -0.0325336337 	Best Validation Loss: -0.0324412878
+### Validation loss same/decreased (-0.0324412878 --> -0.0325336337)... saving model. ###
+  6%|▌         | 56/1000 [12:23<3:27:57, 13.22s/it]0.001 -> 0.001
+Epoch: 56 	Training Loss: -0.0087376869 	Validation Loss: -0.0322859350 	Best Validation Loss: -0.0325336337
+  6%|▌         | 57/1000 [12:36<3:28:58, 13.30s/it]0.001 -> 0.001
+Epoch: 57 	Training Loss: -0.0087608738 	Validation Loss: -0.0324666232 	Best Validation Loss: -0.0325336337
+  6%|▌         | 58/1000 [12:50<3:28:33, 13.28s/it]0.001 -> 0.001
+Epoch: 58 	Training Loss: -0.0088467509 	Validation Loss: -0.0325820876 	Best Validation Loss: -0.0325336337
+### Validation loss same/decreased (-0.0325336337 --> -0.0325820876)... saving model. ###
+  6%|▌         | 59/1000 [13:03<3:28:09, 13.27s/it]0.001 -> 0.001
+Epoch: 59 	Training Loss: -0.0087788598 	Validation Loss: -0.0326674109 	Best Validation Loss: -0.0325820876
+### Validation loss same/decreased (-0.0325820876 --> -0.0326674109)... saving model. ###
+  6%|▌         | 60/1000 [13:16<3:27:26, 13.24s/it]0.001 -> 0.001
+Epoch: 60 	Training Loss: -0.0088198052 	Validation Loss: -0.0323121291 	Best Validation Loss: -0.0326674109
+  6%|▌         | 61/1000 [13:29<3:27:22, 13.25s/it]0.001 -> 0.001
+Epoch: 61 	Training Loss: -0.0088383120 	Validation Loss: -0.0322803542 	Best Validation Loss: -0.0326674109
+  6%|▌         | 62/1000 [13:43<3:27:09, 13.25s/it]0.001 -> 0.001
+Epoch: 62 	Training Loss: -0.0088516264 	Validation Loss: -0.0324196744 	Best Validation Loss: -0.0326674109
+  6%|▋         | 63/1000 [13:56<3:27:29, 13.29s/it]0.001 -> 0.001
+Epoch: 63 	Training Loss: -0.0087981673 	Validation Loss: -0.0323458051 	Best Validation Loss: -0.0326674109
+  6%|▋         | 64/1000 [14:09<3:27:29, 13.30s/it]0.001 -> 0.001
+Epoch: 64 	Training Loss: -0.0088487504 	Validation Loss: -0.0323382488 	Best Validation Loss: -0.0326674109
+  6%|▋         | 65/1000 [14:22<3:26:34, 13.26s/it]0.001 -> 0.001
+Epoch: 65 	Training Loss: -0.0088633257 	Validation Loss: -0.0327469094 	Best Validation Loss: -0.0326674109
+### Validation loss same/decreased (-0.0326674109 --> -0.0327469094)... saving model. ###
+  7%|▋         | 66/1000 [14:36<3:26:18, 13.25s/it]0.001 -> 0.001
+Epoch: 66 	Training Loss: -0.0088727384 	Validation Loss: -0.0324572944 	Best Validation Loss: -0.0327469094
+  7%|▋         | 67/1000 [14:49<3:25:32, 13.22s/it]0.001 -> 0.001
+Epoch: 67 	Training Loss: -0.0088775157 	Validation Loss: -0.0325161405 	Best Validation Loss: -0.0327469094
+  7%|▋         | 68/1000 [15:02<3:25:59, 13.26s/it]0.001 -> 0.001
+Epoch: 68 	Training Loss: -0.0088509362 	Validation Loss: -0.0324216753 	Best Validation Loss: -0.0327469094
+  7%|▋         | 69/1000 [15:15<3:26:09, 13.29s/it]0.001 -> 0.001
+Epoch: 69 	Training Loss: -0.0088101457 	Validation Loss: -0.0326708932 	Best Validation Loss: -0.0327469094
+  7%|▋         | 70/1000 [15:29<3:26:02, 13.29s/it]0.001 -> 0.001
+Epoch: 70 	Training Loss: -0.0089085873 	Validation Loss: -0.0326586859 	Best Validation Loss: -0.0327469094
+  7%|▋         | 71/1000 [15:42<3:25:06, 13.25s/it]0.001 -> 0.001
+Epoch: 71 	Training Loss: -0.0088099081 	Validation Loss: -0.0325252394 	Best Validation Loss: -0.0327469094
+  7%|▋         | 72/1000 [15:55<3:24:24, 13.22s/it]0.001 -> 0.001
+Epoch: 72 	Training Loss: -0.0089452856 	Validation Loss: -0.0326240958 	Best Validation Loss: -0.0327469094
+  7%|▋         | 73/1000 [16:08<3:24:19, 13.22s/it]0.001 -> 0.001
+Epoch: 73 	Training Loss: -0.0089393280 	Validation Loss: -0.0328453745 	Best Validation Loss: -0.0327469094
+### Validation loss same/decreased (-0.0327469094 --> -0.0328453745)... saving model. ###
+  7%|▋         | 74/1000 [16:22<3:24:35, 13.26s/it]0.001 -> 0.001
+Epoch: 74 	Training Loss: -0.0089947347 	Validation Loss: -0.0329965576 	Best Validation Loss: -0.0328453745
+### Validation loss same/decreased (-0.0328453745 --> -0.0329965576)... saving model. ###
+  8%|▊         | 75/1000 [16:35<3:25:20, 13.32s/it]0.001 -> 0.001
+Epoch: 75 	Training Loss: -0.0089484772 	Validation Loss: -0.0327351985 	Best Validation Loss: -0.0329965576
+  8%|▊         | 76/1000 [16:48<3:24:15, 13.26s/it]0.001 -> 0.001
+Epoch: 76 	Training Loss: -0.0089574998 	Validation Loss: -0.0326366138 	Best Validation Loss: -0.0329965576
+  8%|▊         | 77/1000 [17:02<3:24:01, 13.26s/it]0.001 -> 0.001
+Epoch: 77 	Training Loss: -0.0089534850 	Validation Loss: -0.0329935824 	Best Validation Loss: -0.0329965576
+  8%|▊         | 78/1000 [17:15<3:23:15, 13.23s/it]0.001 -> 0.001
+Epoch: 78 	Training Loss: -0.0089729837 	Validation Loss: -0.0324776509 	Best Validation Loss: -0.0329965576
+  8%|▊         | 79/1000 [17:28<3:23:26, 13.25s/it]0.001 -> 0.001
+Epoch: 79 	Training Loss: -0.0089550179 	Validation Loss: -0.0325553173 	Best Validation Loss: -0.0329965576
+  8%|▊         | 80/1000 [17:41<3:24:13, 13.32s/it]0.001 -> 0.001
+Epoch: 80 	Training Loss: -0.0090389169 	Validation Loss: -0.0330353124 	Best Validation Loss: -0.0329965576
+### Validation loss same/decreased (-0.0329965576 --> -0.0330353124)... saving model. ###
+  8%|▊         | 81/1000 [17:55<3:23:23, 13.28s/it]0.001 -> 0.001
+Epoch: 81 	Training Loss: -0.0089867361 	Validation Loss: -0.0325609352 	Best Validation Loss: -0.0330353124
+  8%|▊         | 82/1000 [18:08<3:23:12, 13.28s/it]0.001 -> 0.001
+Epoch: 82 	Training Loss: -0.0089990246 	Validation Loss: -0.0328871265 	Best Validation Loss: -0.0330353124
+  8%|▊         | 83/1000 [18:21<3:22:30, 13.25s/it]0.001 -> 0.001
+Epoch: 83 	Training Loss: -0.0089928760 	Validation Loss: -0.0328204493 	Best Validation Loss: -0.0330353124
+  8%|▊         | 84/1000 [18:34<3:22:37, 13.27s/it]0.001 -> 0.001
+Epoch: 84 	Training Loss: -0.0090059313 	Validation Loss: -0.0329761864 	Best Validation Loss: -0.0330353124
+  8%|▊         | 85/1000 [18:48<3:22:38, 13.29s/it]0.001 -> 0.001
+Epoch: 85 	Training Loss: -0.0089652186 	Validation Loss: -0.0326706040 	Best Validation Loss: -0.0330353124
+  9%|▊         | 86/1000 [19:01<3:23:03, 13.33s/it]0.001 -> 0.001
+Epoch: 86 	Training Loss: -0.0089207967 	Validation Loss: -0.0325033473 	Best Validation Loss: -0.0330353124
+  9%|▊         | 87/1000 [19:14<3:21:59, 13.27s/it]0.001 -> 0.001
+Epoch: 87 	Training Loss: -0.0090615443 	Validation Loss: -0.0331568243 	Best Validation Loss: -0.0330353124
+### Validation loss same/decreased (-0.0330353124 --> -0.0331568243)... saving model. ###
+  9%|▉         | 88/1000 [19:27<3:21:02, 13.23s/it]0.001 -> 0.001
+Epoch: 88 	Training Loss: -0.0091185978 	Validation Loss: -0.0329695362 	Best Validation Loss: -0.0331568243
+  9%|▉         | 89/1000 [19:41<3:21:00, 13.24s/it]0.001 -> 0.001
+Epoch: 89 	Training Loss: -0.0089932445 	Validation Loss: -0.0328860814 	Best Validation Loss: -0.0331568243
+  9%|▉         | 90/1000 [19:54<3:20:25, 13.21s/it]0.001 -> 0.001
+Epoch: 90 	Training Loss: -0.0091103633 	Validation Loss: -0.0330399199 	Best Validation Loss: -0.0331568243
+  9%|▉         | 91/1000 [20:07<3:21:28, 13.30s/it]0.001 -> 0.001
+Epoch: 91 	Training Loss: -0.0091163031 	Validation Loss: -0.0327807052 	Best Validation Loss: -0.0331568243
+  9%|▉         | 92/1000 [20:21<3:21:11, 13.29s/it]0.001 -> 0.001
+Epoch: 92 	Training Loss: -0.0090206700 	Validation Loss: -0.0327821411 	Best Validation Loss: -0.0331568243
+  9%|▉         | 93/1000 [20:34<3:20:42, 13.28s/it]0.001 -> 0.001
+Epoch: 93 	Training Loss: -0.0090215771 	Validation Loss: -0.0327338727 	Best Validation Loss: -0.0331568243
+  9%|▉         | 94/1000 [20:47<3:19:55, 13.24s/it]0.001 -> 0.001
+Epoch: 94 	Training Loss: -0.0090532722 	Validation Loss: -0.0330605211 	Best Validation Loss: -0.0331568243
+ 10%|▉         | 95/1000 [21:00<3:19:50, 13.25s/it]0.001 -> 0.001
+Epoch: 95 	Training Loss: -0.0091147041 	Validation Loss: -0.0328920310 	Best Validation Loss: -0.0331568243
+ 10%|▉         | 96/1000 [21:13<3:19:08, 13.22s/it]0.001 -> 0.001
+Epoch: 96 	Training Loss: -0.0090983418 	Validation Loss: -0.0327889730 	Best Validation Loss: -0.0331568243
+ 10%|▉         | 97/1000 [21:27<3:19:42, 13.27s/it]0.001 -> 0.001
+Epoch: 97 	Training Loss: -0.0091384181 	Validation Loss: -0.0329728472 	Best Validation Loss: -0.0331568243
+ 10%|▉         | 98/1000 [21:40<3:20:01, 13.31s/it]0.001 -> 0.001
+Epoch: 98 	Training Loss: -0.0091336444 	Validation Loss: -0.0328345348 	Best Validation Loss: -0.0331568243
+ 10%|▉         | 99/1000 [21:53<3:19:11, 13.26s/it]0.001 -> 0.001
+Epoch: 99 	Training Loss: -0.0090132863 	Validation Loss: -0.0329209648 	Best Validation Loss: -0.0331568243
+Validation early stop running loss decreased (-1.5265808712 --> -1.6328544285).
+ 10%|█         | 100/1000 [22:07<3:19:10, 13.28s/it]0.001 -> 0.001
+Epoch: 100 	Training Loss: -0.0090589454 	Validation Loss: -0.0329632571 	Best Validation Loss: -0.0331568243
+ 10%|█         | 101/1000 [22:20<3:18:20, 13.24s/it]0.001 -> 0.001
+Epoch: 101 	Training Loss: -0.0091183804 	Validation Loss: -0.0328568284 	Best Validation Loss: -0.0331568243
+ 10%|█         | 102/1000 [22:33<3:18:21, 13.25s/it]0.001 -> 0.001
+Epoch: 102 	Training Loss: -0.0091496619 	Validation Loss: -0.0332171403 	Best Validation Loss: -0.0331568243
+### Validation loss same/decreased (-0.0331568243 --> -0.0332171403)... saving model. ###
+ 10%|█         | 103/1000 [22:47<3:18:41, 13.29s/it]0.001 -> 0.001
+Epoch: 103 	Training Loss: -0.0090906287 	Validation Loss: -0.0329322590 	Best Validation Loss: -0.0332171403
+ 10%|█         | 104/1000 [23:00<3:18:53, 13.32s/it]0.001 -> 0.001
+Epoch: 104 	Training Loss: -0.0091321583 	Validation Loss: -0.0329463513 	Best Validation Loss: -0.0332171403
+ 10%|█         | 105/1000 [23:13<3:17:53, 13.27s/it]0.001 -> 0.001
+Epoch: 105 	Training Loss: -0.0091274532 	Validation Loss: -0.0329129281 	Best Validation Loss: -0.0332171403
+ 11%|█         | 106/1000 [23:26<3:17:01, 13.22s/it]0.001 -> 0.001
+Epoch: 106 	Training Loss: -0.0092001018 	Validation Loss: -0.0327360655 	Best Validation Loss: -0.0332171403
+ 11%|█         | 107/1000 [23:39<3:16:47, 13.22s/it]0.001 -> 0.001
+Epoch: 107 	Training Loss: -0.0091310677 	Validation Loss: -0.0325382402 	Best Validation Loss: -0.0332171403
+ 11%|█         | 108/1000 [23:53<3:16:35, 13.22s/it]0.001 -> 0.001
+Epoch: 108 	Training Loss: -0.0090712070 	Validation Loss: -0.0323614669 	Best Validation Loss: -0.0332171403
+ 11%|█         | 109/1000 [24:06<3:17:30, 13.30s/it]0.001 -> 0.001
+Epoch: 109 	Training Loss: -0.0091877032 	Validation Loss: -0.0330251743 	Best Validation Loss: -0.0332171403
+ 11%|█         | 110/1000 [24:19<3:16:55, 13.28s/it]0.001 -> 0.001
+Epoch: 110 	Training Loss: -0.0092158129 	Validation Loss: -0.0331256430 	Best Validation Loss: -0.0332171403
+ 11%|█         | 111/1000 [24:33<3:16:38, 13.27s/it]0.001 -> 0.001
+Epoch: 111 	Training Loss: -0.0091084649 	Validation Loss: -0.0328070244 	Best Validation Loss: -0.0332171403
+ 11%|█         | 112/1000 [24:46<3:15:51, 13.23s/it]0.001 -> 0.001
+Epoch: 112 	Training Loss: -0.0091986238 	Validation Loss: -0.0329556836 	Best Validation Loss: -0.0332171403
+ 11%|█▏        | 113/1000 [24:59<3:15:13, 13.21s/it]0.001 -> 0.001
+Epoch: 113 	Training Loss: -0.0091780270 	Validation Loss: -0.0328740096 	Best Validation Loss: -0.0332171403
+ 11%|█▏        | 114/1000 [25:12<3:15:07, 13.21s/it]0.001 -> 0.001
+Epoch: 114 	Training Loss: -0.0092328579 	Validation Loss: -0.0331840901 	Best Validation Loss: -0.0332171403
+ 12%|█▏        | 115/1000 [25:25<3:15:31, 13.26s/it]0.001 -> 0.001
+Epoch: 115 	Training Loss: -0.0092352826 	Validation Loss: -0.0328419415 	Best Validation Loss: -0.0332171403
+ 12%|█▏        | 116/1000 [25:39<3:15:47, 13.29s/it]0.001 -> 0.001
+Epoch: 116 	Training Loss: -0.0092109323 	Validation Loss: -0.0331051286 	Best Validation Loss: -0.0332171403
+ 12%|█▏        | 117/1000 [25:52<3:14:54, 13.24s/it]0.001 -> 0.001
+Epoch: 117 	Training Loss: -0.0092404594 	Validation Loss: -0.0328382025 	Best Validation Loss: -0.0332171403
+ 12%|█▏        | 118/1000 [26:05<3:14:15, 13.22s/it]0.001 -> 0.001
+Epoch: 118 	Training Loss: -0.0091071292 	Validation Loss: -0.0330867887 	Best Validation Loss: -0.0332171403
+ 12%|█▏        | 119/1000 [26:18<3:13:45, 13.20s/it]0.001 -> 0.001
+Epoch: 119 	Training Loss: -0.0091677915 	Validation Loss: -0.0330037275 	Best Validation Loss: -0.0332171403
+ 12%|█▏        | 120/1000 [26:32<3:14:35, 13.27s/it]0.001 -> 0.001
+Epoch: 120 	Training Loss: -0.0092347481 	Validation Loss: -0.0330950331 	Best Validation Loss: -0.0332171403
+ 12%|█▏        | 121/1000 [26:45<3:14:44, 13.29s/it]0.001 -> 0.001
+Epoch: 121 	Training Loss: -0.0092262344 	Validation Loss: -0.0328597060 	Best Validation Loss: -0.0332171403
+ 12%|█▏        | 122/1000 [26:58<3:13:54, 13.25s/it]0.001 -> 0.001
+Epoch: 122 	Training Loss: -0.0092175141 	Validation Loss: -0.0328876010 	Best Validation Loss: -0.0332171403
+ 12%|█▏        | 123/1000 [27:11<3:13:44, 13.25s/it]0.001 -> 0.0008
+Epoch: 123 	Training Loss: -0.0091807788 	Validation Loss: -0.0328165093 	Best Validation Loss: -0.0332171403
+ 12%|█▏        | 124/1000 [27:25<3:13:10, 13.23s/it]0.0008 -> 0.0008
+Epoch: 124 	Training Loss: -0.0092681612 	Validation Loss: -0.0330771058 	Best Validation Loss: -0.0332171403
+ 12%|█▎        | 125/1000 [27:38<3:13:14, 13.25s/it]0.0008 -> 0.0008
+Epoch: 125 	Training Loss: -0.0092575773 	Validation Loss: -0.0330845966 	Best Validation Loss: -0.0332171403
+ 13%|█▎        | 126/1000 [27:51<3:13:35, 13.29s/it]0.0008 -> 0.0008
+Epoch: 126 	Training Loss: -0.0092804700 	Validation Loss: -0.0329551167 	Best Validation Loss: -0.0332171403
+ 13%|█▎        | 127/1000 [28:05<3:13:49, 13.32s/it]0.0008 -> 0.0008
+Epoch: 127 	Training Loss: -0.0092817592 	Validation Loss: -0.0330667389 	Best Validation Loss: -0.0332171403
+ 13%|█▎        | 128/1000 [28:18<3:12:52, 13.27s/it]0.0008 -> 0.0008
+Epoch: 128 	Training Loss: -0.0092873824 	Validation Loss: -0.0330344443 	Best Validation Loss: -0.0332171403
+ 13%|█▎        | 129/1000 [28:31<3:12:38, 13.27s/it]0.0008 -> 0.0008
+Epoch: 129 	Training Loss: -0.0092637319 	Validation Loss: -0.0332207905 	Best Validation Loss: -0.0332171403
+### Validation loss same/decreased (-0.0332171403 --> -0.0332207905)... saving model. ###
+ 13%|█▎        | 130/1000 [28:44<3:11:57, 13.24s/it]0.0008 -> 0.0008
+Epoch: 130 	Training Loss: -0.0092547378 	Validation Loss: -0.0329294534 	Best Validation Loss: -0.0332207905
+ 13%|█▎        | 131/1000 [28:58<3:11:46, 13.24s/it]0.0008 -> 0.0008
+Epoch: 131 	Training Loss: -0.0092299390 	Validation Loss: -0.0334308735 	Best Validation Loss: -0.0332207905
+### Validation loss same/decreased (-0.0332207905 --> -0.0334308735)... saving model. ###
+ 13%|█▎        | 132/1000 [29:11<3:12:42, 13.32s/it]0.0008 -> 0.0008
+Epoch: 132 	Training Loss: -0.0091962545 	Validation Loss: -0.0328864638 	Best Validation Loss: -0.0334308735
+ 13%|█▎        | 133/1000 [29:24<3:12:01, 13.29s/it]0.0008 -> 0.0008
+Epoch: 133 	Training Loss: -0.0093102639 	Validation Loss: -0.0331215826 	Best Validation Loss: -0.0334308735
+ 13%|█▎        | 134/1000 [29:37<3:11:35, 13.27s/it]0.0008 -> 0.0008
+Epoch: 134 	Training Loss: -0.0092063443 	Validation Loss: -0.0333196957 	Best Validation Loss: -0.0334308735
+ 14%|█▎        | 135/1000 [29:51<3:10:46, 13.23s/it]0.0008 -> 0.0008
+Epoch: 135 	Training Loss: -0.0092833170 	Validation Loss: -0.0330051365 	Best Validation Loss: -0.0334308735
+ 14%|█▎        | 136/1000 [30:04<3:10:33, 13.23s/it]0.0008 -> 0.0008
+Epoch: 136 	Training Loss: -0.0093183748 	Validation Loss: -0.0333595043 	Best Validation Loss: -0.0334308735
+ 14%|█▎        | 137/1000 [30:17<3:10:19, 13.23s/it]0.0008 -> 0.0008
+Epoch: 137 	Training Loss: -0.0091974573 	Validation Loss: -0.0332979756 	Best Validation Loss: -0.0334308735
+ 14%|█▍        | 138/1000 [30:31<3:11:02, 13.30s/it]0.0008 -> 0.0008
+Epoch: 138 	Training Loss: -0.0093220068 	Validation Loss: -0.0330397730 	Best Validation Loss: -0.0334308735
+ 14%|█▍        | 139/1000 [30:44<3:10:30, 13.28s/it]0.0008 -> 0.0008
+Epoch: 139 	Training Loss: -0.0093438986 	Validation Loss: -0.0333196526 	Best Validation Loss: -0.0334308735
+ 14%|█▍        | 140/1000 [30:57<3:09:34, 13.23s/it]0.0008 -> 0.0008
+Epoch: 140 	Training Loss: -0.0092463784 	Validation Loss: -0.0328634026 	Best Validation Loss: -0.0334308735
+ 14%|█▍        | 141/1000 [31:10<3:09:23, 13.23s/it]0.0008 -> 0.0008
+Epoch: 141 	Training Loss: -0.0093226885 	Validation Loss: -0.0329802523 	Best Validation Loss: -0.0334308735
+ 14%|█▍        | 142/1000 [31:23<3:08:45, 13.20s/it]0.0008 -> 0.0008
+Epoch: 142 	Training Loss: -0.0093145537 	Validation Loss: -0.0331099750 	Best Validation Loss: -0.0334308735
+ 14%|█▍        | 143/1000 [31:37<3:09:31, 13.27s/it]0.0008 -> 0.0008
+Epoch: 143 	Training Loss: -0.0093692601 	Validation Loss: -0.0333063476 	Best Validation Loss: -0.0334308735
+ 14%|█▍        | 144/1000 [31:50<3:09:36, 13.29s/it]0.0008 -> 0.0008
+Epoch: 144 	Training Loss: -0.0093018001 	Validation Loss: -0.0331601428 	Best Validation Loss: -0.0334308735
+ 14%|█▍        | 145/1000 [32:03<3:09:13, 13.28s/it]0.0008 -> 0.0008
+Epoch: 145 	Training Loss: -0.0093279377 	Validation Loss: -0.0333490902 	Best Validation Loss: -0.0334308735
+ 15%|█▍        | 146/1000 [32:16<3:08:23, 13.24s/it]0.0008 -> 0.0008
+Epoch: 146 	Training Loss: -0.0092587475 	Validation Loss: -0.0329138543 	Best Validation Loss: -0.0334308735
+ 15%|█▍        | 147/1000 [32:30<3:08:06, 13.23s/it]0.0008 -> 0.0008
+Epoch: 147 	Training Loss: -0.0093624121 	Validation Loss: -0.0332747748 	Best Validation Loss: -0.0334308735
+ 15%|█▍        | 148/1000 [32:43<3:07:38, 13.21s/it]0.0008 -> 0.0008
+Epoch: 148 	Training Loss: -0.0093670921 	Validation Loss: -0.0330587605 	Best Validation Loss: -0.0334308735
+ 15%|█▍        | 149/1000 [32:56<3:08:00, 13.26s/it]0.0008 -> 0.0008
+Epoch: 149 	Training Loss: -0.0093292567 	Validation Loss: -0.0332844495 	Best Validation Loss: -0.0334308735
+Validation early stop running loss decreased (-1.6328544285 --> -1.6514207535).
+ 15%|█▌        | 150/1000 [33:10<3:08:16, 13.29s/it]0.0008 -> 0.0008
+Epoch: 150 	Training Loss: -0.0093291336 	Validation Loss: -0.0334887321 	Best Validation Loss: -0.0334308735
+### Validation loss same/decreased (-0.0334308735 --> -0.0334887321)... saving model. ###
+ 15%|█▌        | 151/1000 [33:23<3:07:20, 13.24s/it]0.0008 -> 0.0008
+Epoch: 151 	Training Loss: -0.0093739734 	Validation Loss: -0.0331914804 	Best Validation Loss: -0.0334887321
+ 15%|█▌        | 152/1000 [33:36<3:07:06, 13.24s/it]0.0008 -> 0.0008
+Epoch: 152 	Training Loss: -0.0092388530 	Validation Loss: -0.0330178835 	Best Validation Loss: -0.0334887321
+ 15%|█▌        | 153/1000 [33:49<3:06:27, 13.21s/it]0.0008 -> 0.0008
+Epoch: 153 	Training Loss: -0.0092782340 	Validation Loss: -0.0333981975 	Best Validation Loss: -0.0334887321
+ 15%|█▌        | 154/1000 [34:02<3:06:46, 13.25s/it]0.0008 -> 0.0008
+Epoch: 154 	Training Loss: -0.0094140889 	Validation Loss: -0.0331500464 	Best Validation Loss: -0.0334887321
+ 16%|█▌        | 155/1000 [34:16<3:07:04, 13.28s/it]0.0008 -> 0.0008
+Epoch: 155 	Training Loss: -0.0093601128 	Validation Loss: -0.0333417471 	Best Validation Loss: -0.0334887321
+ 16%|█▌        | 156/1000 [34:29<3:07:09, 13.31s/it]0.0008 -> 0.0008
+Epoch: 156 	Training Loss: -0.0093293395 	Validation Loss: -0.0329283260 	Best Validation Loss: -0.0334887321
+ 16%|█▌        | 157/1000 [34:42<3:06:15, 13.26s/it]0.0008 -> 0.0008
+Epoch: 157 	Training Loss: -0.0093181947 	Validation Loss: -0.0333764079 	Best Validation Loss: -0.0334887321
+ 16%|█▌        | 158/1000 [34:55<3:05:34, 13.22s/it]0.0008 -> 0.0008
+Epoch: 158 	Training Loss: -0.0092899384 	Validation Loss: -0.0330608641 	Best Validation Loss: -0.0334887321
+ 16%|█▌        | 159/1000 [35:09<3:05:35, 13.24s/it]0.0008 -> 0.0008
+Epoch: 159 	Training Loss: -0.0093130647 	Validation Loss: -0.0327275336 	Best Validation Loss: -0.0334887321
+ 16%|█▌        | 160/1000 [35:22<3:05:29, 13.25s/it]0.0008 -> 0.0008
+Epoch: 160 	Training Loss: -0.0093468995 	Validation Loss: -0.0334442019 	Best Validation Loss: -0.0334887321
+ 16%|█▌        | 161/1000 [35:35<3:06:27, 13.33s/it]0.0008 -> 0.0008
+Epoch: 161 	Training Loss: -0.0094573321 	Validation Loss: -0.0331676420 	Best Validation Loss: -0.0334887321
+ 16%|█▌        | 162/1000 [35:49<3:05:56, 13.31s/it]0.0008 -> 0.0008
+Epoch: 162 	Training Loss: -0.0094338779 	Validation Loss: -0.0331731248 	Best Validation Loss: -0.0334887321
+ 16%|█▋        | 163/1000 [36:02<3:05:27, 13.29s/it]0.0008 -> 0.0008
+Epoch: 163 	Training Loss: -0.0093895308 	Validation Loss: -0.0331152359 	Best Validation Loss: -0.0334887321
+ 16%|█▋        | 164/1000 [36:15<3:04:38, 13.25s/it]0.0008 -> 0.0008
+Epoch: 164 	Training Loss: -0.0093589964 	Validation Loss: -0.0331430759 	Best Validation Loss: -0.0334887321
+ 16%|█▋        | 165/1000 [36:28<3:04:00, 13.22s/it]0.0008 -> 0.0008
+Epoch: 165 	Training Loss: -0.0093304811 	Validation Loss: -0.0331671807 	Best Validation Loss: -0.0334887321
+ 17%|█▋        | 166/1000 [36:42<3:04:56, 13.30s/it]0.0008 -> 0.0008
+Epoch: 166 	Training Loss: -0.0093617945 	Validation Loss: -0.0332892348 	Best Validation Loss: -0.0334887321
+ 17%|█▋        | 167/1000 [36:55<3:04:47, 13.31s/it]0.0008 -> 0.0008
+Epoch: 167 	Training Loss: -0.0093733738 	Validation Loss: -0.0332021028 	Best Validation Loss: -0.0334887321
+ 17%|█▋        | 168/1000 [37:55<6:17:44, 27.24s/it]0.0008 -> 0.0008
+Epoch: 168 	Training Loss: -0.0094213869 	Validation Loss: -0.0333618510 	Best Validation Loss: -0.0334887321
+ 17%|█▋        | 169/1000 [38:08<5:19:08, 23.04s/it]0.0008 -> 0.0008
+Epoch: 169 	Training Loss: -0.0093730405 	Validation Loss: -0.0329291758 	Best Validation Loss: -0.0334887321
+ 17%|█▋        | 170/1000 [38:21<4:37:44, 20.08s/it]0.0008 -> 0.0008
+Epoch: 170 	Training Loss: -0.0094620512 	Validation Loss: -0.0332041439 	Best Validation Loss: -0.0334887321
+ 17%|█▋        | 171/1000 [38:35<4:09:27, 18.06s/it]0.0008 -> 0.00064
+Epoch: 171 	Training Loss: -0.0093541819 	Validation Loss: -0.0333732801 	Best Validation Loss: -0.0334887321
+ 17%|█▋        | 172/1000 [38:48<3:49:57, 16.66s/it]0.00064 -> 0.00064
+Epoch: 172 	Training Loss: -0.0094041438 	Validation Loss: -0.0333025383 	Best Validation Loss: -0.0334887321
+ 17%|█▋        | 173/1000 [39:01<3:36:10, 15.68s/it]0.00064 -> 0.00064
+Epoch: 173 	Training Loss: -0.0094456402 	Validation Loss: -0.0332032368 	Best Validation Loss: -0.0334887321
+ 17%|█▋        | 174/1000 [39:15<3:25:32, 14.93s/it]0.00064 -> 0.00064
+Epoch: 174 	Training Loss: -0.0094420874 	Validation Loss: -0.0330789154 	Best Validation Loss: -0.0334887321
+ 18%|█▊        | 175/1000 [40:48<8:49:32, 38.51s/it]0.00064 -> 0.00064
+Epoch: 175 	Training Loss: -0.0093975914 	Validation Loss: -0.0330455013 	Best Validation Loss: -0.0334887321
+ 18%|█▊        | 176/1000 [41:01<7:04:49, 30.93s/it]0.00064 -> 0.00064
+Epoch: 176 	Training Loss: -0.0093676133 	Validation Loss: -0.0332109445 	Best Validation Loss: -0.0334887321
+ 18%|█▊        | 177/1000 [41:15<5:51:56, 25.66s/it]0.00064 -> 0.00064
+Epoch: 177 	Training Loss: -0.0094304684 	Validation Loss: -0.0333347486 	Best Validation Loss: -0.0334887321
+ 18%|█▊        | 178/1000 [41:28<5:00:50, 21.96s/it]0.00064 -> 0.00064
+Epoch: 178 	Training Loss: -0.0094042123 	Validation Loss: -0.0331384825 	Best Validation Loss: -0.0334887321
+ 18%|█▊        | 179/1000 [41:41<4:24:42, 19.35s/it]0.00064 -> 0.00064
+Epoch: 179 	Training Loss: -0.0094244979 	Validation Loss: -0.0333233599 	Best Validation Loss: -0.0334887321
+ 18%|█▊        | 180/1000 [41:54<3:58:54, 17.48s/it]0.00064 -> 0.00064
+Epoch: 180 	Training Loss: -0.0094058308 	Validation Loss: -0.0334818719 	Best Validation Loss: -0.0334887321
+ 18%|█▊        | 181/1000 [42:08<3:41:13, 16.21s/it]0.00064 -> 0.00064
+Epoch: 181 	Training Loss: -0.0094637196 	Validation Loss: -0.0328821481 	Best Validation Loss: -0.0334887321
+ 18%|█▊        | 182/1000 [42:21<3:28:35, 15.30s/it]0.00064 -> 0.00064
+Epoch: 182 	Training Loss: -0.0092862024 	Validation Loss: -0.0335491508 	Best Validation Loss: -0.0334887321
+### Validation loss same/decreased (-0.0334887321 --> -0.0335491508)... saving model. ###
+ 18%|█▊        | 183/1000 [42:34<3:20:54, 14.75s/it]0.00064 -> 0.00064
+Epoch: 183 	Training Loss: -0.0093847155 	Validation Loss: -0.0331086066 	Best Validation Loss: -0.0335491508
+ 18%|█▊        | 184/1000 [42:48<3:14:39, 14.31s/it]0.00064 -> 0.00064
+Epoch: 184 	Training Loss: -0.0094701131 	Validation Loss: -0.0331576970 	Best Validation Loss: -0.0335491508
+ 18%|█▊        | 185/1000 [43:01<3:09:55, 13.98s/it]0.00064 -> 0.00064
+Epoch: 185 	Training Loss: -0.0093930109 	Validation Loss: -0.0333958214 	Best Validation Loss: -0.0335491508
+ 19%|█▊        | 186/1000 [43:14<3:06:16, 13.73s/it]0.00064 -> 0.00064
+Epoch: 186 	Training Loss: -0.0094353958 	Validation Loss: -0.0335124412 	Best Validation Loss: -0.0335491508
+ 19%|█▊        | 187/1000 [43:27<3:03:39, 13.55s/it]0.00064 -> 0.00064
+Epoch: 187 	Training Loss: -0.0094495619 	Validation Loss: -0.0334023188 	Best Validation Loss: -0.0335491508
+ 19%|█▉        | 188/1000 [43:41<3:03:14, 13.54s/it]0.00064 -> 0.00064
+Epoch: 188 	Training Loss: -0.0094318709 	Validation Loss: -0.0334386376 	Best Validation Loss: -0.0335491508
+ 19%|█▉        | 189/1000 [43:54<3:01:55, 13.46s/it]0.00064 -> 0.00064
+Epoch: 189 	Training Loss: -0.0093616312 	Validation Loss: -0.0331366843 	Best Validation Loss: -0.0335491508
+ 19%|█▉        | 190/1000 [44:07<3:00:49, 13.39s/it]0.00064 -> 0.00064
+Epoch: 190 	Training Loss: -0.0093908808 	Validation Loss: -0.0332231907 	Best Validation Loss: -0.0335491508
+ 19%|█▉        | 191/1000 [44:20<2:59:33, 13.32s/it]0.00064 -> 0.00064
+Epoch: 191 	Training Loss: -0.0094529919 	Validation Loss: -0.0334147140 	Best Validation Loss: -0.0335491508
+ 19%|█▉        | 192/1000 [44:34<2:59:09, 13.30s/it]0.00064 -> 0.00064
+Epoch: 192 	Training Loss: -0.0094079813 	Validation Loss: -0.0331766100 	Best Validation Loss: -0.0335491508
+ 19%|█▉        | 193/1000 [44:47<2:58:50, 13.30s/it]0.00064 -> 0.00064
+Epoch: 193 	Training Loss: -0.0094855398 	Validation Loss: -0.0331438958 	Best Validation Loss: -0.0335491508
+ 19%|█▉        | 194/1000 [45:00<2:59:20, 13.35s/it]0.00064 -> 0.00064
+Epoch: 194 	Training Loss: -0.0095446642 	Validation Loss: -0.0333343279 	Best Validation Loss: -0.0335491508
+ 20%|█▉        | 195/1000 [45:13<2:58:24, 13.30s/it]0.00064 -> 0.00064
+Epoch: 195 	Training Loss: -0.0094175141 	Validation Loss: -0.0331435538 	Best Validation Loss: -0.0335491508
+ 20%|█▉        | 196/1000 [45:27<2:57:30, 13.25s/it]0.00064 -> 0.00064
+Epoch: 196 	Training Loss: -0.0094888686 	Validation Loss: -0.0331361578 	Best Validation Loss: -0.0335491508
+ 20%|█▉        | 197/1000 [45:40<2:57:12, 13.24s/it]0.00064 -> 0.00064
+Epoch: 197 	Training Loss: -0.0094867491 	Validation Loss: -0.0331645193 	Best Validation Loss: -0.0335491508
+ 20%|█▉        | 198/1000 [45:53<2:56:50, 13.23s/it]0.00064 -> 0.00064
+Epoch: 198 	Training Loss: -0.0094805880 	Validation Loss: -0.0331496525 	Best Validation Loss: -0.0335491508
+ 20%|█▉        | 199/1000 [46:06<2:57:31, 13.30s/it]0.00064 -> 0.00064
+Epoch: 199 	Training Loss: -0.0093622827 	Validation Loss: -0.0334341607 	Best Validation Loss: -0.0335491508
+Validation early stop running loss decreased (-1.6514207535 --> -1.6612753557).
+ 20%|██        | 200/1000 [46:20<2:57:09, 13.29s/it]0.00064 -> 0.00064
+Epoch: 200 	Training Loss: -0.0094578412 	Validation Loss: -0.0332180494 	Best Validation Loss: -0.0335491508
+ 20%|██        | 201/1000 [46:33<2:56:51, 13.28s/it]0.00064 -> 0.00064
+Epoch: 201 	Training Loss: -0.0094659958 	Validation Loss: -0.0332609915 	Best Validation Loss: -0.0335491508
+ 20%|██        | 202/1000 [46:46<2:56:05, 13.24s/it]0.00064 -> 0.00064
+Epoch: 202 	Training Loss: -0.0094004285 	Validation Loss: -0.0331996964 	Best Validation Loss: -0.0335491508
+ 20%|██        | 203/1000 [46:59<2:56:04, 13.25s/it]0.00064 -> 0.0005120000000000001
+Epoch: 203 	Training Loss: -0.0094638091 	Validation Loss: -0.0333444042 	Best Validation Loss: -0.0335491508
+ 20%|██        | 204/1000 [47:13<2:55:37, 13.24s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 204 	Training Loss: -0.0094654559 	Validation Loss: -0.0331203681 	Best Validation Loss: -0.0335491508
+ 20%|██        | 205/1000 [47:26<2:55:58, 13.28s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 205 	Training Loss: -0.0095268021 	Validation Loss: -0.0330914811 	Best Validation Loss: -0.0335491508
+ 21%|██        | 206/1000 [47:39<2:56:02, 13.30s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 206 	Training Loss: -0.0094025784 	Validation Loss: -0.0332845733 	Best Validation Loss: -0.0335491508
+ 21%|██        | 207/1000 [47:53<2:55:20, 13.27s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 207 	Training Loss: -0.0095288199 	Validation Loss: -0.0333596901 	Best Validation Loss: -0.0335491508
+ 21%|██        | 208/1000 [48:06<2:55:12, 13.27s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 208 	Training Loss: -0.0094606071 	Validation Loss: -0.0332802982 	Best Validation Loss: -0.0335491508
+ 21%|██        | 209/1000 [48:19<2:54:28, 13.23s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 209 	Training Loss: -0.0094070284 	Validation Loss: -0.0333696722 	Best Validation Loss: -0.0335491508
+ 21%|██        | 210/1000 [48:32<2:54:32, 13.26s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 210 	Training Loss: -0.0094401909 	Validation Loss: -0.0330583302 	Best Validation Loss: -0.0335491508
+ 21%|██        | 211/1000 [48:46<2:55:05, 13.32s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 211 	Training Loss: -0.0094224356 	Validation Loss: -0.0330603739 	Best Validation Loss: -0.0335491508
+ 21%|██        | 212/1000 [48:59<2:54:51, 13.31s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 212 	Training Loss: -0.0094447054 	Validation Loss: -0.0330121114 	Best Validation Loss: -0.0335491508
+ 21%|██▏       | 213/1000 [49:12<2:53:52, 13.26s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 213 	Training Loss: -0.0094879744 	Validation Loss: -0.0331194275 	Best Validation Loss: -0.0335491508
+ 21%|██▏       | 214/1000 [49:25<2:53:11, 13.22s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 214 	Training Loss: -0.0094559643 	Validation Loss: -0.0329705655 	Best Validation Loss: -0.0335491508
+ 22%|██▏       | 215/1000 [49:39<2:53:08, 13.23s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 215 	Training Loss: -0.0094784892 	Validation Loss: -0.0329911626 	Best Validation Loss: -0.0335491508
+ 22%|██▏       | 216/1000 [49:52<2:53:00, 13.24s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 216 	Training Loss: -0.0094402773 	Validation Loss: -0.0331127539 	Best Validation Loss: -0.0335491508
+ 22%|██▏       | 217/1000 [50:05<2:53:36, 13.30s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 217 	Training Loss: -0.0094520422 	Validation Loss: -0.0327545350 	Best Validation Loss: -0.0335491508
+ 22%|██▏       | 218/1000 [50:18<2:52:54, 13.27s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 218 	Training Loss: -0.0095641896 	Validation Loss: -0.0331235296 	Best Validation Loss: -0.0335491508
+ 22%|██▏       | 219/1000 [50:32<2:52:09, 13.23s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 219 	Training Loss: -0.0095159465 	Validation Loss: -0.0332844117 	Best Validation Loss: -0.0335491508
+ 22%|██▏       | 220/1000 [50:45<2:51:34, 13.20s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 220 	Training Loss: -0.0095216393 	Validation Loss: -0.0331451585 	Best Validation Loss: -0.0335491508
+ 22%|██▏       | 221/1000 [50:58<2:51:07, 13.18s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 221 	Training Loss: -0.0095319977 	Validation Loss: -0.0328436934 	Best Validation Loss: -0.0335491508
+ 22%|██▏       | 222/1000 [51:11<2:51:41, 13.24s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 222 	Training Loss: -0.0094923772 	Validation Loss: -0.0331185750 	Best Validation Loss: -0.0335491508
+ 22%|██▏       | 223/1000 [51:25<2:51:47, 13.27s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 223 	Training Loss: -0.0095763755 	Validation Loss: -0.0331165483 	Best Validation Loss: -0.0335491508
+ 22%|██▏       | 224/1000 [51:38<2:51:17, 13.24s/it]0.0005120000000000001 -> 0.0004096000000000001
+Epoch: 224 	Training Loss: -0.0095569355 	Validation Loss: -0.0329927272 	Best Validation Loss: -0.0335491508
+ 22%|██▎       | 225/1000 [51:51<2:50:40, 13.21s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 225 	Training Loss: -0.0095521639 	Validation Loss: -0.0332097409 	Best Validation Loss: -0.0335491508
+ 23%|██▎       | 226/1000 [52:04<2:50:37, 13.23s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 226 	Training Loss: -0.0095171154 	Validation Loss: -0.0331936933 	Best Validation Loss: -0.0335491508
+ 23%|██▎       | 227/1000 [52:17<2:50:05, 13.20s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 227 	Training Loss: -0.0095241355 	Validation Loss: -0.0330995135 	Best Validation Loss: -0.0335491508
+ 23%|██▎       | 228/1000 [52:31<2:50:52, 13.28s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 228 	Training Loss: -0.0095563733 	Validation Loss: -0.0331004419 	Best Validation Loss: -0.0335491508
+ 23%|██▎       | 229/1000 [52:44<2:50:49, 13.29s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 229 	Training Loss: -0.0095222430 	Validation Loss: -0.0332118419 	Best Validation Loss: -0.0335491508
+ 23%|██▎       | 230/1000 [52:57<2:49:59, 13.25s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 230 	Training Loss: -0.0095220425 	Validation Loss: -0.0331230955 	Best Validation Loss: -0.0335491508
+ 23%|██▎       | 231/1000 [53:10<2:49:45, 13.24s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 231 	Training Loss: -0.0094996306 	Validation Loss: -0.0330128815 	Best Validation Loss: -0.0335491508
+ 23%|██▎       | 232/1000 [53:24<2:49:07, 13.21s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 232 	Training Loss: -0.0095335563 	Validation Loss: -0.0328062056 	Best Validation Loss: -0.0335491508
+ 23%|██▎       | 233/1000 [53:37<2:49:10, 13.23s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 233 	Training Loss: -0.0095176918 	Validation Loss: -0.0329655622 	Best Validation Loss: -0.0335491508
+ 23%|██▎       | 234/1000 [53:50<2:49:36, 13.29s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 234 	Training Loss: -0.0095582767 	Validation Loss: -0.0333875127 	Best Validation Loss: -0.0335491508
+ 24%|██▎       | 235/1000 [54:04<2:49:43, 13.31s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 235 	Training Loss: -0.0094998908 	Validation Loss: -0.0331795659 	Best Validation Loss: -0.0335491508
+ 24%|██▎       | 236/1000 [54:17<2:48:51, 13.26s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 236 	Training Loss: -0.0095781212 	Validation Loss: -0.0329675087 	Best Validation Loss: -0.0335491508
+ 24%|██▎       | 237/1000 [54:30<2:48:41, 13.27s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 237 	Training Loss: -0.0094735058 	Validation Loss: -0.0332299853 	Best Validation Loss: -0.0335491508
+ 24%|██▍       | 238/1000 [54:43<2:48:14, 13.25s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 238 	Training Loss: -0.0095133117 	Validation Loss: -0.0330753727 	Best Validation Loss: -0.0335491508
+ 24%|██▍       | 239/1000 [54:57<2:48:24, 13.28s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 239 	Training Loss: -0.0096392525 	Validation Loss: -0.0332009172 	Best Validation Loss: -0.0335491508
+ 24%|██▍       | 240/1000 [55:10<2:48:26, 13.30s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 240 	Training Loss: -0.0095679940 	Validation Loss: -0.0331684814 	Best Validation Loss: -0.0335491508
+ 24%|██▍       | 241/1000 [55:23<2:47:35, 13.25s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 241 	Training Loss: -0.0096289701 	Validation Loss: -0.0331404248 	Best Validation Loss: -0.0335491508
+ 24%|██▍       | 242/1000 [55:36<2:47:25, 13.25s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 242 	Training Loss: -0.0095205767 	Validation Loss: -0.0331919617 	Best Validation Loss: -0.0335491508
+ 24%|██▍       | 243/1000 [55:50<2:47:04, 13.24s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 243 	Training Loss: -0.0095470496 	Validation Loss: -0.0330498883 	Best Validation Loss: -0.0335491508
+ 24%|██▍       | 244/1000 [56:03<2:47:54, 13.33s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 244 	Training Loss: -0.0095693731 	Validation Loss: -0.0331404068 	Best Validation Loss: -0.0335491508
+ 24%|██▍       | 245/1000 [56:16<2:47:28, 13.31s/it]0.0004096000000000001 -> 0.0003276800000000001
+Epoch: 245 	Training Loss: -0.0095364556 	Validation Loss: -0.0332923235 	Best Validation Loss: -0.0335491508
+ 25%|██▍       | 246/1000 [56:30<2:47:02, 13.29s/it]0.0003276800000000001 -> 0.0003276800000000001
+Epoch: 246 	Training Loss: -0.0095033480 	Validation Loss: -0.0327783045 	Best Validation Loss: -0.0335491508
+ 25%|██▍       | 247/1000 [56:43<2:46:16, 13.25s/it]0.0003276800000000001 -> 0.0003276800000000001
+Epoch: 247 	Training Loss: -0.0095696086 	Validation Loss: -0.0332424932 	Best Validation Loss: -0.0335491508
+ 25%|██▍       | 248/1000 [56:56<2:45:47, 13.23s/it]0.0003276800000000001 -> 0.0003276800000000001
+Epoch: 248 	Training Loss: -0.0095480996 	Validation Loss: -0.0331492016 	Best Validation Loss: -0.0335491508
+ 25%|██▍       | 249/1000 [57:10<2:46:40, 13.32s/it]0.0003276800000000001 -> 0.0003276800000000001
+Epoch: 249 	Training Loss: -0.0095246219 	Validation Loss: -0.0332746852 	Best Validation Loss: -0.0335491508
+No Validation early stop loss decrease (-1.6612753557 --> -1.6564251378). Early Stopping
+ 25%|██▍       | 249/1000 [57:23<2:53:05, 13.83s/it]
+  0%|          | 0/1000 [00:00<?, ?it/s]0.001 -> 0.001
+Epoch: 0 	Training Loss: -0.0054697367 	Validation Loss: -0.0217772098 	Best Validation Loss: inf
+### Validation loss same/decreased (inf --> -0.0217772098)... saving model. ###
+  0%|          | 1/1000 [00:08<2:28:53,  8.94s/it]0.001 -> 0.001
+Epoch: 1 	Training Loss: -0.0060870890 	Validation Loss: -0.0230939068 	Best Validation Loss: -0.0217772098
+### Validation loss same/decreased (-0.0217772098 --> -0.0230939068)... saving model. ###
+  0%|          | 2/1000 [00:17<2:27:12,  8.85s/it]0.001 -> 0.001
+Epoch: 2 	Training Loss: -0.0063296088 	Validation Loss: -0.0237174301 	Best Validation Loss: -0.0230939068
+### Validation loss same/decreased (-0.0230939068 --> -0.0237174301)... saving model. ###
+  0%|          | 3/1000 [00:26<2:26:30,  8.82s/it]0.001 -> 0.001
+Epoch: 3 	Training Loss: -0.0066952820 	Validation Loss: -0.0247164552 	Best Validation Loss: -0.0237174301
+### Validation loss same/decreased (-0.0237174301 --> -0.0247164552)... saving model. ###
+  0%|          | 4/1000 [00:35<2:26:07,  8.80s/it]0.001 -> 0.001
+Epoch: 4 	Training Loss: -0.0068651517 	Validation Loss: -0.0249718599 	Best Validation Loss: -0.0247164552
+### Validation loss same/decreased (-0.0247164552 --> -0.0249718599)... saving model. ###
+  0%|          | 5/1000 [00:44<2:27:02,  8.87s/it]0.001 -> 0.001
+Epoch: 5 	Training Loss: -0.0070864747 	Validation Loss: -0.0252000550 	Best Validation Loss: -0.0249718599
+### Validation loss same/decreased (-0.0249718599 --> -0.0252000550)... saving model. ###
+  1%|          | 6/1000 [00:53<2:27:15,  8.89s/it]0.001 -> 0.001
+Epoch: 6 	Training Loss: -0.0070378087 	Validation Loss: -0.0256899771 	Best Validation Loss: -0.0252000550
+### Validation loss same/decreased (-0.0252000550 --> -0.0256899771)... saving model. ###
+  1%|          | 7/1000 [01:02<2:27:05,  8.89s/it]0.001 -> 0.001
+Epoch: 7 	Training Loss: -0.0073339731 	Validation Loss: -0.0263387912 	Best Validation Loss: -0.0256899771
+### Validation loss same/decreased (-0.0256899771 --> -0.0263387912)... saving model. ###
+  1%|          | 8/1000 [01:10<2:26:48,  8.88s/it]0.001 -> 0.001
+Epoch: 8 	Training Loss: -0.0073243215 	Validation Loss: -0.0263008737 	Best Validation Loss: -0.0263387912
+  1%|          | 9/1000 [01:19<2:26:04,  8.84s/it]0.001 -> 0.001
+Epoch: 9 	Training Loss: -0.0074732095 	Validation Loss: -0.0267010906 	Best Validation Loss: -0.0263387912
+### Validation loss same/decreased (-0.0263387912 --> -0.0267010906)... saving model. ###
+  1%|          | 10/1000 [01:28<2:25:38,  8.83s/it]0.001 -> 0.001
+Epoch: 10 	Training Loss: -0.0074800487 	Validation Loss: -0.0269862815 	Best Validation Loss: -0.0267010906
+### Validation loss same/decreased (-0.0267010906 --> -0.0269862815)... saving model. ###
+  1%|          | 11/1000 [01:37<2:25:50,  8.85s/it]0.001 -> 0.001
+Epoch: 11 	Training Loss: -0.0075059487 	Validation Loss: -0.0277426200 	Best Validation Loss: -0.0269862815
+### Validation loss same/decreased (-0.0269862815 --> -0.0277426200)... saving model. ###
+  1%|          | 12/1000 [01:46<2:26:08,  8.88s/it]0.001 -> 0.001
+Epoch: 12 	Training Loss: -0.0075996966 	Validation Loss: -0.0274108071 	Best Validation Loss: -0.0277426200
+  1%|▏         | 13/1000 [01:55<2:26:24,  8.90s/it]0.001 -> 0.001
+Epoch: 13 	Training Loss: -0.0076154926 	Validation Loss: -0.0274693857 	Best Validation Loss: -0.0277426200
+  1%|▏         | 14/1000 [02:04<2:25:48,  8.87s/it]0.001 -> 0.001
+Epoch: 14 	Training Loss: -0.0077285041 	Validation Loss: -0.0280824433 	Best Validation Loss: -0.0277426200
+### Validation loss same/decreased (-0.0277426200 --> -0.0280824433)... saving model. ###
+  2%|▏         | 15/1000 [02:12<2:25:39,  8.87s/it]0.001 -> 0.001
+Epoch: 15 	Training Loss: -0.0077418207 	Validation Loss: -0.0279962028 	Best Validation Loss: -0.0280824433
+  2%|▏         | 16/1000 [02:21<2:25:02,  8.84s/it]0.001 -> 0.001
+Epoch: 16 	Training Loss: -0.0078808490 	Validation Loss: -0.0284722292 	Best Validation Loss: -0.0280824433
+### Validation loss same/decreased (-0.0280824433 --> -0.0284722292)... saving model. ###
+  2%|▏         | 17/1000 [02:30<2:24:34,  8.82s/it]0.001 -> 0.001
+Epoch: 17 	Training Loss: -0.0078210313 	Validation Loss: -0.0281746677 	Best Validation Loss: -0.0284722292
+  2%|▏         | 18/1000 [02:39<2:25:00,  8.86s/it]0.001 -> 0.001
+Epoch: 18 	Training Loss: -0.0078786957 	Validation Loss: -0.0287076923 	Best Validation Loss: -0.0284722292
+### Validation loss same/decreased (-0.0284722292 --> -0.0287076923)... saving model. ###
+  2%|▏         | 19/1000 [02:48<2:25:14,  8.88s/it]0.001 -> 0.001
+Epoch: 19 	Training Loss: -0.0080154661 	Validation Loss: -0.0289606077 	Best Validation Loss: -0.0287076923
+### Validation loss same/decreased (-0.0287076923 --> -0.0289606077)... saving model. ###
+  2%|▏         | 20/1000 [02:57<2:25:19,  8.90s/it]0.001 -> 0.001
+Epoch: 20 	Training Loss: -0.0080596839 	Validation Loss: -0.0287541006 	Best Validation Loss: -0.0289606077
+  2%|▏         | 21/1000 [03:06<2:25:16,  8.90s/it]0.001 -> 0.001
+Epoch: 21 	Training Loss: -0.0079971830 	Validation Loss: -0.0289359864 	Best Validation Loss: -0.0289606077
+  2%|▏         | 22/1000 [03:15<2:24:27,  8.86s/it]0.001 -> 0.001
+Epoch: 22 	Training Loss: -0.0081019865 	Validation Loss: -0.0291705274 	Best Validation Loss: -0.0289606077
+### Validation loss same/decreased (-0.0289606077 --> -0.0291705274)... saving model. ###
+  2%|▏         | 23/1000 [03:23<2:23:53,  8.84s/it]0.001 -> 0.001
+Epoch: 23 	Training Loss: -0.0081742452 	Validation Loss: -0.0295400308 	Best Validation Loss: -0.0291705274
+### Validation loss same/decreased (-0.0291705274 --> -0.0295400308)... saving model. ###
+  2%|▏         | 24/1000 [03:32<2:23:24,  8.82s/it]0.001 -> 0.001
+Epoch: 24 	Training Loss: -0.0080628919 	Validation Loss: -0.0294152364 	Best Validation Loss: -0.0295400308
+  2%|▎         | 25/1000 [03:41<2:24:14,  8.88s/it]0.001 -> 0.001
+Epoch: 25 	Training Loss: -0.0082060215 	Validation Loss: -0.0293955267 	Best Validation Loss: -0.0295400308
+  3%|▎         | 26/1000 [03:50<2:24:18,  8.89s/it]0.001 -> 0.001
+Epoch: 26 	Training Loss: -0.0081992799 	Validation Loss: -0.0294005402 	Best Validation Loss: -0.0295400308
+  3%|▎         | 27/1000 [03:59<2:24:01,  8.88s/it]0.001 -> 0.001
+Epoch: 27 	Training Loss: -0.0081733346 	Validation Loss: -0.0294971944 	Best Validation Loss: -0.0295400308
+  3%|▎         | 28/1000 [04:08<2:23:42,  8.87s/it]0.001 -> 0.001
+Epoch: 28 	Training Loss: -0.0082894373 	Validation Loss: -0.0296508002 	Best Validation Loss: -0.0295400308
+### Validation loss same/decreased (-0.0295400308 --> -0.0296508002)... saving model. ###
+  3%|▎         | 29/1000 [04:16<2:23:02,  8.84s/it]0.001 -> 0.001
+Epoch: 29 	Training Loss: -0.0083001016 	Validation Loss: -0.0294495784 	Best Validation Loss: -0.0296508002
+  3%|▎         | 30/1000 [04:25<2:22:35,  8.82s/it]0.001 -> 0.001
+Epoch: 30 	Training Loss: -0.0082519601 	Validation Loss: -0.0296557895 	Best Validation Loss: -0.0296508002
+### Validation loss same/decreased (-0.0296508002 --> -0.0296557895)... saving model. ###
+  3%|▎         | 31/1000 [04:34<2:22:13,  8.81s/it]0.001 -> 0.001
+Epoch: 31 	Training Loss: -0.0083272472 	Validation Loss: -0.0297560015 	Best Validation Loss: -0.0296557895
+### Validation loss same/decreased (-0.0296557895 --> -0.0297560015)... saving model. ###
+  3%|▎         | 32/1000 [04:43<2:23:22,  8.89s/it]0.001 -> 0.001
+Epoch: 32 	Training Loss: -0.0082960810 	Validation Loss: -0.0297381666 	Best Validation Loss: -0.0297560015
+  3%|▎         | 33/1000 [04:52<2:23:23,  8.90s/it]0.001 -> 0.001
+Epoch: 33 	Training Loss: -0.0084363803 	Validation Loss: -0.0297733407 	Best Validation Loss: -0.0297560015
+### Validation loss same/decreased (-0.0297560015 --> -0.0297733407)... saving model. ###
+  3%|▎         | 34/1000 [05:01<2:22:44,  8.87s/it]0.001 -> 0.001
+Epoch: 34 	Training Loss: -0.0084150909 	Validation Loss: -0.0295058463 	Best Validation Loss: -0.0297733407
+  4%|▎         | 35/1000 [05:10<2:22:43,  8.87s/it]0.001 -> 0.001
+Epoch: 35 	Training Loss: -0.0083759430 	Validation Loss: -0.0299473244 	Best Validation Loss: -0.0297733407
+### Validation loss same/decreased (-0.0297733407 --> -0.0299473244)... saving model. ###
+  4%|▎         | 36/1000 [05:18<2:22:05,  8.84s/it]0.001 -> 0.001
+Epoch: 36 	Training Loss: -0.0084779753 	Validation Loss: -0.0299131881 	Best Validation Loss: -0.0299473244
+  4%|▎         | 37/1000 [05:27<2:21:41,  8.83s/it]0.001 -> 0.001
+Epoch: 37 	Training Loss: -0.0085859225 	Validation Loss: -0.0297354688 	Best Validation Loss: -0.0299473244
+  4%|▍         | 38/1000 [05:36<2:22:07,  8.86s/it]0.001 -> 0.001
+Epoch: 38 	Training Loss: -0.0084234908 	Validation Loss: -0.0301394709 	Best Validation Loss: -0.0299473244
+### Validation loss same/decreased (-0.0299473244 --> -0.0301394709)... saving model. ###
+  4%|▍         | 39/1000 [05:45<2:22:28,  8.90s/it]0.001 -> 0.001
+Epoch: 39 	Training Loss: -0.0085608375 	Validation Loss: -0.0302161604 	Best Validation Loss: -0.0301394709
+### Validation loss same/decreased (-0.0301394709 --> -0.0302161604)... saving model. ###
+  4%|▍         | 40/1000 [05:54<2:22:22,  8.90s/it]0.001 -> 0.001
+Epoch: 40 	Training Loss: -0.0084062663 	Validation Loss: -0.0300946199 	Best Validation Loss: -0.0302161604
+  4%|▍         | 41/1000 [06:03<2:21:38,  8.86s/it]0.001 -> 0.001
+Epoch: 41 	Training Loss: -0.0085370761 	Validation Loss: -0.0300645459 	Best Validation Loss: -0.0302161604
+  4%|▍         | 42/1000 [06:12<2:21:32,  8.86s/it]0.001 -> 0.001
+Epoch: 42 	Training Loss: -0.0085706477 	Validation Loss: -0.0298949181 	Best Validation Loss: -0.0302161604
+  4%|▍         | 43/1000 [06:21<2:21:01,  8.84s/it]0.001 -> 0.001
+Epoch: 43 	Training Loss: -0.0085517134 	Validation Loss: -0.0296756040 	Best Validation Loss: -0.0302161604
+  4%|▍         | 44/1000 [06:29<2:20:35,  8.82s/it]0.001 -> 0.001
+Epoch: 44 	Training Loss: -0.0085867102 	Validation Loss: -0.0303256776 	Best Validation Loss: -0.0302161604
+### Validation loss same/decreased (-0.0302161604 --> -0.0303256776)... saving model. ###
+  4%|▍         | 45/1000 [06:38<2:20:49,  8.85s/it]0.001 -> 0.001
+Epoch: 45 	Training Loss: -0.0086602100 	Validation Loss: -0.0301680011 	Best Validation Loss: -0.0303256776
+  5%|▍         | 46/1000 [06:47<2:21:21,  8.89s/it]0.001 -> 0.001
+Epoch: 46 	Training Loss: -0.0086081684 	Validation Loss: -0.0305055821 	Best Validation Loss: -0.0303256776
+### Validation loss same/decreased (-0.0303256776 --> -0.0305055821)... saving model. ###
+  5%|▍         | 47/1000 [06:56<2:21:28,  8.91s/it]0.001 -> 0.001
+Epoch: 47 	Training Loss: -0.0086499708 	Validation Loss: -0.0303816001 	Best Validation Loss: -0.0305055821
+  5%|▍         | 48/1000 [07:05<2:20:50,  8.88s/it]0.001 -> 0.001
+Epoch: 48 	Training Loss: -0.0085650660 	Validation Loss: -0.0304372258 	Best Validation Loss: -0.0305055821
+  5%|▍         | 49/1000 [07:14<2:20:40,  8.87s/it]0.001 -> 0.001
+Epoch: 49 	Training Loss: -0.0086686997 	Validation Loss: -0.0304566073 	Best Validation Loss: -0.0305055821
+Validation early stop running loss decreased (inf --> -1.4221052472).
+  5%|▌         | 50/1000 [07:23<2:20:05,  8.85s/it]0.001 -> 0.001
+Epoch: 50 	Training Loss: -0.0085966000 	Validation Loss: -0.0301889261 	Best Validation Loss: -0.0305055821
+  5%|▌         | 51/1000 [07:31<2:19:35,  8.83s/it]0.001 -> 0.001
+Epoch: 51 	Training Loss: -0.0087085908 	Validation Loss: -0.0302098609 	Best Validation Loss: -0.0305055821
+  5%|▌         | 52/1000 [07:40<2:20:00,  8.86s/it]0.001 -> 0.001
+Epoch: 52 	Training Loss: -0.0085044876 	Validation Loss: -0.0305050145 	Best Validation Loss: -0.0305055821
+  5%|▌         | 53/1000 [07:49<2:20:17,  8.89s/it]0.001 -> 0.001
+Epoch: 53 	Training Loss: -0.0086742243 	Validation Loss: -0.0302965378 	Best Validation Loss: -0.0305055821
+  5%|▌         | 54/1000 [07:58<2:20:16,  8.90s/it]0.001 -> 0.001
+Epoch: 54 	Training Loss: -0.0086266062 	Validation Loss: -0.0306122544 	Best Validation Loss: -0.0305055821
+### Validation loss same/decreased (-0.0305055821 --> -0.0306122544)... saving model. ###
+  6%|▌         | 55/1000 [08:07<2:20:03,  8.89s/it]0.001 -> 0.001
+Epoch: 55 	Training Loss: -0.0086178480 	Validation Loss: -0.0301219805 	Best Validation Loss: -0.0306122544
+  6%|▌         | 56/1000 [08:16<2:19:19,  8.86s/it]0.001 -> 0.001
+Epoch: 56 	Training Loss: -0.0086245811 	Validation Loss: -0.0306386542 	Best Validation Loss: -0.0306122544
+### Validation loss same/decreased (-0.0306122544 --> -0.0306386542)... saving model. ###
+  6%|▌         | 57/1000 [08:25<2:18:47,  8.83s/it]0.001 -> 0.001
+Epoch: 57 	Training Loss: -0.0087525048 	Validation Loss: -0.0303714993 	Best Validation Loss: -0.0306386542
+  6%|▌         | 58/1000 [08:33<2:18:20,  8.81s/it]0.001 -> 0.001
+Epoch: 58 	Training Loss: -0.0086986038 	Validation Loss: -0.0301231995 	Best Validation Loss: -0.0306386542
+  6%|▌         | 59/1000 [08:42<2:18:29,  8.83s/it]0.001 -> 0.001
+Epoch: 59 	Training Loss: -0.0087222369 	Validation Loss: -0.0301633228 	Best Validation Loss: -0.0306386542
+  6%|▌         | 60/1000 [08:51<2:18:59,  8.87s/it]0.001 -> 0.001
+Epoch: 60 	Training Loss: -0.0087952818 	Validation Loss: -0.0299824933 	Best Validation Loss: -0.0306386542
+  6%|▌         | 61/1000 [09:00<2:18:58,  8.88s/it]0.001 -> 0.001
+Epoch: 61 	Training Loss: -0.0087586437 	Validation Loss: -0.0299870111 	Best Validation Loss: -0.0306386542
+  6%|▌         | 62/1000 [09:09<2:18:36,  8.87s/it]0.001 -> 0.001
+Epoch: 62 	Training Loss: -0.0087839921 	Validation Loss: -0.0301890018 	Best Validation Loss: -0.0306386542
+  6%|▋         | 63/1000 [09:18<2:17:59,  8.84s/it]0.001 -> 0.001
+Epoch: 63 	Training Loss: -0.0088015217 	Validation Loss: -0.0303907451 	Best Validation Loss: -0.0306386542
+  6%|▋         | 64/1000 [09:27<2:17:35,  8.82s/it]0.001 -> 0.001
+Epoch: 64 	Training Loss: -0.0087661547 	Validation Loss: -0.0299811724 	Best Validation Loss: -0.0306386542
+  6%|▋         | 65/1000 [09:35<2:17:18,  8.81s/it]0.001 -> 0.001
+Epoch: 65 	Training Loss: -0.0087388515 	Validation Loss: -0.0305073624 	Best Validation Loss: -0.0306386542
+  7%|▋         | 66/1000 [09:44<2:17:48,  8.85s/it]0.001 -> 0.001
+Epoch: 66 	Training Loss: -0.0087343636 	Validation Loss: -0.0302937868 	Best Validation Loss: -0.0306386542
+  7%|▋         | 67/1000 [09:53<2:18:13,  8.89s/it]0.001 -> 0.001
+Epoch: 67 	Training Loss: -0.0089164946 	Validation Loss: -0.0300481953 	Best Validation Loss: -0.0306386542
+  7%|▋         | 68/1000 [10:02<2:18:00,  8.88s/it]0.001 -> 0.001
+Epoch: 68 	Training Loss: -0.0088341322 	Validation Loss: -0.0304816073 	Best Validation Loss: -0.0306386542
+  7%|▋         | 69/1000 [10:11<2:17:43,  8.88s/it]0.001 -> 0.001
+Epoch: 69 	Training Loss: -0.0088230944 	Validation Loss: -0.0300453981 	Best Validation Loss: -0.0306386542
+  7%|▋         | 70/1000 [10:20<2:17:08,  8.85s/it]0.001 -> 0.001
+Epoch: 70 	Training Loss: -0.0087882860 	Validation Loss: -0.0306585322 	Best Validation Loss: -0.0306386542
+### Validation loss same/decreased (-0.0306386542 --> -0.0306585322)... saving model. ###
+  7%|▋         | 71/1000 [10:29<2:16:47,  8.84s/it]0.001 -> 0.001
+Epoch: 71 	Training Loss: -0.0088029563 	Validation Loss: -0.0302685331 	Best Validation Loss: -0.0306585322
+  7%|▋         | 72/1000 [10:37<2:16:56,  8.85s/it]0.001 -> 0.001
+Epoch: 72 	Training Loss: -0.0087909827 	Validation Loss: -0.0302864148 	Best Validation Loss: -0.0306585322
+  7%|▋         | 73/1000 [10:46<2:16:45,  8.85s/it]0.001 -> 0.001
+Epoch: 73 	Training Loss: -0.0086962371 	Validation Loss: -0.0300705656 	Best Validation Loss: -0.0306585322
+  7%|▋         | 74/1000 [10:55<2:17:01,  8.88s/it]0.001 -> 0.001
+Epoch: 74 	Training Loss: -0.0089669279 	Validation Loss: -0.0301876315 	Best Validation Loss: -0.0306585322
+  8%|▊         | 75/1000 [11:04<2:17:03,  8.89s/it]0.001 -> 0.001
+Epoch: 75 	Training Loss: -0.0088059451 	Validation Loss: -0.0304597967 	Best Validation Loss: -0.0306585322
+  8%|▊         | 76/1000 [11:13<2:16:57,  8.89s/it]0.001 -> 0.001
+Epoch: 76 	Training Loss: -0.0088074528 	Validation Loss: -0.0300098323 	Best Validation Loss: -0.0306585322
+  8%|▊         | 77/1000 [11:22<2:16:17,  8.86s/it]0.001 -> 0.001
+Epoch: 77 	Training Loss: -0.0087689605 	Validation Loss: -0.0300360149 	Best Validation Loss: -0.0306585322
+  8%|▊         | 78/1000 [11:31<2:15:50,  8.84s/it]0.001 -> 0.001
+Epoch: 78 	Training Loss: -0.0089159333 	Validation Loss: -0.0303867543 	Best Validation Loss: -0.0306585322
+  8%|▊         | 79/1000 [11:40<2:15:54,  8.85s/it]0.001 -> 0.001
+Epoch: 79 	Training Loss: -0.0088614708 	Validation Loss: -0.0302933084 	Best Validation Loss: -0.0306585322
+  8%|▊         | 80/1000 [11:48<2:15:26,  8.83s/it]0.001 -> 0.001
+Epoch: 80 	Training Loss: -0.0089860098 	Validation Loss: -0.0301164083 	Best Validation Loss: -0.0306585322
+  8%|▊         | 81/1000 [11:57<2:15:53,  8.87s/it]0.001 -> 0.001
+Epoch: 81 	Training Loss: -0.0089295266 	Validation Loss: -0.0303844576 	Best Validation Loss: -0.0306585322
+  8%|▊         | 82/1000 [12:06<2:16:37,  8.93s/it]0.001 -> 0.001
+Epoch: 82 	Training Loss: -0.0088822401 	Validation Loss: -0.0300431779 	Best Validation Loss: -0.0306585322
+  8%|▊         | 83/1000 [12:15<2:15:52,  8.89s/it]0.001 -> 0.001
+Epoch: 83 	Training Loss: -0.0089211064 	Validation Loss: -0.0301171232 	Best Validation Loss: -0.0306585322
+  8%|▊         | 84/1000 [12:24<2:15:16,  8.86s/it]0.001 -> 0.001
+Epoch: 84 	Training Loss: -0.0088520931 	Validation Loss: -0.0302398410 	Best Validation Loss: -0.0306585322
+  8%|▊         | 85/1000 [12:33<2:14:46,  8.84s/it]0.001 -> 0.001
+Epoch: 85 	Training Loss: -0.0089821970 	Validation Loss: -0.0298118288 	Best Validation Loss: -0.0306585322
+  9%|▊         | 86/1000 [12:42<2:14:56,  8.86s/it]0.001 -> 0.001
+Epoch: 86 	Training Loss: -0.0088950003 	Validation Loss: -0.0303386084 	Best Validation Loss: -0.0306585322
+  9%|▊         | 87/1000 [12:50<2:14:35,  8.85s/it]0.001 -> 0.001
+Epoch: 87 	Training Loss: -0.0089579426 	Validation Loss: -0.0301748804 	Best Validation Loss: -0.0306585322
+  9%|▉         | 88/1000 [12:59<2:14:50,  8.87s/it]0.001 -> 0.001
+Epoch: 88 	Training Loss: -0.0090804451 	Validation Loss: -0.0300748812 	Best Validation Loss: -0.0306585322
+  9%|▉         | 89/1000 [13:08<2:15:22,  8.92s/it]0.001 -> 0.001
+Epoch: 89 	Training Loss: -0.0089354508 	Validation Loss: -0.0300993316 	Best Validation Loss: -0.0306585322
+  9%|▉         | 90/1000 [13:17<2:15:00,  8.90s/it]0.001 -> 0.001
+Epoch: 90 	Training Loss: -0.0090384100 	Validation Loss: -0.0301275637 	Best Validation Loss: -0.0306585322
+  9%|▉         | 91/1000 [13:26<2:14:20,  8.87s/it]0.001 -> 0.0008
+Epoch: 91 	Training Loss: -0.0090024761 	Validation Loss: -0.0301794028 	Best Validation Loss: -0.0306585322
+  9%|▉         | 92/1000 [13:35<2:13:52,  8.85s/it]0.0008 -> 0.0008
+Epoch: 92 	Training Loss: -0.0089283919 	Validation Loss: -0.0300565567 	Best Validation Loss: -0.0306585322
+  9%|▉         | 93/1000 [13:44<2:14:03,  8.87s/it]0.0008 -> 0.0008
+Epoch: 93 	Training Loss: -0.0090688128 	Validation Loss: -0.0300597686 	Best Validation Loss: -0.0306585322
+  9%|▉         | 94/1000 [13:53<2:13:36,  8.85s/it]0.0008 -> 0.0008
+Epoch: 94 	Training Loss: -0.0089882086 	Validation Loss: -0.0298023195 	Best Validation Loss: -0.0306585322
+ 10%|▉         | 95/1000 [14:01<2:13:31,  8.85s/it]0.0008 -> 0.0008
+Epoch: 95 	Training Loss: -0.0090700951 	Validation Loss: -0.0302505309 	Best Validation Loss: -0.0306585322
+ 10%|▉         | 96/1000 [14:10<2:14:17,  8.91s/it]0.0008 -> 0.0008
+Epoch: 96 	Training Loss: -0.0090117494 	Validation Loss: -0.0302791827 	Best Validation Loss: -0.0306585322
+ 10%|▉         | 97/1000 [14:19<2:14:01,  8.91s/it]0.0008 -> 0.0008
+Epoch: 97 	Training Loss: -0.0089499002 	Validation Loss: -0.0299931932 	Best Validation Loss: -0.0306585322
+ 10%|▉         | 98/1000 [14:28<2:13:21,  8.87s/it]0.0008 -> 0.0008
+Epoch: 98 	Training Loss: -0.0090780321 	Validation Loss: -0.0296955994 	Best Validation Loss: -0.0306585322
+ 10%|▉         | 99/1000 [14:37<2:13:16,  8.88s/it]0.0008 -> 0.0008
+Epoch: 99 	Training Loss: -0.0090842065 	Validation Loss: -0.0299602153 	Best Validation Loss: -0.0306585322
+Validation early stop running loss decreased (-1.4221052472 --> -1.5096002789).
+ 10%|█         | 100/1000 [14:46<2:12:47,  8.85s/it]0.0008 -> 0.0008
+Epoch: 100 	Training Loss: -0.0090559334 	Validation Loss: -0.0298026591 	Best Validation Loss: -0.0306585322
+ 10%|█         | 101/1000 [14:55<2:12:26,  8.84s/it]0.0008 -> 0.0008
+Epoch: 101 	Training Loss: -0.0091472878 	Validation Loss: -0.0300106199 	Best Validation Loss: -0.0306585322
+ 10%|█         | 102/1000 [15:03<2:12:07,  8.83s/it]0.0008 -> 0.0008
+Epoch: 102 	Training Loss: -0.0090312349 	Validation Loss: -0.0298572102 	Best Validation Loss: -0.0306585322
+ 10%|█         | 103/1000 [15:13<2:13:03,  8.90s/it]0.0008 -> 0.0008
+Epoch: 103 	Training Loss: -0.0090784989 	Validation Loss: -0.0302334796 	Best Validation Loss: -0.0306585322
+ 10%|█         | 104/1000 [15:21<2:13:04,  8.91s/it]0.0008 -> 0.0008
+Epoch: 104 	Training Loss: -0.0091738170 	Validation Loss: -0.0300801569 	Best Validation Loss: -0.0306585322
+ 10%|█         | 105/1000 [15:30<2:12:25,  8.88s/it]0.0008 -> 0.0008
+Epoch: 105 	Training Loss: -0.0090965747 	Validation Loss: -0.0298325598 	Best Validation Loss: -0.0306585322
+ 11%|█         | 106/1000 [15:39<2:12:11,  8.87s/it]0.0008 -> 0.0008
+Epoch: 106 	Training Loss: -0.0091858607 	Validation Loss: -0.0300813513 	Best Validation Loss: -0.0306585322
+ 11%|█         | 107/1000 [15:48<2:11:42,  8.85s/it]0.0008 -> 0.0008
+Epoch: 107 	Training Loss: -0.0090348237 	Validation Loss: -0.0298908790 	Best Validation Loss: -0.0306585322
+ 11%|█         | 108/1000 [15:57<2:11:20,  8.83s/it]0.0008 -> 0.0008
+Epoch: 108 	Training Loss: -0.0090990212 	Validation Loss: -0.0296806217 	Best Validation Loss: -0.0306585322
+ 11%|█         | 109/1000 [16:06<2:11:32,  8.86s/it]0.0008 -> 0.0008
+Epoch: 109 	Training Loss: -0.0090953170 	Validation Loss: -0.0298076415 	Best Validation Loss: -0.0306585322
+ 11%|█         | 110/1000 [16:15<2:11:43,  8.88s/it]0.0008 -> 0.0008
+Epoch: 110 	Training Loss: -0.0091163050 	Validation Loss: -0.0297867785 	Best Validation Loss: -0.0306585322
+ 11%|█         | 111/1000 [16:24<2:12:04,  8.91s/it]0.0008 -> 0.0008
+Epoch: 111 	Training Loss: -0.0091525442 	Validation Loss: -0.0299265899 	Best Validation Loss: -0.0306585322
+ 11%|█         | 112/1000 [16:32<2:11:26,  8.88s/it]0.0008 -> 0.00064
+Epoch: 112 	Training Loss: -0.0090514711 	Validation Loss: -0.0300648326 	Best Validation Loss: -0.0306585322
+ 11%|█▏        | 113/1000 [16:41<2:11:11,  8.87s/it]0.00064 -> 0.00064
+Epoch: 113 	Training Loss: -0.0091536059 	Validation Loss: -0.0300072077 	Best Validation Loss: -0.0306585322
+ 11%|█▏        | 114/1000 [16:50<2:10:47,  8.86s/it]0.00064 -> 0.00064
+Epoch: 114 	Training Loss: -0.0092078081 	Validation Loss: -0.0301826342 	Best Validation Loss: -0.0306585322
+ 12%|█▏        | 115/1000 [16:59<2:10:25,  8.84s/it]0.00064 -> 0.00064
+Epoch: 115 	Training Loss: -0.0091422503 	Validation Loss: -0.0301343078 	Best Validation Loss: -0.0306585322
+ 12%|█▏        | 116/1000 [17:08<2:10:30,  8.86s/it]0.00064 -> 0.00064
+Epoch: 116 	Training Loss: -0.0091235135 	Validation Loss: -0.0301725705 	Best Validation Loss: -0.0306585322
+ 12%|█▏        | 117/1000 [17:17<2:10:27,  8.86s/it]0.00064 -> 0.00064
+Epoch: 117 	Training Loss: -0.0091384927 	Validation Loss: -0.0299553630 	Best Validation Loss: -0.0306585322
+ 12%|█▏        | 118/1000 [17:26<2:10:46,  8.90s/it]0.00064 -> 0.00064
+Epoch: 118 	Training Loss: -0.0091837150 	Validation Loss: -0.0303505088 	Best Validation Loss: -0.0306585322
+ 12%|█▏        | 119/1000 [17:34<2:10:39,  8.90s/it]0.00064 -> 0.00064
+Epoch: 119 	Training Loss: -0.0092435254 	Validation Loss: -0.0298088892 	Best Validation Loss: -0.0306585322
+ 12%|█▏        | 120/1000 [17:43<2:10:22,  8.89s/it]0.00064 -> 0.00064
+Epoch: 120 	Training Loss: -0.0091993414 	Validation Loss: -0.0300332104 	Best Validation Loss: -0.0306585322
+ 12%|█▏        | 121/1000 [17:52<2:09:48,  8.86s/it]0.00064 -> 0.00064
+Epoch: 121 	Training Loss: -0.0092170636 	Validation Loss: -0.0300538890 	Best Validation Loss: -0.0306585322
+ 12%|█▏        | 122/1000 [18:01<2:09:21,  8.84s/it]0.00064 -> 0.00064
+Epoch: 122 	Training Loss: -0.0091450312 	Validation Loss: -0.0300903523 	Best Validation Loss: -0.0306585322
+ 12%|█▏        | 123/1000 [18:10<2:09:30,  8.86s/it]0.00064 -> 0.00064
+Epoch: 123 	Training Loss: -0.0092621515 	Validation Loss: -0.0300237943 	Best Validation Loss: -0.0306585322
+ 12%|█▏        | 124/1000 [18:19<2:09:15,  8.85s/it]0.00064 -> 0.00064
+Epoch: 124 	Training Loss: -0.0092245845 	Validation Loss: -0.0303894181 	Best Validation Loss: -0.0306585322
+ 12%|█▎        | 125/1000 [18:28<2:09:29,  8.88s/it]0.00064 -> 0.00064
+Epoch: 125 	Training Loss: -0.0093373173 	Validation Loss: -0.0303402271 	Best Validation Loss: -0.0306585322
+ 13%|█▎        | 126/1000 [18:37<2:09:57,  8.92s/it]0.00064 -> 0.00064
+Epoch: 126 	Training Loss: -0.0092117392 	Validation Loss: -0.0298709546 	Best Validation Loss: -0.0306585322
+ 13%|█▎        | 127/1000 [18:45<2:09:23,  8.89s/it]0.00064 -> 0.00064
+Epoch: 127 	Training Loss: -0.0092330333 	Validation Loss: -0.0300535265 	Best Validation Loss: -0.0306585322
+ 13%|█▎        | 128/1000 [18:54<2:08:51,  8.87s/it]0.00064 -> 0.00064
+Epoch: 128 	Training Loss: -0.0092362739 	Validation Loss: -0.0303035592 	Best Validation Loss: -0.0306585322
+ 13%|█▎        | 129/1000 [19:03<2:08:19,  8.84s/it]0.00064 -> 0.00064
+Epoch: 129 	Training Loss: -0.0092340212 	Validation Loss: -0.0298280155 	Best Validation Loss: -0.0306585322
+ 13%|█▎        | 130/1000 [19:12<2:08:28,  8.86s/it]0.00064 -> 0.00064
+Epoch: 130 	Training Loss: -0.0091953624 	Validation Loss: -0.0302874763 	Best Validation Loss: -0.0306585322
+ 13%|█▎        | 131/1000 [19:21<2:08:13,  8.85s/it]0.00064 -> 0.00064
+Epoch: 131 	Training Loss: -0.0093035647 	Validation Loss: -0.0300881082 	Best Validation Loss: -0.0306585322
+ 13%|█▎        | 132/1000 [19:30<2:08:33,  8.89s/it]0.00064 -> 0.00064
+Epoch: 132 	Training Loss: -0.0092171194 	Validation Loss: -0.0297941832 	Best Validation Loss: -0.0306585322
+ 13%|█▎        | 133/1000 [19:39<2:09:03,  8.93s/it]0.00064 -> 0.0005120000000000001
+Epoch: 133 	Training Loss: -0.0092905072 	Validation Loss: -0.0305367648 	Best Validation Loss: -0.0306585322
+ 13%|█▎        | 134/1000 [19:48<2:08:19,  8.89s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 134 	Training Loss: -0.0092804072 	Validation Loss: -0.0305718963 	Best Validation Loss: -0.0306585322
+ 14%|█▎        | 135/1000 [19:56<2:07:39,  8.85s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 135 	Training Loss: -0.0091423405 	Validation Loss: -0.0301700287 	Best Validation Loss: -0.0306585322
+ 14%|█▎        | 136/1000 [20:05<2:07:14,  8.84s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 136 	Training Loss: -0.0092874048 	Validation Loss: -0.0299221480 	Best Validation Loss: -0.0306585322
+ 14%|█▎        | 137/1000 [20:14<2:07:15,  8.85s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 137 	Training Loss: -0.0092802349 	Validation Loss: -0.0302081617 	Best Validation Loss: -0.0306585322
+ 14%|█▍        | 138/1000 [20:23<2:07:08,  8.85s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 138 	Training Loss: -0.0092747822 	Validation Loss: -0.0301269702 	Best Validation Loss: -0.0306585322
+ 14%|█▍        | 139/1000 [20:32<2:07:35,  8.89s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 139 	Training Loss: -0.0093744341 	Validation Loss: -0.0297894211 	Best Validation Loss: -0.0306585322
+ 14%|█▍        | 140/1000 [20:41<2:07:23,  8.89s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 140 	Training Loss: -0.0092150854 	Validation Loss: -0.0300769710 	Best Validation Loss: -0.0306585322
+ 14%|█▍        | 141/1000 [20:50<2:06:40,  8.85s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 141 	Training Loss: -0.0093027766 	Validation Loss: -0.0302419664 	Best Validation Loss: -0.0306585322
+ 14%|█▍        | 142/1000 [20:58<2:06:09,  8.82s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 142 	Training Loss: -0.0092057906 	Validation Loss: -0.0303538192 	Best Validation Loss: -0.0306585322
+ 14%|█▍        | 143/1000 [21:07<2:06:22,  8.85s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 143 	Training Loss: -0.0093828755 	Validation Loss: -0.0300557038 	Best Validation Loss: -0.0306585322
+ 14%|█▍        | 144/1000 [21:16<2:05:55,  8.83s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 144 	Training Loss: -0.0092495304 	Validation Loss: -0.0301302772 	Best Validation Loss: -0.0306585322
+ 14%|█▍        | 145/1000 [21:25<2:06:08,  8.85s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 145 	Training Loss: -0.0093295955 	Validation Loss: -0.0298608816 	Best Validation Loss: -0.0306585322
+ 15%|█▍        | 146/1000 [21:34<2:06:12,  8.87s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 146 	Training Loss: -0.0093245087 	Validation Loss: -0.0298984291 	Best Validation Loss: -0.0306585322
+ 15%|█▍        | 147/1000 [21:43<2:06:00,  8.86s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 147 	Training Loss: -0.0093098986 	Validation Loss: -0.0299866633 	Best Validation Loss: -0.0306585322
+ 15%|█▍        | 148/1000 [21:51<2:05:22,  8.83s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 148 	Training Loss: -0.0092506846 	Validation Loss: -0.0299877376 	Best Validation Loss: -0.0306585322
+ 15%|█▍        | 149/1000 [22:00<2:04:52,  8.80s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 149 	Training Loss: -0.0093357877 	Validation Loss: -0.0307082486 	Best Validation Loss: -0.0306585322
+### Validation loss same/decreased (-0.0306585322 --> -0.0307082486)... saving model. ###
+No Validation early stop loss decrease (-1.5096002789 --> -1.5034496644). Early Stopping
+ 15%|█▍        | 149/1000 [22:09<2:06:33,  8.92s/it]
+  0%|          | 0/1000 [00:00<?, ?it/s]0.001 -> 0.001
+Epoch: 0 	Training Loss: -0.0039685231 	Validation Loss: -0.0169956613 	Best Validation Loss: inf
+### Validation loss same/decreased (inf --> -0.0169956613)... saving model. ###
+  0%|          | 1/1000 [00:10<3:02:26, 10.96s/it]0.001 -> 0.001
+Epoch: 1 	Training Loss: -0.0044000031 	Validation Loss: -0.0185199517 	Best Validation Loss: -0.0169956613
+### Validation loss same/decreased (-0.0169956613 --> -0.0185199517)... saving model. ###
+  0%|          | 2/1000 [00:21<2:56:08, 10.59s/it]0.001 -> 0.001
+Epoch: 2 	Training Loss: -0.0048496694 	Validation Loss: -0.0198911645 	Best Validation Loss: -0.0185199517
+### Validation loss same/decreased (-0.0185199517 --> -0.0198911645)... saving model. ###
+  0%|          | 3/1000 [00:31<2:55:54, 10.59s/it]0.001 -> 0.001
+Epoch: 3 	Training Loss: -0.0049217512 	Validation Loss: -0.0206492054 	Best Validation Loss: -0.0198911645
+### Validation loss same/decreased (-0.0198911645 --> -0.0206492054)... saving model. ###
+  0%|          | 4/1000 [00:42<2:55:31, 10.57s/it]0.001 -> 0.001
+Epoch: 4 	Training Loss: -0.0053152992 	Validation Loss: -0.0218954337 	Best Validation Loss: -0.0206492054
+### Validation loss same/decreased (-0.0206492054 --> -0.0218954337)... saving model. ###
+  0%|          | 5/1000 [00:52<2:54:10, 10.50s/it]0.001 -> 0.001
+Epoch: 5 	Training Loss: -0.0054659242 	Validation Loss: -0.0220166167 	Best Validation Loss: -0.0218954337
+### Validation loss same/decreased (-0.0218954337 --> -0.0220166167)... saving model. ###
+  1%|          | 6/1000 [01:03<2:53:40, 10.48s/it]0.001 -> 0.001
+Epoch: 6 	Training Loss: -0.0056331383 	Validation Loss: -0.0227813133 	Best Validation Loss: -0.0220166167
+### Validation loss same/decreased (-0.0220166167 --> -0.0227813133)... saving model. ###
+  1%|          | 7/1000 [01:13<2:52:42, 10.44s/it]0.001 -> 0.001
+Epoch: 7 	Training Loss: -0.0057275038 	Validation Loss: -0.0233632262 	Best Validation Loss: -0.0227813133
+### Validation loss same/decreased (-0.0227813133 --> -0.0233632262)... saving model. ###
+  1%|          | 8/1000 [01:23<2:52:01, 10.40s/it]0.001 -> 0.001
+Epoch: 8 	Training Loss: -0.0059136029 	Validation Loss: -0.0236645071 	Best Validation Loss: -0.0233632262
+### Validation loss same/decreased (-0.0233632262 --> -0.0236645071)... saving model. ###
+  1%|          | 9/1000 [01:34<2:52:13, 10.43s/it]0.001 -> 0.001
+Epoch: 9 	Training Loss: -0.0058825107 	Validation Loss: -0.0241559245 	Best Validation Loss: -0.0236645071
+### Validation loss same/decreased (-0.0236645071 --> -0.0241559245)... saving model. ###
+  1%|          | 10/1000 [01:44<2:51:52, 10.42s/it]0.001 -> 0.001
+Epoch: 10 	Training Loss: -0.0061038103 	Validation Loss: -0.0241093688 	Best Validation Loss: -0.0241559245
+  1%|          | 11/1000 [01:55<2:52:02, 10.44s/it]0.001 -> 0.001
+Epoch: 11 	Training Loss: -0.0062018419 	Validation Loss: -0.0248186003 	Best Validation Loss: -0.0241559245
+### Validation loss same/decreased (-0.0241559245 --> -0.0248186003)... saving model. ###
+  1%|          | 12/1000 [02:05<2:52:45, 10.49s/it]0.001 -> 0.001
+Epoch: 12 	Training Loss: -0.0063977874 	Validation Loss: -0.0248898060 	Best Validation Loss: -0.0248186003
+### Validation loss same/decreased (-0.0248186003 --> -0.0248898060)... saving model. ###
+  1%|▏         | 13/1000 [02:16<2:52:04, 10.46s/it]0.001 -> 0.001
+Epoch: 13 	Training Loss: -0.0063557234 	Validation Loss: -0.0249821615 	Best Validation Loss: -0.0248898060
+### Validation loss same/decreased (-0.0248898060 --> -0.0249821615)... saving model. ###
+  1%|▏         | 14/1000 [02:26<2:51:59, 10.47s/it]0.001 -> 0.001
+Epoch: 14 	Training Loss: -0.0064876097 	Validation Loss: -0.0248816789 	Best Validation Loss: -0.0249821615
+  2%|▏         | 15/1000 [02:37<2:51:08, 10.42s/it]0.001 -> 0.001
+Epoch: 15 	Training Loss: -0.0066041197 	Validation Loss: -0.0254585090 	Best Validation Loss: -0.0249821615
+### Validation loss same/decreased (-0.0249821615 --> -0.0254585090)... saving model. ###
+  2%|▏         | 16/1000 [02:47<2:50:38, 10.40s/it]0.001 -> 0.001
+Epoch: 16 	Training Loss: -0.0066761625 	Validation Loss: -0.0255100694 	Best Validation Loss: -0.0254585090
+### Validation loss same/decreased (-0.0254585090 --> -0.0255100694)... saving model. ###
+  2%|▏         | 17/1000 [02:57<2:50:45, 10.42s/it]0.001 -> 0.001
+Epoch: 17 	Training Loss: -0.0067483256 	Validation Loss: -0.0256909057 	Best Validation Loss: -0.0255100694
+### Validation loss same/decreased (-0.0255100694 --> -0.0256909057)... saving model. ###
+  2%|▏         | 18/1000 [03:08<2:50:50, 10.44s/it]0.001 -> 0.001
+Epoch: 18 	Training Loss: -0.0066408884 	Validation Loss: -0.0257630837 	Best Validation Loss: -0.0256909057
+### Validation loss same/decreased (-0.0256909057 --> -0.0257630837)... saving model. ###
+  2%|▏         | 19/1000 [03:18<2:51:07, 10.47s/it]0.001 -> 0.001
+Epoch: 19 	Training Loss: -0.0069750602 	Validation Loss: -0.0262240850 	Best Validation Loss: -0.0257630837
+### Validation loss same/decreased (-0.0257630837 --> -0.0262240850)... saving model. ###
+  2%|▏         | 20/1000 [03:29<2:51:24, 10.49s/it]0.001 -> 0.001
+Epoch: 20 	Training Loss: -0.0069553932 	Validation Loss: -0.0261113455 	Best Validation Loss: -0.0262240850
+  2%|▏         | 21/1000 [03:39<2:50:30, 10.45s/it]0.001 -> 0.001
+Epoch: 21 	Training Loss: -0.0068485738 	Validation Loss: -0.0261299966 	Best Validation Loss: -0.0262240850
+  2%|▏         | 22/1000 [03:50<2:49:51, 10.42s/it]0.001 -> 0.001
+Epoch: 22 	Training Loss: -0.0070309892 	Validation Loss: -0.0261153609 	Best Validation Loss: -0.0262240850
+  2%|▏         | 23/1000 [04:00<2:49:43, 10.42s/it]0.001 -> 0.001
+Epoch: 23 	Training Loss: -0.0070098264 	Validation Loss: -0.0265254720 	Best Validation Loss: -0.0262240850
+### Validation loss same/decreased (-0.0262240850 --> -0.0265254720)... saving model. ###
+  2%|▏         | 24/1000 [04:10<2:49:13, 10.40s/it]0.001 -> 0.001
+Epoch: 24 	Training Loss: -0.0069634293 	Validation Loss: -0.0264498995 	Best Validation Loss: -0.0265254720
+  2%|▎         | 25/1000 [04:21<2:48:46, 10.39s/it]0.001 -> 0.001
+Epoch: 25 	Training Loss: -0.0071014345 	Validation Loss: -0.0266707970 	Best Validation Loss: -0.0265254720
+### Validation loss same/decreased (-0.0265254720 --> -0.0266707970)... saving model. ###
+  3%|▎         | 26/1000 [04:31<2:49:33, 10.45s/it]0.001 -> 0.001
+Epoch: 26 	Training Loss: -0.0070222080 	Validation Loss: -0.0265828225 	Best Validation Loss: -0.0266707970
+  3%|▎         | 27/1000 [04:42<2:49:41, 10.46s/it]0.001 -> 0.001
+Epoch: 27 	Training Loss: -0.0070642051 	Validation Loss: -0.0267436139 	Best Validation Loss: -0.0266707970
+### Validation loss same/decreased (-0.0266707970 --> -0.0267436139)... saving model. ###
+  3%|▎         | 28/1000 [04:52<2:49:08, 10.44s/it]0.001 -> 0.001
+Epoch: 28 	Training Loss: -0.0071789956 	Validation Loss: -0.0267621432 	Best Validation Loss: -0.0267436139
+### Validation loss same/decreased (-0.0267436139 --> -0.0267621432)... saving model. ###
+  3%|▎         | 29/1000 [05:03<2:49:00, 10.44s/it]0.001 -> 0.001
+Epoch: 29 	Training Loss: -0.0071944897 	Validation Loss: -0.0266467277 	Best Validation Loss: -0.0267621432
+  3%|▎         | 30/1000 [05:13<2:48:24, 10.42s/it]0.001 -> 0.001
+Epoch: 30 	Training Loss: -0.0073020541 	Validation Loss: -0.0268786219 	Best Validation Loss: -0.0267621432
+### Validation loss same/decreased (-0.0267621432 --> -0.0268786219)... saving model. ###
+  3%|▎         | 31/1000 [05:23<2:47:52, 10.39s/it]0.001 -> 0.001
+Epoch: 31 	Training Loss: -0.0073342250 	Validation Loss: -0.0271126342 	Best Validation Loss: -0.0268786219
+### Validation loss same/decreased (-0.0268786219 --> -0.0271126342)... saving model. ###
+  3%|▎         | 32/1000 [05:34<2:48:22, 10.44s/it]0.001 -> 0.001
+Epoch: 32 	Training Loss: -0.0073368555 	Validation Loss: -0.0271499803 	Best Validation Loss: -0.0271126342
+### Validation loss same/decreased (-0.0271126342 --> -0.0271499803)... saving model. ###
+  3%|▎         | 33/1000 [05:45<2:48:43, 10.47s/it]0.001 -> 0.001
+Epoch: 33 	Training Loss: -0.0072935332 	Validation Loss: -0.0271001365 	Best Validation Loss: -0.0271499803
+  3%|▎         | 34/1000 [05:55<2:48:23, 10.46s/it]0.001 -> 0.001
+Epoch: 34 	Training Loss: -0.0073643884 	Validation Loss: -0.0270916318 	Best Validation Loss: -0.0271499803
+  4%|▎         | 35/1000 [06:05<2:48:02, 10.45s/it]0.001 -> 0.001
+Epoch: 35 	Training Loss: -0.0074235917 	Validation Loss: -0.0272257283 	Best Validation Loss: -0.0271499803
+### Validation loss same/decreased (-0.0271499803 --> -0.0272257283)... saving model. ###
+  4%|▎         | 36/1000 [06:16<2:47:23, 10.42s/it]0.001 -> 0.001
+Epoch: 36 	Training Loss: -0.0074644136 	Validation Loss: -0.0273613900 	Best Validation Loss: -0.0272257283
+### Validation loss same/decreased (-0.0272257283 --> -0.0273613900)... saving model. ###
+  4%|▎         | 37/1000 [06:26<2:47:37, 10.44s/it]0.001 -> 0.001
+Epoch: 37 	Training Loss: -0.0074842060 	Validation Loss: -0.0274810548 	Best Validation Loss: -0.0273613900
+### Validation loss same/decreased (-0.0273613900 --> -0.0274810548)... saving model. ###
+  4%|▍         | 38/1000 [06:37<2:46:59, 10.41s/it]0.001 -> 0.001
+Epoch: 38 	Training Loss: -0.0075216062 	Validation Loss: -0.0269551261 	Best Validation Loss: -0.0274810548
+  4%|▍         | 39/1000 [06:47<2:47:17, 10.44s/it]0.001 -> 0.001
+Epoch: 39 	Training Loss: -0.0075257946 	Validation Loss: -0.0270964081 	Best Validation Loss: -0.0274810548
+  4%|▍         | 40/1000 [06:58<2:47:51, 10.49s/it]0.001 -> 0.001
+Epoch: 40 	Training Loss: -0.0074288042 	Validation Loss: -0.0272624776 	Best Validation Loss: -0.0274810548
+  4%|▍         | 41/1000 [07:08<2:47:14, 10.46s/it]0.001 -> 0.001
+Epoch: 41 	Training Loss: -0.0075955713 	Validation Loss: -0.0272600137 	Best Validation Loss: -0.0274810548
+  4%|▍         | 42/1000 [07:18<2:46:31, 10.43s/it]0.001 -> 0.001
+Epoch: 42 	Training Loss: -0.0075493000 	Validation Loss: -0.0273023852 	Best Validation Loss: -0.0274810548
+  4%|▍         | 43/1000 [07:29<2:46:33, 10.44s/it]0.001 -> 0.001
+Epoch: 43 	Training Loss: -0.0076028128 	Validation Loss: -0.0272721869 	Best Validation Loss: -0.0274810548
+  4%|▍         | 44/1000 [07:39<2:45:55, 10.41s/it]0.001 -> 0.001
+Epoch: 44 	Training Loss: -0.0075649021 	Validation Loss: -0.0271494839 	Best Validation Loss: -0.0274810548
+  4%|▍         | 45/1000 [07:50<2:45:58, 10.43s/it]0.001 -> 0.001
+Epoch: 45 	Training Loss: -0.0076052218 	Validation Loss: -0.0271895898 	Best Validation Loss: -0.0274810548
+  5%|▍         | 46/1000 [08:00<2:46:44, 10.49s/it]0.001 -> 0.001
+Epoch: 46 	Training Loss: -0.0076721697 	Validation Loss: -0.0270026092 	Best Validation Loss: -0.0274810548
+  5%|▍         | 47/1000 [08:11<2:46:33, 10.49s/it]0.001 -> 0.001
+Epoch: 47 	Training Loss: -0.0078061536 	Validation Loss: -0.0274829342 	Best Validation Loss: -0.0274810548
+### Validation loss same/decreased (-0.0274810548 --> -0.0274829342)... saving model. ###
+  5%|▍         | 48/1000 [08:21<2:45:40, 10.44s/it]0.001 -> 0.001
+Epoch: 48 	Training Loss: -0.0076740825 	Validation Loss: -0.0272220799 	Best Validation Loss: -0.0274829342
+  5%|▍         | 49/1000 [08:32<2:45:33, 10.45s/it]0.001 -> 0.001
+Epoch: 49 	Training Loss: -0.0076198603 	Validation Loss: -0.0272185498 	Best Validation Loss: -0.0274829342
+Validation early stop running loss decreased (inf --> -1.2748144738).
+  5%|▌         | 50/1000 [08:42<2:44:58, 10.42s/it]0.001 -> 0.001
+Epoch: 50 	Training Loss: -0.0076723325 	Validation Loss: -0.0273372789 	Best Validation Loss: -0.0274829342
+  5%|▌         | 51/1000 [08:52<2:44:23, 10.39s/it]0.001 -> 0.001
+Epoch: 51 	Training Loss: -0.0077783329 	Validation Loss: -0.0275864849 	Best Validation Loss: -0.0274829342
+### Validation loss same/decreased (-0.0274829342 --> -0.0275864849)... saving model. ###
+  5%|▌         | 52/1000 [09:03<2:44:44, 10.43s/it]0.001 -> 0.001
+Epoch: 52 	Training Loss: -0.0078351668 	Validation Loss: -0.0275686160 	Best Validation Loss: -0.0275864849
+  5%|▌         | 53/1000 [09:13<2:45:14, 10.47s/it]0.001 -> 0.001
+Epoch: 53 	Training Loss: -0.0076942597 	Validation Loss: -0.0274179471 	Best Validation Loss: -0.0275864849
+  5%|▌         | 54/1000 [09:24<2:45:09, 10.48s/it]0.001 -> 0.001
+Epoch: 54 	Training Loss: -0.0077708876 	Validation Loss: -0.0271836329 	Best Validation Loss: -0.0275864849
+  6%|▌         | 55/1000 [09:34<2:44:53, 10.47s/it]0.001 -> 0.001
+Epoch: 55 	Training Loss: -0.0077152605 	Validation Loss: -0.0274168166 	Best Validation Loss: -0.0275864849
+  6%|▌         | 56/1000 [09:45<2:44:07, 10.43s/it]0.001 -> 0.001
+Epoch: 56 	Training Loss: -0.0078588697 	Validation Loss: -0.0274581582 	Best Validation Loss: -0.0275864849
+  6%|▌         | 57/1000 [09:55<2:43:39, 10.41s/it]0.001 -> 0.001
+Epoch: 57 	Training Loss: -0.0079284543 	Validation Loss: -0.0276294347 	Best Validation Loss: -0.0275864849
+### Validation loss same/decreased (-0.0275864849 --> -0.0276294347)... saving model. ###
+  6%|▌         | 58/1000 [10:05<2:43:36, 10.42s/it]0.001 -> 0.001
+Epoch: 58 	Training Loss: -0.0077718912 	Validation Loss: -0.0275935588 	Best Validation Loss: -0.0276294347
+  6%|▌         | 59/1000 [10:16<2:43:55, 10.45s/it]0.001 -> 0.001
+Epoch: 59 	Training Loss: -0.0078020939 	Validation Loss: -0.0277670179 	Best Validation Loss: -0.0276294347
+### Validation loss same/decreased (-0.0276294347 --> -0.0277670179)... saving model. ###
+  6%|▌         | 60/1000 [10:27<2:44:35, 10.51s/it]0.001 -> 0.001
+Epoch: 60 	Training Loss: -0.0078151433 	Validation Loss: -0.0277863253 	Best Validation Loss: -0.0277670179
+### Validation loss same/decreased (-0.0277670179 --> -0.0277863253)... saving model. ###
+  6%|▌         | 61/1000 [10:37<2:43:46, 10.46s/it]0.001 -> 0.001
+Epoch: 61 	Training Loss: -0.0079302073 	Validation Loss: -0.0276620891 	Best Validation Loss: -0.0277863253
+  6%|▌         | 62/1000 [10:47<2:43:00, 10.43s/it]0.001 -> 0.001
+Epoch: 62 	Training Loss: -0.0078621287 	Validation Loss: -0.0275828390 	Best Validation Loss: -0.0277863253
+  6%|▋         | 63/1000 [10:58<2:43:04, 10.44s/it]0.001 -> 0.001
+Epoch: 63 	Training Loss: -0.0079180497 	Validation Loss: -0.0276978216 	Best Validation Loss: -0.0277863253
+  6%|▋         | 64/1000 [11:08<2:42:31, 10.42s/it]0.001 -> 0.001
+Epoch: 64 	Training Loss: -0.0078338299 	Validation Loss: -0.0273293265 	Best Validation Loss: -0.0277863253
+  6%|▋         | 65/1000 [11:19<2:42:04, 10.40s/it]0.001 -> 0.001
+Epoch: 65 	Training Loss: -0.0078945635 	Validation Loss: -0.0275385553 	Best Validation Loss: -0.0277863253
+  7%|▋         | 66/1000 [11:29<2:42:46, 10.46s/it]0.001 -> 0.001
+Epoch: 66 	Training Loss: -0.0081016805 	Validation Loss: -0.0277943454 	Best Validation Loss: -0.0277863253
+### Validation loss same/decreased (-0.0277863253 --> -0.0277943454)... saving model. ###
+  7%|▋         | 67/1000 [11:40<2:42:59, 10.48s/it]0.001 -> 0.001
+Epoch: 67 	Training Loss: -0.0078109628 	Validation Loss: -0.0277390593 	Best Validation Loss: -0.0277943454
+  7%|▋         | 68/1000 [11:50<2:42:22, 10.45s/it]0.001 -> 0.001
+Epoch: 68 	Training Loss: -0.0080125064 	Validation Loss: -0.0275531590 	Best Validation Loss: -0.0277943454
+  7%|▋         | 69/1000 [12:01<2:42:12, 10.45s/it]0.001 -> 0.001
+Epoch: 69 	Training Loss: -0.0080076897 	Validation Loss: -0.0276002475 	Best Validation Loss: -0.0277943454
+  7%|▋         | 70/1000 [12:11<2:41:33, 10.42s/it]0.001 -> 0.001
+Epoch: 70 	Training Loss: -0.0081212438 	Validation Loss: -0.0278956316 	Best Validation Loss: -0.0277943454
+### Validation loss same/decreased (-0.0277943454 --> -0.0278956316)... saving model. ###
+  7%|▋         | 71/1000 [12:21<2:41:06, 10.41s/it]0.001 -> 0.001
+Epoch: 71 	Training Loss: -0.0079658738 	Validation Loss: -0.0276890438 	Best Validation Loss: -0.0278956316
+  7%|▋         | 72/1000 [12:32<2:41:10, 10.42s/it]0.001 -> 0.001
+Epoch: 72 	Training Loss: -0.0079678006 	Validation Loss: -0.0278153273 	Best Validation Loss: -0.0278956316
+  7%|▋         | 73/1000 [12:42<2:41:18, 10.44s/it]0.001 -> 0.001
+Epoch: 73 	Training Loss: -0.0080653846 	Validation Loss: -0.0277884969 	Best Validation Loss: -0.0278956316
+  7%|▋         | 74/1000 [12:53<2:41:28, 10.46s/it]0.001 -> 0.001
+Epoch: 74 	Training Loss: -0.0080833229 	Validation Loss: -0.0279689184 	Best Validation Loss: -0.0278956316
+### Validation loss same/decreased (-0.0278956316 --> -0.0279689184)... saving model. ###
+  8%|▊         | 75/1000 [13:03<2:41:22, 10.47s/it]0.001 -> 0.001
+Epoch: 75 	Training Loss: -0.0080066334 	Validation Loss: -0.0281322202 	Best Validation Loss: -0.0279689184
+### Validation loss same/decreased (-0.0279689184 --> -0.0281322202)... saving model. ###
+  8%|▊         | 76/1000 [13:14<2:40:39, 10.43s/it]0.001 -> 0.001
+Epoch: 76 	Training Loss: -0.0080088329 	Validation Loss: -0.0277816474 	Best Validation Loss: -0.0281322202
+  8%|▊         | 77/1000 [13:24<2:39:59, 10.40s/it]0.001 -> 0.001
+Epoch: 77 	Training Loss: -0.0079369962 	Validation Loss: -0.0280278087 	Best Validation Loss: -0.0281322202
+  8%|▊         | 78/1000 [13:34<2:40:14, 10.43s/it]0.001 -> 0.001
+Epoch: 78 	Training Loss: -0.0080324140 	Validation Loss: -0.0280465675 	Best Validation Loss: -0.0281322202
+  8%|▊         | 79/1000 [13:45<2:39:39, 10.40s/it]0.001 -> 0.001
+Epoch: 79 	Training Loss: -0.0080453270 	Validation Loss: -0.0280729541 	Best Validation Loss: -0.0281322202
+  8%|▊         | 80/1000 [13:55<2:39:53, 10.43s/it]0.001 -> 0.001
+Epoch: 80 	Training Loss: -0.0080699770 	Validation Loss: -0.0281120290 	Best Validation Loss: -0.0281322202
+  8%|▊         | 81/1000 [14:06<2:40:23, 10.47s/it]0.001 -> 0.001
+Epoch: 81 	Training Loss: -0.0081112794 	Validation Loss: -0.0278885436 	Best Validation Loss: -0.0281322202
+  8%|▊         | 82/1000 [14:16<2:40:05, 10.46s/it]0.001 -> 0.001
+Epoch: 82 	Training Loss: -0.0080810902 	Validation Loss: -0.0279717618 	Best Validation Loss: -0.0281322202
+  8%|▊         | 83/1000 [14:27<2:39:52, 10.46s/it]0.001 -> 0.001
+Epoch: 83 	Training Loss: -0.0081347044 	Validation Loss: -0.0281894576 	Best Validation Loss: -0.0281322202
+### Validation loss same/decreased (-0.0281322202 --> -0.0281894576)... saving model. ###
+  8%|▊         | 84/1000 [14:37<2:39:08, 10.42s/it]0.001 -> 0.001
+Epoch: 84 	Training Loss: -0.0082011306 	Validation Loss: -0.0280090479 	Best Validation Loss: -0.0281894576
+  8%|▊         | 85/1000 [14:47<2:38:41, 10.41s/it]0.001 -> 0.001
+Epoch: 85 	Training Loss: -0.0081659425 	Validation Loss: -0.0279543113 	Best Validation Loss: -0.0281894576
+  9%|▊         | 86/1000 [14:58<2:38:51, 10.43s/it]0.001 -> 0.001
+Epoch: 86 	Training Loss: -0.0081595991 	Validation Loss: -0.0279484228 	Best Validation Loss: -0.0281894576
+  9%|▊         | 87/1000 [15:08<2:38:32, 10.42s/it]0.001 -> 0.001
+Epoch: 87 	Training Loss: -0.0082152128 	Validation Loss: -0.0280322838 	Best Validation Loss: -0.0281894576
+  9%|▉         | 88/1000 [15:19<2:39:01, 10.46s/it]0.001 -> 0.001
+Epoch: 88 	Training Loss: -0.0080521850 	Validation Loss: -0.0278070681 	Best Validation Loss: -0.0281894576
+  9%|▉         | 89/1000 [15:29<2:39:11, 10.48s/it]0.001 -> 0.001
+Epoch: 89 	Training Loss: -0.0081740475 	Validation Loss: -0.0278877099 	Best Validation Loss: -0.0281894576
+  9%|▉         | 90/1000 [15:40<2:38:19, 10.44s/it]0.001 -> 0.001
+Epoch: 90 	Training Loss: -0.0081355431 	Validation Loss: -0.0280705540 	Best Validation Loss: -0.0281894576
+  9%|▉         | 91/1000 [15:50<2:37:42, 10.41s/it]0.001 -> 0.001
+Epoch: 91 	Training Loss: -0.0082491393 	Validation Loss: -0.0279631896 	Best Validation Loss: -0.0281894576
+  9%|▉         | 92/1000 [16:00<2:37:45, 10.43s/it]0.001 -> 0.001
+Epoch: 92 	Training Loss: -0.0081837462 	Validation Loss: -0.0282896256 	Best Validation Loss: -0.0281894576
+### Validation loss same/decreased (-0.0281894576 --> -0.0282896256)... saving model. ###
+  9%|▉         | 93/1000 [16:11<2:37:16, 10.40s/it]0.001 -> 0.001
+Epoch: 93 	Training Loss: -0.0081520197 	Validation Loss: -0.0279127679 	Best Validation Loss: -0.0282896256
+  9%|▉         | 94/1000 [16:21<2:37:28, 10.43s/it]0.001 -> 0.001
+Epoch: 94 	Training Loss: -0.0082210627 	Validation Loss: -0.0274989086 	Best Validation Loss: -0.0282896256
+ 10%|▉         | 95/1000 [16:32<2:38:24, 10.50s/it]0.001 -> 0.001
+Epoch: 95 	Training Loss: -0.0081796375 	Validation Loss: -0.0279452838 	Best Validation Loss: -0.0282896256
+ 10%|▉         | 96/1000 [16:42<2:37:42, 10.47s/it]0.001 -> 0.001
+Epoch: 96 	Training Loss: -0.0082092009 	Validation Loss: -0.0282464588 	Best Validation Loss: -0.0282896256
+ 10%|▉         | 97/1000 [16:53<2:36:55, 10.43s/it]0.001 -> 0.001
+Epoch: 97 	Training Loss: -0.0081201534 	Validation Loss: -0.0281472724 	Best Validation Loss: -0.0282896256
+ 10%|▉         | 98/1000 [17:03<2:36:50, 10.43s/it]0.001 -> 0.001
+Epoch: 98 	Training Loss: -0.0081500635 	Validation Loss: -0.0279507999 	Best Validation Loss: -0.0282896256
+ 10%|▉         | 99/1000 [17:13<2:36:16, 10.41s/it]0.001 -> 0.001
+Epoch: 99 	Training Loss: -0.0082324003 	Validation Loss: -0.0280832398 	Best Validation Loss: -0.0282896256
+Validation early stop running loss decreased (-1.2748144738 --> -1.3903700659).
+ 10%|█         | 100/1000 [17:24<2:35:54, 10.39s/it]0.001 -> 0.001
+Epoch: 100 	Training Loss: -0.0083179302 	Validation Loss: -0.0281333602 	Best Validation Loss: -0.0282896256
+ 10%|█         | 101/1000 [17:34<2:36:50, 10.47s/it]0.001 -> 0.001
+Epoch: 101 	Training Loss: -0.0082489052 	Validation Loss: -0.0280985483 	Best Validation Loss: -0.0282896256
+ 10%|█         | 102/1000 [17:45<2:36:59, 10.49s/it]0.001 -> 0.001
+Epoch: 102 	Training Loss: -0.0081857704 	Validation Loss: -0.0283012275 	Best Validation Loss: -0.0282896256
+### Validation loss same/decreased (-0.0282896256 --> -0.0283012275)... saving model. ###
+ 10%|█         | 103/1000 [17:55<2:36:12, 10.45s/it]0.001 -> 0.001
+Epoch: 103 	Training Loss: -0.0082891913 	Validation Loss: -0.0284655020 	Best Validation Loss: -0.0283012275
+### Validation loss same/decreased (-0.0283012275 --> -0.0284655020)... saving model. ###
+ 10%|█         | 104/1000 [18:06<2:36:06, 10.45s/it]0.001 -> 0.001
+Epoch: 104 	Training Loss: -0.0082222564 	Validation Loss: -0.0282553248 	Best Validation Loss: -0.0284655020
+ 10%|█         | 105/1000 [18:16<2:35:26, 10.42s/it]0.001 -> 0.001
+Epoch: 105 	Training Loss: -0.0082503608 	Validation Loss: -0.0285075351 	Best Validation Loss: -0.0284655020
+### Validation loss same/decreased (-0.0284655020 --> -0.0285075351)... saving model. ###
+ 11%|█         | 106/1000 [18:27<2:35:28, 10.43s/it]0.001 -> 0.001
+Epoch: 106 	Training Loss: -0.0082912812 	Validation Loss: -0.0284135103 	Best Validation Loss: -0.0285075351
+ 11%|█         | 107/1000 [18:37<2:35:19, 10.44s/it]0.001 -> 0.001
+Epoch: 107 	Training Loss: -0.0082953306 	Validation Loss: -0.0283817169 	Best Validation Loss: -0.0285075351
+ 11%|█         | 108/1000 [18:48<2:35:39, 10.47s/it]0.001 -> 0.001
+Epoch: 108 	Training Loss: -0.0082572852 	Validation Loss: -0.0286805394 	Best Validation Loss: -0.0285075351
+### Validation loss same/decreased (-0.0285075351 --> -0.0286805394)... saving model. ###
+ 11%|█         | 109/1000 [18:58<2:35:53, 10.50s/it]0.001 -> 0.001
+Epoch: 109 	Training Loss: -0.0083217676 	Validation Loss: -0.0284761086 	Best Validation Loss: -0.0286805394
+ 11%|█         | 110/1000 [19:09<2:35:02, 10.45s/it]0.001 -> 0.001
+Epoch: 110 	Training Loss: -0.0082289626 	Validation Loss: -0.0283847695 	Best Validation Loss: -0.0286805394
+ 11%|█         | 111/1000 [19:19<2:34:30, 10.43s/it]0.001 -> 0.001
+Epoch: 111 	Training Loss: -0.0081855627 	Validation Loss: -0.0281418080 	Best Validation Loss: -0.0286805394
+ 11%|█         | 112/1000 [19:29<2:34:26, 10.44s/it]0.001 -> 0.001
+Epoch: 112 	Training Loss: -0.0082064187 	Validation Loss: -0.0282680876 	Best Validation Loss: -0.0286805394
+ 11%|█▏        | 113/1000 [19:40<2:33:55, 10.41s/it]0.001 -> 0.001
+Epoch: 113 	Training Loss: -0.0083752789 	Validation Loss: -0.0284681057 	Best Validation Loss: -0.0286805394
+ 11%|█▏        | 114/1000 [19:50<2:34:08, 10.44s/it]0.001 -> 0.001
+Epoch: 114 	Training Loss: -0.0082574113 	Validation Loss: -0.0288475876 	Best Validation Loss: -0.0286805394
+### Validation loss same/decreased (-0.0286805394 --> -0.0288475876)... saving model. ###
+ 12%|█▏        | 115/1000 [20:01<2:34:58, 10.51s/it]0.001 -> 0.001
+Epoch: 115 	Training Loss: -0.0082517523 	Validation Loss: -0.0283398213 	Best Validation Loss: -0.0288475876
+ 12%|█▏        | 116/1000 [20:11<2:34:05, 10.46s/it]0.001 -> 0.001
+Epoch: 116 	Training Loss: -0.0083266871 	Validation Loss: -0.0285711045 	Best Validation Loss: -0.0288475876
+ 12%|█▏        | 117/1000 [20:22<2:33:20, 10.42s/it]0.001 -> 0.001
+Epoch: 117 	Training Loss: -0.0082996817 	Validation Loss: -0.0286627321 	Best Validation Loss: -0.0288475876
+ 12%|█▏        | 118/1000 [20:32<2:33:17, 10.43s/it]0.001 -> 0.001
+Epoch: 118 	Training Loss: -0.0083067756 	Validation Loss: -0.0284901370 	Best Validation Loss: -0.0288475876
+ 12%|█▏        | 119/1000 [20:42<2:32:44, 10.40s/it]0.001 -> 0.001
+Epoch: 119 	Training Loss: -0.0082666273 	Validation Loss: -0.0285889227 	Best Validation Loss: -0.0288475876
+ 12%|█▏        | 120/1000 [20:53<2:32:39, 10.41s/it]0.001 -> 0.001
+Epoch: 120 	Training Loss: -0.0082983887 	Validation Loss: -0.0284379309 	Best Validation Loss: -0.0288475876
+ 12%|█▏        | 121/1000 [21:03<2:33:24, 10.47s/it]0.001 -> 0.001
+Epoch: 121 	Training Loss: -0.0083576910 	Validation Loss: -0.0286155203 	Best Validation Loss: -0.0288475876
+ 12%|█▏        | 122/1000 [21:14<2:33:12, 10.47s/it]0.001 -> 0.001
+Epoch: 122 	Training Loss: -0.0083447871 	Validation Loss: -0.0286876750 	Best Validation Loss: -0.0288475876
+ 12%|█▏        | 123/1000 [21:24<2:32:27, 10.43s/it]0.001 -> 0.001
+Epoch: 123 	Training Loss: -0.0082691133 	Validation Loss: -0.0284168373 	Best Validation Loss: -0.0288475876
+ 12%|█▏        | 124/1000 [21:35<2:32:21, 10.44s/it]0.001 -> 0.001
+Epoch: 124 	Training Loss: -0.0083104220 	Validation Loss: -0.0287858185 	Best Validation Loss: -0.0288475876
+ 12%|█▎        | 125/1000 [21:45<2:31:46, 10.41s/it]0.001 -> 0.001
+Epoch: 125 	Training Loss: -0.0084732211 	Validation Loss: -0.0287224397 	Best Validation Loss: -0.0288475876
+ 13%|█▎        | 126/1000 [21:55<2:31:24, 10.39s/it]0.001 -> 0.001
+Epoch: 126 	Training Loss: -0.0082902700 	Validation Loss: -0.0283651018 	Best Validation Loss: -0.0288475876
+ 13%|█▎        | 127/1000 [22:06<2:32:13, 10.46s/it]0.001 -> 0.001
+Epoch: 127 	Training Loss: -0.0082883328 	Validation Loss: -0.0286001384 	Best Validation Loss: -0.0288475876
+ 13%|█▎        | 128/1000 [22:16<2:32:09, 10.47s/it]0.001 -> 0.001
+Epoch: 128 	Training Loss: -0.0082672469 	Validation Loss: -0.0289479647 	Best Validation Loss: -0.0288475876
+### Validation loss same/decreased (-0.0288475876 --> -0.0289479647)... saving model. ###
+ 13%|█▎        | 129/1000 [22:27<2:32:03, 10.47s/it]0.001 -> 0.001
+Epoch: 129 	Training Loss: -0.0084605406 	Validation Loss: -0.0288078166 	Best Validation Loss: -0.0289479647
+ 13%|█▎        | 130/1000 [22:37<2:31:16, 10.43s/it]0.001 -> 0.001
+Epoch: 130 	Training Loss: -0.0082837334 	Validation Loss: -0.0286300985 	Best Validation Loss: -0.0289479647
+ 13%|█▎        | 131/1000 [22:48<2:30:42, 10.41s/it]0.001 -> 0.001
+Epoch: 131 	Training Loss: -0.0083329997 	Validation Loss: -0.0290890881 	Best Validation Loss: -0.0289479647
+### Validation loss same/decreased (-0.0289479647 --> -0.0290890881)... saving model. ###
+ 13%|█▎        | 132/1000 [22:58<2:30:38, 10.41s/it]0.001 -> 0.001
+Epoch: 132 	Training Loss: -0.0084100497 	Validation Loss: -0.0286193060 	Best Validation Loss: -0.0290890881
+ 13%|█▎        | 133/1000 [23:08<2:30:22, 10.41s/it]0.001 -> 0.001
+Epoch: 133 	Training Loss: -0.0083820980 	Validation Loss: -0.0287868302 	Best Validation Loss: -0.0290890881
+ 13%|█▎        | 134/1000 [23:19<2:30:52, 10.45s/it]0.001 -> 0.001
+Epoch: 134 	Training Loss: -0.0084082421 	Validation Loss: -0.0289824154 	Best Validation Loss: -0.0290890881
+ 14%|█▎        | 135/1000 [23:30<2:31:17, 10.49s/it]0.001 -> 0.001
+Epoch: 135 	Training Loss: -0.0084685842 	Validation Loss: -0.0285291223 	Best Validation Loss: -0.0290890881
+ 14%|█▎        | 136/1000 [23:40<2:30:33, 10.46s/it]0.001 -> 0.001
+Epoch: 136 	Training Loss: -0.0083306610 	Validation Loss: -0.0286360779 	Best Validation Loss: -0.0290890881
+ 14%|█▎        | 137/1000 [23:50<2:29:52, 10.42s/it]0.001 -> 0.001
+Epoch: 137 	Training Loss: -0.0084865788 	Validation Loss: -0.0288134856 	Best Validation Loss: -0.0290890881
+ 14%|█▍        | 138/1000 [24:01<2:29:54, 10.43s/it]0.001 -> 0.001
+Epoch: 138 	Training Loss: -0.0083862111 	Validation Loss: -0.0288556358 	Best Validation Loss: -0.0290890881
+ 14%|█▍        | 139/1000 [24:11<2:29:21, 10.41s/it]0.001 -> 0.001
+Epoch: 139 	Training Loss: -0.0083612007 	Validation Loss: -0.0289792442 	Best Validation Loss: -0.0290890881
+ 14%|█▍        | 140/1000 [24:22<2:29:37, 10.44s/it]0.001 -> 0.001
+Epoch: 140 	Training Loss: -0.0083899527 	Validation Loss: -0.0289365570 	Best Validation Loss: -0.0290890881
+ 14%|█▍        | 141/1000 [24:32<2:30:13, 10.49s/it]0.001 -> 0.001
+Epoch: 141 	Training Loss: -0.0084046393 	Validation Loss: -0.0288039314 	Best Validation Loss: -0.0290890881
+ 14%|█▍        | 142/1000 [24:43<2:29:45, 10.47s/it]0.001 -> 0.001
+Epoch: 142 	Training Loss: -0.0083464685 	Validation Loss: -0.0287156828 	Best Validation Loss: -0.0290890881
+ 14%|█▍        | 143/1000 [24:53<2:29:00, 10.43s/it]0.001 -> 0.001
+Epoch: 143 	Training Loss: -0.0085041986 	Validation Loss: -0.0287389096 	Best Validation Loss: -0.0290890881
+ 14%|█▍        | 144/1000 [25:03<2:28:57, 10.44s/it]0.001 -> 0.001
+Epoch: 144 	Training Loss: -0.0084302531 	Validation Loss: -0.0289107744 	Best Validation Loss: -0.0290890881
+ 14%|█▍        | 145/1000 [25:14<2:28:25, 10.42s/it]0.001 -> 0.001
+Epoch: 145 	Training Loss: -0.0085366810 	Validation Loss: -0.0286233092 	Best Validation Loss: -0.0290890881
+ 15%|█▍        | 146/1000 [25:24<2:28:16, 10.42s/it]0.001 -> 0.001
+Epoch: 146 	Training Loss: -0.0083577248 	Validation Loss: -0.0286321195 	Best Validation Loss: -0.0290890881
+ 15%|█▍        | 147/1000 [25:35<2:28:57, 10.48s/it]0.001 -> 0.001
+Epoch: 147 	Training Loss: -0.0085361378 	Validation Loss: -0.0289911768 	Best Validation Loss: -0.0290890881
+ 15%|█▍        | 148/1000 [25:45<2:28:52, 10.48s/it]0.001 -> 0.001
+Epoch: 148 	Training Loss: -0.0084762902 	Validation Loss: -0.0288160841 	Best Validation Loss: -0.0290890881
+ 15%|█▍        | 149/1000 [25:56<2:28:09, 10.45s/it]0.001 -> 0.001
+Epoch: 149 	Training Loss: -0.0085165574 	Validation Loss: -0.0290817815 	Best Validation Loss: -0.0290890881
+Validation early stop running loss decreased (-1.3903700659 --> -1.4310353227).
+ 15%|█▌        | 150/1000 [26:06<2:27:59, 10.45s/it]0.001 -> 0.001
+Epoch: 150 	Training Loss: -0.0085174696 	Validation Loss: -0.0289942001 	Best Validation Loss: -0.0290890881
+ 15%|█▌        | 151/1000 [26:17<2:27:22, 10.42s/it]0.001 -> 0.001
+Epoch: 151 	Training Loss: -0.0084321418 	Validation Loss: -0.0290692606 	Best Validation Loss: -0.0290890881
+ 15%|█▌        | 152/1000 [26:27<2:27:19, 10.42s/it]0.001 -> 0.001
+Epoch: 152 	Training Loss: -0.0085740311 	Validation Loss: -0.0292176313 	Best Validation Loss: -0.0290890881
+### Validation loss same/decreased (-0.0290890881 --> -0.0292176313)... saving model. ###
+ 15%|█▌        | 153/1000 [26:37<2:27:24, 10.44s/it]0.001 -> 0.001
+Epoch: 153 	Training Loss: -0.0083627343 	Validation Loss: -0.0290709383 	Best Validation Loss: -0.0292176313
+ 15%|█▌        | 154/1000 [26:48<2:27:39, 10.47s/it]0.001 -> 0.001
+Epoch: 154 	Training Loss: -0.0084860677 	Validation Loss: -0.0291690482 	Best Validation Loss: -0.0292176313
+ 16%|█▌        | 155/1000 [26:59<2:27:55, 10.50s/it]0.001 -> 0.001
+Epoch: 155 	Training Loss: -0.0084462841 	Validation Loss: -0.0290393020 	Best Validation Loss: -0.0292176313
+ 16%|█▌        | 156/1000 [27:09<2:27:05, 10.46s/it]0.001 -> 0.001
+Epoch: 156 	Training Loss: -0.0084464279 	Validation Loss: -0.0289394686 	Best Validation Loss: -0.0292176313
+ 16%|█▌        | 157/1000 [27:19<2:26:28, 10.43s/it]0.001 -> 0.001
+Epoch: 157 	Training Loss: -0.0083352911 	Validation Loss: -0.0292291447 	Best Validation Loss: -0.0292176313
+### Validation loss same/decreased (-0.0292176313 --> -0.0292291447)... saving model. ###
+ 16%|█▌        | 158/1000 [27:30<2:26:32, 10.44s/it]0.001 -> 0.001
+Epoch: 158 	Training Loss: -0.0085257319 	Validation Loss: -0.0291041786 	Best Validation Loss: -0.0292291447
+ 16%|█▌        | 159/1000 [27:40<2:26:06, 10.42s/it]0.001 -> 0.001
+Epoch: 159 	Training Loss: -0.0084858347 	Validation Loss: -0.0292318192 	Best Validation Loss: -0.0292291447
+### Validation loss same/decreased (-0.0292291447 --> -0.0292318192)... saving model. ###
+ 16%|█▌        | 160/1000 [27:51<2:26:29, 10.46s/it]0.001 -> 0.001
+Epoch: 160 	Training Loss: -0.0085624427 	Validation Loss: -0.0290554164 	Best Validation Loss: -0.0292318192
+ 16%|█▌        | 161/1000 [28:01<2:26:46, 10.50s/it]0.001 -> 0.001
+Epoch: 161 	Training Loss: -0.0085038685 	Validation Loss: -0.0290771892 	Best Validation Loss: -0.0292318192
+ 16%|█▌        | 162/1000 [28:12<2:26:02, 10.46s/it]0.001 -> 0.001
+Epoch: 162 	Training Loss: -0.0085035398 	Validation Loss: -0.0290610420 	Best Validation Loss: -0.0292318192
+ 16%|█▋        | 163/1000 [28:22<2:25:19, 10.42s/it]0.001 -> 0.001
+Epoch: 163 	Training Loss: -0.0085724710 	Validation Loss: -0.0291620090 	Best Validation Loss: -0.0292318192
+ 16%|█▋        | 164/1000 [28:32<2:25:15, 10.43s/it]0.001 -> 0.001
+Epoch: 164 	Training Loss: -0.0085772870 	Validation Loss: -0.0293015042 	Best Validation Loss: -0.0292318192
+### Validation loss same/decreased (-0.0292318192 --> -0.0293015042)... saving model. ###
+ 16%|█▋        | 165/1000 [28:43<2:24:43, 10.40s/it]0.001 -> 0.001
+Epoch: 165 	Training Loss: -0.0085758147 	Validation Loss: -0.0291962928 	Best Validation Loss: -0.0293015042
+ 17%|█▋        | 166/1000 [28:53<2:24:44, 10.41s/it]0.001 -> 0.001
+Epoch: 166 	Training Loss: -0.0085325939 	Validation Loss: -0.0293894115 	Best Validation Loss: -0.0293015042
+### Validation loss same/decreased (-0.0293015042 --> -0.0293894115)... saving model. ###
+ 17%|█▋        | 167/1000 [29:04<2:25:05, 10.45s/it]0.001 -> 0.001
+Epoch: 167 	Training Loss: -0.0085410141 	Validation Loss: -0.0292419419 	Best Validation Loss: -0.0293894115
+ 17%|█▋        | 168/1000 [29:14<2:24:49, 10.44s/it]0.001 -> 0.001
+Epoch: 168 	Training Loss: -0.0084950008 	Validation Loss: -0.0289826553 	Best Validation Loss: -0.0293894115
+ 17%|█▋        | 169/1000 [29:24<2:24:10, 10.41s/it]0.001 -> 0.001
+Epoch: 169 	Training Loss: -0.0085087787 	Validation Loss: -0.0291100092 	Best Validation Loss: -0.0293894115
+ 17%|█▋        | 170/1000 [29:35<2:24:21, 10.43s/it]0.001 -> 0.001
+Epoch: 170 	Training Loss: -0.0085804063 	Validation Loss: -0.0290447490 	Best Validation Loss: -0.0293894115
+ 17%|█▋        | 171/1000 [29:45<2:23:49, 10.41s/it]0.001 -> 0.001
+Epoch: 171 	Training Loss: -0.0085855154 	Validation Loss: -0.0291956463 	Best Validation Loss: -0.0293894115
+ 17%|█▋        | 172/1000 [29:56<2:23:29, 10.40s/it]0.001 -> 0.001
+Epoch: 172 	Training Loss: -0.0084222881 	Validation Loss: -0.0293953032 	Best Validation Loss: -0.0293894115
+### Validation loss same/decreased (-0.0293894115 --> -0.0293953032)... saving model. ###
+ 17%|█▋        | 173/1000 [30:06<2:23:54, 10.44s/it]0.001 -> 0.001
+Epoch: 173 	Training Loss: -0.0085226316 	Validation Loss: -0.0291789285 	Best Validation Loss: -0.0293953032
+ 17%|█▋        | 174/1000 [30:17<2:24:00, 10.46s/it]0.001 -> 0.001
+Epoch: 174 	Training Loss: -0.0085293958 	Validation Loss: -0.0289549250 	Best Validation Loss: -0.0293953032
+ 18%|█▊        | 175/1000 [30:27<2:23:54, 10.47s/it]0.001 -> 0.001
+Epoch: 175 	Training Loss: -0.0086455796 	Validation Loss: -0.0292627162 	Best Validation Loss: -0.0293953032
+ 18%|█▊        | 176/1000 [30:38<2:23:14, 10.43s/it]0.001 -> 0.001
+Epoch: 176 	Training Loss: -0.0085368629 	Validation Loss: -0.0294817129 	Best Validation Loss: -0.0293953032
+### Validation loss same/decreased (-0.0293953032 --> -0.0294817129)... saving model. ###
+ 18%|█▊        | 177/1000 [30:48<2:22:48, 10.41s/it]0.001 -> 0.001
+Epoch: 177 	Training Loss: -0.0085416202 	Validation Loss: -0.0290390077 	Best Validation Loss: -0.0294817129
+ 18%|█▊        | 178/1000 [30:58<2:22:50, 10.43s/it]0.001 -> 0.001
+Epoch: 178 	Training Loss: -0.0085149282 	Validation Loss: -0.0294074762 	Best Validation Loss: -0.0294817129
+ 18%|█▊        | 179/1000 [31:09<2:22:42, 10.43s/it]0.001 -> 0.001
+Epoch: 179 	Training Loss: -0.0085567594 	Validation Loss: -0.0293509473 	Best Validation Loss: -0.0294817129
+ 18%|█▊        | 180/1000 [31:19<2:23:07, 10.47s/it]0.001 -> 0.001
+Epoch: 180 	Training Loss: -0.0085437987 	Validation Loss: -0.0292608828 	Best Validation Loss: -0.0294817129
+ 18%|█▊        | 181/1000 [31:30<2:23:06, 10.48s/it]0.001 -> 0.001
+Epoch: 181 	Training Loss: -0.0085295410 	Validation Loss: -0.0292246296 	Best Validation Loss: -0.0294817129
+ 18%|█▊        | 182/1000 [31:40<2:22:24, 10.45s/it]0.001 -> 0.001
+Epoch: 182 	Training Loss: -0.0086526143 	Validation Loss: -0.0289882295 	Best Validation Loss: -0.0294817129
+ 18%|█▊        | 183/1000 [31:51<2:21:46, 10.41s/it]0.001 -> 0.001
+Epoch: 183 	Training Loss: -0.0085453173 	Validation Loss: -0.0293709500 	Best Validation Loss: -0.0294817129
+ 18%|█▊        | 184/1000 [32:01<2:21:45, 10.42s/it]0.001 -> 0.001
+Epoch: 184 	Training Loss: -0.0086160163 	Validation Loss: -0.0292621561 	Best Validation Loss: -0.0294817129
+ 18%|█▊        | 185/1000 [32:11<2:21:23, 10.41s/it]0.001 -> 0.001
+Epoch: 185 	Training Loss: -0.0085321841 	Validation Loss: -0.0292771870 	Best Validation Loss: -0.0294817129
+ 19%|█▊        | 186/1000 [32:22<2:21:36, 10.44s/it]0.001 -> 0.001
+Epoch: 186 	Training Loss: -0.0085674894 	Validation Loss: -0.0292796219 	Best Validation Loss: -0.0294817129
+ 19%|█▊        | 187/1000 [32:33<2:22:22, 10.51s/it]0.001 -> 0.001
+Epoch: 187 	Training Loss: -0.0085047148 	Validation Loss: -0.0291475076 	Best Validation Loss: -0.0294817129
+ 19%|█▉        | 188/1000 [32:43<2:21:34, 10.46s/it]0.001 -> 0.001
+Epoch: 188 	Training Loss: -0.0086373451 	Validation Loss: -0.0290824467 	Best Validation Loss: -0.0294817129
+ 19%|█▉        | 189/1000 [32:53<2:20:53, 10.42s/it]0.001 -> 0.001
+Epoch: 189 	Training Loss: -0.0085444578 	Validation Loss: -0.0292362272 	Best Validation Loss: -0.0294817129
+ 19%|█▉        | 190/1000 [33:04<2:20:57, 10.44s/it]0.001 -> 0.001
+Epoch: 190 	Training Loss: -0.0084727508 	Validation Loss: -0.0291589189 	Best Validation Loss: -0.0294817129
+ 19%|█▉        | 191/1000 [33:14<2:20:25, 10.41s/it]0.001 -> 0.001
+Epoch: 191 	Training Loss: -0.0085580430 	Validation Loss: -0.0291974969 	Best Validation Loss: -0.0294817129
+ 19%|█▉        | 192/1000 [33:25<2:20:21, 10.42s/it]0.001 -> 0.001
+Epoch: 192 	Training Loss: -0.0085477343 	Validation Loss: -0.0292648831 	Best Validation Loss: -0.0294817129
+ 19%|█▉        | 193/1000 [33:35<2:21:14, 10.50s/it]0.001 -> 0.001
+Epoch: 193 	Training Loss: -0.0085838088 	Validation Loss: -0.0292531644 	Best Validation Loss: -0.0294817129
+ 19%|█▉        | 194/1000 [33:46<2:20:51, 10.49s/it]0.001 -> 0.001
+Epoch: 194 	Training Loss: -0.0086049415 	Validation Loss: -0.0291574269 	Best Validation Loss: -0.0294817129
+ 20%|█▉        | 195/1000 [33:56<2:20:22, 10.46s/it]0.001 -> 0.001
+Epoch: 195 	Training Loss: -0.0085651916 	Validation Loss: -0.0291856629 	Best Validation Loss: -0.0294817129
+ 20%|█▉        | 196/1000 [34:07<2:19:59, 10.45s/it]0.001 -> 0.001
+Epoch: 196 	Training Loss: -0.0085581648 	Validation Loss: -0.0293570285 	Best Validation Loss: -0.0294817129
+ 20%|█▉        | 197/1000 [34:17<2:19:23, 10.42s/it]0.001 -> 0.0008
+Epoch: 197 	Training Loss: -0.0086568144 	Validation Loss: -0.0293609248 	Best Validation Loss: -0.0294817129
+ 20%|█▉        | 198/1000 [34:27<2:19:30, 10.44s/it]0.0008 -> 0.0008
+Epoch: 198 	Training Loss: -0.0085762886 	Validation Loss: -0.0293622781 	Best Validation Loss: -0.0294817129
+ 20%|█▉        | 199/1000 [34:38<2:19:18, 10.43s/it]0.0008 -> 0.0008
+Epoch: 199 	Training Loss: -0.0086011184 	Validation Loss: -0.0294443521 	Best Validation Loss: -0.0294817129
+Validation early stop running loss decreased (-1.4310353227 --> -1.4598258506).
+ 20%|██        | 200/1000 [34:48<2:19:46, 10.48s/it]0.0008 -> 0.0008
+Epoch: 200 	Training Loss: -0.0086697617 	Validation Loss: -0.0294961017 	Best Validation Loss: -0.0294817129
+### Validation loss same/decreased (-0.0294817129 --> -0.0294961017)... saving model. ###
+ 20%|██        | 201/1000 [34:59<2:19:59, 10.51s/it]0.0008 -> 0.0008
+Epoch: 201 	Training Loss: -0.0085923474 	Validation Loss: -0.0292467271 	Best Validation Loss: -0.0294961017
+ 20%|██        | 202/1000 [35:09<2:19:09, 10.46s/it]0.0008 -> 0.0008
+Epoch: 202 	Training Loss: -0.0086866627 	Validation Loss: -0.0292418968 	Best Validation Loss: -0.0294961017
+ 20%|██        | 203/1000 [35:20<2:18:32, 10.43s/it]0.0008 -> 0.0008
+Epoch: 203 	Training Loss: -0.0085902061 	Validation Loss: -0.0292891455 	Best Validation Loss: -0.0294961017
+ 20%|██        | 204/1000 [35:30<2:18:30, 10.44s/it]0.0008 -> 0.0008
+Epoch: 204 	Training Loss: -0.0087229009 	Validation Loss: -0.0292745363 	Best Validation Loss: -0.0294961017
+ 20%|██        | 205/1000 [35:40<2:18:03, 10.42s/it]0.0008 -> 0.0008
+Epoch: 205 	Training Loss: -0.0086734229 	Validation Loss: -0.0289571469 	Best Validation Loss: -0.0294961017
+ 21%|██        | 206/1000 [35:51<2:18:10, 10.44s/it]0.0008 -> 0.0008
+Epoch: 206 	Training Loss: -0.0086732946 	Validation Loss: -0.0292899120 	Best Validation Loss: -0.0294961017
+ 21%|██        | 207/1000 [36:02<2:18:37, 10.49s/it]0.0008 -> 0.0008
+Epoch: 207 	Training Loss: -0.0086477252 	Validation Loss: -0.0289805800 	Best Validation Loss: -0.0294961017
+ 21%|██        | 208/1000 [36:12<2:18:13, 10.47s/it]0.0008 -> 0.0008
+Epoch: 208 	Training Loss: -0.0087083068 	Validation Loss: -0.0291178525 	Best Validation Loss: -0.0294961017
+ 21%|██        | 209/1000 [36:22<2:17:31, 10.43s/it]0.0008 -> 0.0008
+Epoch: 209 	Training Loss: -0.0085701815 	Validation Loss: -0.0289553409 	Best Validation Loss: -0.0294961017
+ 21%|██        | 210/1000 [36:33<2:17:27, 10.44s/it]0.0008 -> 0.0008
+Epoch: 210 	Training Loss: -0.0087714107 	Validation Loss: -0.0292008871 	Best Validation Loss: -0.0294961017
+ 21%|██        | 211/1000 [36:43<2:16:54, 10.41s/it]0.0008 -> 0.0008
+Epoch: 211 	Training Loss: -0.0086546065 	Validation Loss: -0.0290917482 	Best Validation Loss: -0.0294961017
+ 21%|██        | 212/1000 [36:54<2:16:51, 10.42s/it]0.0008 -> 0.0008
+Epoch: 212 	Training Loss: -0.0087248995 	Validation Loss: -0.0292461403 	Best Validation Loss: -0.0294961017
+ 21%|██▏       | 213/1000 [37:04<2:17:33, 10.49s/it]0.0008 -> 0.0008
+Epoch: 213 	Training Loss: -0.0087035048 	Validation Loss: -0.0293558843 	Best Validation Loss: -0.0294961017
+ 21%|██▏       | 214/1000 [37:15<2:17:27, 10.49s/it]0.0008 -> 0.0008
+Epoch: 214 	Training Loss: -0.0086807175 	Validation Loss: -0.0292473252 	Best Validation Loss: -0.0294961017
+ 22%|██▏       | 215/1000 [37:25<2:16:49, 10.46s/it]0.0008 -> 0.0008
+Epoch: 215 	Training Loss: -0.0087042481 	Validation Loss: -0.0292501527 	Best Validation Loss: -0.0294961017
+ 22%|██▏       | 216/1000 [37:36<2:16:43, 10.46s/it]0.0008 -> 0.0008
+Epoch: 216 	Training Loss: -0.0086001007 	Validation Loss: -0.0290670534 	Best Validation Loss: -0.0294961017
+ 22%|██▏       | 217/1000 [37:46<2:16:06, 10.43s/it]0.0008 -> 0.0008
+Epoch: 217 	Training Loss: -0.0085413872 	Validation Loss: -0.0291915594 	Best Validation Loss: -0.0294961017
+ 22%|██▏       | 218/1000 [37:56<2:16:10, 10.45s/it]0.0008 -> 0.0008
+Epoch: 218 	Training Loss: -0.0086127873 	Validation Loss: -0.0291376335 	Best Validation Loss: -0.0294961017
+ 22%|██▏       | 219/1000 [38:07<2:16:14, 10.47s/it]0.0008 -> 0.0008
+Epoch: 219 	Training Loss: -0.0086837187 	Validation Loss: -0.0290468485 	Best Validation Loss: -0.0294961017
+ 22%|██▏       | 220/1000 [38:17<2:16:16, 10.48s/it]0.0008 -> 0.0008
+Epoch: 220 	Training Loss: -0.0087303637 	Validation Loss: -0.0292413559 	Best Validation Loss: -0.0294961017
+ 22%|██▏       | 221/1000 [38:28<2:16:18, 10.50s/it]0.0008 -> 0.00064
+Epoch: 221 	Training Loss: -0.0085467019 	Validation Loss: -0.0291087320 	Best Validation Loss: -0.0294961017
+ 22%|██▏       | 222/1000 [38:38<2:15:31, 10.45s/it]0.00064 -> 0.00064
+Epoch: 222 	Training Loss: -0.0086136379 	Validation Loss: -0.0290823263 	Best Validation Loss: -0.0294961017
+ 22%|██▏       | 223/1000 [38:49<2:14:59, 10.42s/it]0.00064 -> 0.00064
+Epoch: 223 	Training Loss: -0.0087347889 	Validation Loss: -0.0290908663 	Best Validation Loss: -0.0294961017
+ 22%|██▏       | 224/1000 [38:59<2:14:58, 10.44s/it]0.00064 -> 0.00064
+Epoch: 224 	Training Loss: -0.0086281644 	Validation Loss: -0.0290565366 	Best Validation Loss: -0.0294961017
+ 22%|██▎       | 225/1000 [39:10<2:14:39, 10.42s/it]0.00064 -> 0.00064
+Epoch: 225 	Training Loss: -0.0087017554 	Validation Loss: -0.0289261998 	Best Validation Loss: -0.0294961017
+ 23%|██▎       | 226/1000 [39:20<2:14:56, 10.46s/it]0.00064 -> 0.00064
+Epoch: 226 	Training Loss: -0.0086027501 	Validation Loss: -0.0291981542 	Best Validation Loss: -0.0294961017
+ 23%|██▎       | 227/1000 [39:31<2:15:14, 10.50s/it]0.00064 -> 0.00064
+Epoch: 227 	Training Loss: -0.0086920899 	Validation Loss: -0.0290115837 	Best Validation Loss: -0.0294961017
+ 23%|██▎       | 228/1000 [39:41<2:14:30, 10.45s/it]0.00064 -> 0.00064
+Epoch: 228 	Training Loss: -0.0086919541 	Validation Loss: -0.0290215107 	Best Validation Loss: -0.0294961017
+ 23%|██▎       | 229/1000 [39:51<2:13:52, 10.42s/it]0.00064 -> 0.00064
+Epoch: 229 	Training Loss: -0.0086253950 	Validation Loss: -0.0288949983 	Best Validation Loss: -0.0294961017
+ 23%|██▎       | 230/1000 [40:02<2:13:57, 10.44s/it]0.00064 -> 0.00064
+Epoch: 230 	Training Loss: -0.0086986398 	Validation Loss: -0.0288300164 	Best Validation Loss: -0.0294961017
+ 23%|██▎       | 231/1000 [40:12<2:13:27, 10.41s/it]0.00064 -> 0.00064
+Epoch: 231 	Training Loss: -0.0087519191 	Validation Loss: -0.0289371300 	Best Validation Loss: -0.0294961017
+ 23%|██▎       | 232/1000 [40:23<2:13:37, 10.44s/it]0.00064 -> 0.00064
+Epoch: 232 	Training Loss: -0.0086494611 	Validation Loss: -0.0288556942 	Best Validation Loss: -0.0294961017
+ 23%|██▎       | 233/1000 [40:33<2:14:12, 10.50s/it]0.00064 -> 0.00064
+Epoch: 233 	Training Loss: -0.0086996361 	Validation Loss: -0.0289577694 	Best Validation Loss: -0.0294961017
+ 23%|██▎       | 234/1000 [40:44<2:13:44, 10.48s/it]0.00064 -> 0.00064
+Epoch: 234 	Training Loss: -0.0087495776 	Validation Loss: -0.0288795421 	Best Validation Loss: -0.0294961017
+ 24%|██▎       | 235/1000 [40:54<2:13:03, 10.44s/it]0.00064 -> 0.00064
+Epoch: 235 	Training Loss: -0.0086353534 	Validation Loss: -0.0288066558 	Best Validation Loss: -0.0294961017
+ 24%|██▎       | 236/1000 [41:05<2:13:02, 10.45s/it]0.00064 -> 0.00064
+Epoch: 236 	Training Loss: -0.0085882981 	Validation Loss: -0.0290685622 	Best Validation Loss: -0.0294961017
+ 24%|██▎       | 237/1000 [41:15<2:12:30, 10.42s/it]0.00064 -> 0.00064
+Epoch: 237 	Training Loss: -0.0086310159 	Validation Loss: -0.0287501428 	Best Validation Loss: -0.0294961017
+ 24%|██▍       | 238/1000 [41:25<2:12:16, 10.42s/it]0.00064 -> 0.00064
+Epoch: 238 	Training Loss: -0.0087590776 	Validation Loss: -0.0290634905 	Best Validation Loss: -0.0294961017
+ 24%|██▍       | 239/1000 [41:36<2:12:58, 10.48s/it]0.00064 -> 0.00064
+Epoch: 239 	Training Loss: -0.0087428373 	Validation Loss: -0.0291271044 	Best Validation Loss: -0.0294961017
+ 24%|██▍       | 240/1000 [41:47<2:12:52, 10.49s/it]0.00064 -> 0.00064
+Epoch: 240 	Training Loss: -0.0087339650 	Validation Loss: -0.0290857189 	Best Validation Loss: -0.0294961017
+ 24%|██▍       | 241/1000 [41:57<2:12:38, 10.49s/it]0.00064 -> 0.00064
+Epoch: 241 	Training Loss: -0.0087738199 	Validation Loss: -0.0288492818 	Best Validation Loss: -0.0294961017
+ 24%|██▍       | 242/1000 [42:07<2:11:56, 10.44s/it]0.00064 -> 0.0005120000000000001
+Epoch: 242 	Training Loss: -0.0086279769 	Validation Loss: -0.0292025748 	Best Validation Loss: -0.0294961017
+ 24%|██▍       | 243/1000 [42:18<2:11:28, 10.42s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 243 	Training Loss: -0.0086657103 	Validation Loss: -0.0290679339 	Best Validation Loss: -0.0294961017
+ 24%|██▍       | 244/1000 [42:28<2:11:36, 10.45s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 244 	Training Loss: -0.0086743846 	Validation Loss: -0.0292195293 	Best Validation Loss: -0.0294961017
+ 24%|██▍       | 245/1000 [42:39<2:11:36, 10.46s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 245 	Training Loss: -0.0086635852 	Validation Loss: -0.0290066070 	Best Validation Loss: -0.0294961017
+ 25%|██▍       | 246/1000 [42:49<2:11:44, 10.48s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 246 	Training Loss: -0.0086856433 	Validation Loss: -0.0288687872 	Best Validation Loss: -0.0294961017
+ 25%|██▍       | 247/1000 [43:00<2:11:56, 10.51s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 247 	Training Loss: -0.0087550282 	Validation Loss: -0.0289035687 	Best Validation Loss: -0.0294961017
+ 25%|██▍       | 248/1000 [43:10<2:11:15, 10.47s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 248 	Training Loss: -0.0088141142 	Validation Loss: -0.0290568029 	Best Validation Loss: -0.0294961017
+ 25%|██▍       | 249/1000 [43:21<2:10:37, 10.44s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 249 	Training Loss: -0.0087416198 	Validation Loss: -0.0292647995 	Best Validation Loss: -0.0294961017
+No Validation early stop loss decrease (-1.4598258506 --> -1.4541184480). Early Stopping
+ 25%|██▍       | 249/1000 [43:31<2:11:16, 10.49s/it]
+  0%|          | 0/1000 [00:00<?, ?it/s]0.001 -> 0.001
+Epoch: 0 	Training Loss: -0.0078627104 	Validation Loss: -0.0224895308 	Best Validation Loss: inf
+### Validation loss same/decreased (inf --> -0.0224895308)... saving model. ###
+  0%|          | 1/1000 [00:04<1:21:43,  4.91s/it]0.001 -> 0.001
+Epoch: 1 	Training Loss: -0.0088175267 	Validation Loss: -0.0159727216 	Best Validation Loss: -0.0224895308
+  0%|          | 2/1000 [00:09<1:21:25,  4.90s/it]0.001 -> 0.001
+Epoch: 2 	Training Loss: -0.0093522961 	Validation Loss: -0.0127461702 	Best Validation Loss: -0.0224895308
+  0%|          | 3/1000 [00:14<1:21:09,  4.88s/it]0.001 -> 0.001
+Epoch: 3 	Training Loss: -0.0097206564 	Validation Loss: -0.0119749171 	Best Validation Loss: -0.0224895308
+  0%|          | 4/1000 [00:19<1:20:32,  4.85s/it]0.001 -> 0.001
+Epoch: 4 	Training Loss: -0.0099343827 	Validation Loss: -0.0105230090 	Best Validation Loss: -0.0224895308
+  0%|          | 5/1000 [00:24<1:20:39,  4.86s/it]0.001 -> 0.001
+Epoch: 5 	Training Loss: -0.0100253334 	Validation Loss: -0.0105591486 	Best Validation Loss: -0.0224895308
+  1%|          | 6/1000 [00:29<1:21:01,  4.89s/it]0.001 -> 0.001
+Epoch: 6 	Training Loss: -0.0100746012 	Validation Loss: -0.0104944005 	Best Validation Loss: -0.0224895308
+  1%|          | 7/1000 [00:34<1:20:47,  4.88s/it]0.001 -> 0.001
+Epoch: 7 	Training Loss: -0.0101046283 	Validation Loss: -0.0103071135 	Best Validation Loss: -0.0224895308
+  1%|          | 8/1000 [00:39<1:20:44,  4.88s/it]0.001 -> 0.001
+Epoch: 8 	Training Loss: -0.0101250584 	Validation Loss: -0.0101738717 	Best Validation Loss: -0.0224895308
+  1%|          | 9/1000 [00:43<1:20:13,  4.86s/it]0.001 -> 0.001
+Epoch: 9 	Training Loss: -0.0101396891 	Validation Loss: -0.0099530136 	Best Validation Loss: -0.0224895308
+  1%|          | 10/1000 [00:48<1:19:54,  4.84s/it]0.001 -> 0.001
+Epoch: 10 	Training Loss: -0.0101507606 	Validation Loss: -0.0098908336 	Best Validation Loss: -0.0224895308
+  1%|          | 11/1000 [00:53<1:19:35,  4.83s/it]0.001 -> 0.001
+Epoch: 11 	Training Loss: -0.0101595012 	Validation Loss: -0.0097858940 	Best Validation Loss: -0.0224895308
+  1%|          | 12/1000 [00:58<1:19:58,  4.86s/it]0.001 -> 0.001
+Epoch: 12 	Training Loss: -0.0101666835 	Validation Loss: -0.0097125017 	Best Validation Loss: -0.0224895308
+  1%|▏         | 13/1000 [01:03<1:19:37,  4.84s/it]0.001 -> 0.001
+Epoch: 13 	Training Loss: -0.0101728539 	Validation Loss: -0.0097086326 	Best Validation Loss: -0.0224895308
+  1%|▏         | 14/1000 [01:07<1:19:20,  4.83s/it]0.001 -> 0.001
+Epoch: 14 	Training Loss: -0.0101784178 	Validation Loss: -0.0095145368 	Best Validation Loss: -0.0224895308
+  2%|▏         | 15/1000 [01:12<1:19:10,  4.82s/it]0.001 -> 0.001
+Epoch: 15 	Training Loss: -0.0101832511 	Validation Loss: -0.0096185865 	Best Validation Loss: -0.0224895308
+  2%|▏         | 16/1000 [01:17<1:18:59,  4.82s/it]0.001 -> 0.001
+Epoch: 16 	Training Loss: -0.0101876915 	Validation Loss: -0.0096694771 	Best Validation Loss: -0.0224895308
+  2%|▏         | 17/1000 [01:22<1:18:51,  4.81s/it]0.001 -> 0.001
+Epoch: 17 	Training Loss: -0.0101917466 	Validation Loss: -0.0096414112 	Best Validation Loss: -0.0224895308
+  2%|▏         | 18/1000 [01:27<1:19:25,  4.85s/it]0.001 -> 0.001
+Epoch: 18 	Training Loss: -0.0101955652 	Validation Loss: -0.0094631636 	Best Validation Loss: -0.0224895308
+  2%|▏         | 19/1000 [01:32<1:19:05,  4.84s/it]0.001 -> 0.001
+Epoch: 19 	Training Loss: -0.0101989489 	Validation Loss: -0.0092319207 	Best Validation Loss: -0.0224895308
+  2%|▏         | 20/1000 [01:36<1:18:52,  4.83s/it]0.001 -> 0.001
+Epoch: 20 	Training Loss: -0.0102022601 	Validation Loss: -0.0094801157 	Best Validation Loss: -0.0224895308
+  2%|▏         | 21/1000 [01:41<1:19:03,  4.85s/it]0.001 -> 0.0008
+Epoch: 21 	Training Loss: -0.0102052795 	Validation Loss: -0.0095867932 	Best Validation Loss: -0.0224895308
+  2%|▏         | 22/1000 [01:46<1:18:47,  4.83s/it]0.0008 -> 0.0008
+Epoch: 22 	Training Loss: -0.0102129920 	Validation Loss: -0.0096270547 	Best Validation Loss: -0.0224895308
+  2%|▏         | 23/1000 [01:51<1:18:52,  4.84s/it]0.0008 -> 0.0008
+Epoch: 23 	Training Loss: -0.0102148565 	Validation Loss: -0.0097964675 	Best Validation Loss: -0.0224895308
+  2%|▏         | 24/1000 [01:56<1:19:36,  4.89s/it]0.0008 -> 0.0008
+Epoch: 24 	Training Loss: -0.0102166208 	Validation Loss: -0.0096968813 	Best Validation Loss: -0.0224895308
+  2%|▎         | 25/1000 [02:01<1:19:24,  4.89s/it]0.0008 -> 0.0008
+Epoch: 25 	Training Loss: -0.0102183937 	Validation Loss: -0.0096390000 	Best Validation Loss: -0.0224895308
+  3%|▎         | 26/1000 [02:06<1:18:52,  4.86s/it]0.0008 -> 0.0008
+Epoch: 26 	Training Loss: -0.0102198634 	Validation Loss: -0.0095298026 	Best Validation Loss: -0.0224895308
+  3%|▎         | 27/1000 [02:11<1:18:55,  4.87s/it]0.0008 -> 0.0008
+Epoch: 27 	Training Loss: -0.0102213025 	Validation Loss: -0.0096279831 	Best Validation Loss: -0.0224895308
+  3%|▎         | 28/1000 [02:15<1:18:30,  4.85s/it]0.0008 -> 0.0008
+Epoch: 28 	Training Loss: -0.0102228408 	Validation Loss: -0.0095544925 	Best Validation Loss: -0.0224895308
+  3%|▎         | 29/1000 [02:20<1:18:17,  4.84s/it]0.0008 -> 0.0008
+Epoch: 29 	Training Loss: -0.0102239719 	Validation Loss: -0.0095231661 	Best Validation Loss: -0.0224895308
+  3%|▎         | 30/1000 [02:25<1:18:47,  4.87s/it]0.0008 -> 0.0008
+Epoch: 30 	Training Loss: -0.0102253004 	Validation Loss: -0.0094914281 	Best Validation Loss: -0.0224895308
+  3%|▎         | 31/1000 [02:30<1:18:21,  4.85s/it]0.0008 -> 0.0008
+Epoch: 31 	Training Loss: -0.0102264667 	Validation Loss: -0.0096613096 	Best Validation Loss: -0.0224895308
+  3%|▎         | 32/1000 [02:35<1:18:02,  4.84s/it]0.0008 -> 0.0008
+Epoch: 32 	Training Loss: -0.0102276035 	Validation Loss: -0.0098393881 	Best Validation Loss: -0.0224895308
+  3%|▎         | 33/1000 [02:40<1:17:53,  4.83s/it]0.0008 -> 0.0008
+Epoch: 33 	Training Loss: -0.0102285887 	Validation Loss: -0.0098423925 	Best Validation Loss: -0.0224895308
+  3%|▎         | 34/1000 [02:44<1:17:40,  4.82s/it]0.0008 -> 0.0008
+Epoch: 34 	Training Loss: -0.0102296292 	Validation Loss: -0.0096600890 	Best Validation Loss: -0.0224895308
+  4%|▎         | 35/1000 [02:49<1:17:27,  4.82s/it]0.0008 -> 0.0008
+Epoch: 35 	Training Loss: -0.0102304713 	Validation Loss: -0.0097756795 	Best Validation Loss: -0.0224895308
+  4%|▎         | 36/1000 [02:54<1:17:21,  4.81s/it]0.0008 -> 0.0008
+Epoch: 36 	Training Loss: -0.0102313897 	Validation Loss: -0.0096710785 	Best Validation Loss: -0.0224895308
+  4%|▎         | 37/1000 [02:59<1:17:56,  4.86s/it]0.0008 -> 0.0008
+Epoch: 37 	Training Loss: -0.0102320993 	Validation Loss: -0.0097831750 	Best Validation Loss: -0.0224895308
+  4%|▍         | 38/1000 [03:04<1:17:36,  4.84s/it]0.0008 -> 0.0008
+Epoch: 38 	Training Loss: -0.0102329881 	Validation Loss: -0.0096709410 	Best Validation Loss: -0.0224895308
+  4%|▍         | 39/1000 [03:09<1:17:26,  4.84s/it]0.0008 -> 0.0008
+Epoch: 39 	Training Loss: -0.0102335670 	Validation Loss: -0.0099137824 	Best Validation Loss: -0.0224895308
+  4%|▍         | 40/1000 [03:13<1:17:34,  4.85s/it]0.0008 -> 0.0008
+Epoch: 40 	Training Loss: -0.0102342470 	Validation Loss: -0.0099259776 	Best Validation Loss: -0.0224895308
+  4%|▍         | 41/1000 [03:18<1:17:20,  4.84s/it]0.0008 -> 0.0008
+Epoch: 41 	Training Loss: -0.0102348593 	Validation Loss: -0.0099458996 	Best Validation Loss: -0.0224895308
+  4%|▍         | 42/1000 [03:23<1:17:29,  4.85s/it]0.0008 -> 0.00064
+Epoch: 42 	Training Loss: -0.0102354687 	Validation Loss: -0.0100299422 	Best Validation Loss: -0.0224895308
+  4%|▍         | 43/1000 [03:28<1:18:05,  4.90s/it]0.00064 -> 0.00064
+Epoch: 43 	Training Loss: -0.0102395686 	Validation Loss: -0.0099166945 	Best Validation Loss: -0.0224895308
+  4%|▍         | 44/1000 [03:33<1:17:51,  4.89s/it]0.00064 -> 0.00064
+Epoch: 44 	Training Loss: -0.0102400817 	Validation Loss: -0.0099032137 	Best Validation Loss: -0.0224895308
+  4%|▍         | 45/1000 [03:38<1:17:49,  4.89s/it]0.00064 -> 0.00064
+Epoch: 45 	Training Loss: -0.0102404612 	Validation Loss: -0.0097469066 	Best Validation Loss: -0.0224895308
+  5%|▍         | 46/1000 [03:43<1:17:30,  4.87s/it]0.00064 -> 0.00064
+Epoch: 46 	Training Loss: -0.0102409781 	Validation Loss: -0.0097346234 	Best Validation Loss: -0.0224895308
+  5%|▍         | 47/1000 [03:48<1:17:28,  4.88s/it]0.00064 -> 0.00064
+Epoch: 47 	Training Loss: -0.0102413615 	Validation Loss: -0.0097857028 	Best Validation Loss: -0.0224895308
+  5%|▍         | 48/1000 [03:52<1:17:06,  4.86s/it]0.00064 -> 0.00064
+Epoch: 48 	Training Loss: -0.0102417163 	Validation Loss: -0.0097508482 	Best Validation Loss: -0.0224895308
+  5%|▍         | 49/1000 [03:57<1:17:25,  4.88s/it]0.00064 -> 0.00064
+Epoch: 49 	Training Loss: -0.0102421512 	Validation Loss: -0.0097056932 	Best Validation Loss: -0.0224895308
+Validation early stop running loss decreased (inf --> -0.5132473768).
+  5%|▌         | 50/1000 [04:02<1:16:55,  4.86s/it]0.00064 -> 0.00064
+Epoch: 50 	Training Loss: -0.0102425422 	Validation Loss: -0.0096759056 	Best Validation Loss: -0.0224895308
+  5%|▌         | 51/1000 [04:07<1:16:32,  4.84s/it]0.00064 -> 0.00064
+Epoch: 51 	Training Loss: -0.0102428970 	Validation Loss: -0.0096965411 	Best Validation Loss: -0.0224895308
+  5%|▌         | 52/1000 [04:12<1:16:18,  4.83s/it]0.00064 -> 0.00064
+Epoch: 52 	Training Loss: -0.0102433719 	Validation Loss: -0.0099353006 	Best Validation Loss: -0.0224895308
+  5%|▌         | 53/1000 [04:17<1:16:05,  4.82s/it]0.00064 -> 0.00064
+Epoch: 53 	Training Loss: -0.0102438135 	Validation Loss: -0.0099794348 	Best Validation Loss: -0.0224895308
+  5%|▌         | 54/1000 [04:21<1:15:53,  4.81s/it]0.00064 -> 0.00064
+Epoch: 54 	Training Loss: -0.0102441225 	Validation Loss: -0.0099862914 	Best Validation Loss: -0.0224895308
+  6%|▌         | 55/1000 [04:26<1:16:28,  4.86s/it]0.00064 -> 0.00064
+Epoch: 55 	Training Loss: -0.0102445450 	Validation Loss: -0.0099499582 	Best Validation Loss: -0.0224895308
+  6%|▌         | 56/1000 [04:31<1:16:06,  4.84s/it]0.00064 -> 0.00064
+Epoch: 56 	Training Loss: -0.0102448883 	Validation Loss: -0.0099924847 	Best Validation Loss: -0.0224895308
+  6%|▌         | 57/1000 [04:36<1:15:49,  4.82s/it]0.00064 -> 0.00064
+Epoch: 57 	Training Loss: -0.0102452259 	Validation Loss: -0.0100314869 	Best Validation Loss: -0.0224895308
+  6%|▌         | 58/1000 [04:41<1:15:39,  4.82s/it]0.00064 -> 0.00064
+Epoch: 58 	Training Loss: -0.0102456846 	Validation Loss: -0.0100192354 	Best Validation Loss: -0.0224895308
+  6%|▌         | 59/1000 [04:46<1:15:37,  4.82s/it]0.00064 -> 0.00064
+Epoch: 59 	Training Loss: -0.0102460499 	Validation Loss: -0.0101291450 	Best Validation Loss: -0.0224895308
+  6%|▌         | 60/1000 [04:50<1:15:33,  4.82s/it]0.00064 -> 0.00064
+Epoch: 60 	Training Loss: -0.0102463951 	Validation Loss: -0.0102207446 	Best Validation Loss: -0.0224895308
+  6%|▌         | 61/1000 [04:55<1:16:26,  4.88s/it]0.00064 -> 0.00064
+Epoch: 61 	Training Loss: -0.0102467842 	Validation Loss: -0.0101296947 	Best Validation Loss: -0.0224895308
+  6%|▌         | 62/1000 [05:00<1:15:56,  4.86s/it]0.00064 -> 0.00064
+Epoch: 62 	Training Loss: -0.0102471257 	Validation Loss: -0.0102986235 	Best Validation Loss: -0.0224895308
+  6%|▋         | 63/1000 [05:05<1:15:53,  4.86s/it]0.00064 -> 0.0005120000000000001
+Epoch: 63 	Training Loss: -0.0102474394 	Validation Loss: -0.0104304576 	Best Validation Loss: -0.0224895308
+  6%|▋         | 64/1000 [05:10<1:15:52,  4.86s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 64 	Training Loss: -0.0102505074 	Validation Loss: -0.0104619265 	Best Validation Loss: -0.0224895308
+  6%|▋         | 65/1000 [05:15<1:15:25,  4.84s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 65 	Training Loss: -0.0102508050 	Validation Loss: -0.0103850952 	Best Validation Loss: -0.0224895308
+  7%|▋         | 66/1000 [05:20<1:15:27,  4.85s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 66 	Training Loss: -0.0102509919 	Validation Loss: -0.0102559084 	Best Validation Loss: -0.0224895308
+  7%|▋         | 67/1000 [05:24<1:15:22,  4.85s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 67 	Training Loss: -0.0102512589 	Validation Loss: -0.0100896943 	Best Validation Loss: -0.0224895308
+  7%|▋         | 68/1000 [05:29<1:15:32,  4.86s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 68 	Training Loss: -0.0102515193 	Validation Loss: -0.0099744580 	Best Validation Loss: -0.0224895308
+  7%|▋         | 69/1000 [05:34<1:15:07,  4.84s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 69 	Training Loss: -0.0102517587 	Validation Loss: -0.0099246086 	Best Validation Loss: -0.0224895308
+  7%|▋         | 70/1000 [05:39<1:14:57,  4.84s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 70 	Training Loss: -0.0102520314 	Validation Loss: -0.0098194747 	Best Validation Loss: -0.0224895308
+  7%|▋         | 71/1000 [05:44<1:14:39,  4.82s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 71 	Training Loss: -0.0102522594 	Validation Loss: -0.0097185404 	Best Validation Loss: -0.0224895308
+  7%|▋         | 72/1000 [05:49<1:14:27,  4.81s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 72 	Training Loss: -0.0102525541 	Validation Loss: -0.0098005292 	Best Validation Loss: -0.0224895308
+  7%|▋         | 73/1000 [05:53<1:14:16,  4.81s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 73 	Training Loss: -0.0102527963 	Validation Loss: -0.0098159624 	Best Validation Loss: -0.0224895308
+  7%|▋         | 74/1000 [05:58<1:14:42,  4.84s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 74 	Training Loss: -0.0102530385 	Validation Loss: -0.0099114289 	Best Validation Loss: -0.0224895308
+  8%|▊         | 75/1000 [06:03<1:14:26,  4.83s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 75 	Training Loss: -0.0102532960 	Validation Loss: -0.0099044699 	Best Validation Loss: -0.0224895308
+  8%|▊         | 76/1000 [06:08<1:14:11,  4.82s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 76 	Training Loss: -0.0102535383 	Validation Loss: -0.0098342359 	Best Validation Loss: -0.0224895308
+  8%|▊         | 77/1000 [06:13<1:14:04,  4.82s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 77 	Training Loss: -0.0102537405 	Validation Loss: -0.0098470156 	Best Validation Loss: -0.0224895308
+  8%|▊         | 78/1000 [06:18<1:14:11,  4.83s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 78 	Training Loss: -0.0102538501 	Validation Loss: -0.0098207065 	Best Validation Loss: -0.0224895308
+  8%|▊         | 79/1000 [06:22<1:13:57,  4.82s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 79 	Training Loss: -0.0102541715 	Validation Loss: -0.0098685021 	Best Validation Loss: -0.0224895308
+  8%|▊         | 80/1000 [06:27<1:14:36,  4.87s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 80 	Training Loss: -0.0102543375 	Validation Loss: -0.0097776488 	Best Validation Loss: -0.0224895308
+  8%|▊         | 81/1000 [06:32<1:14:25,  4.86s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 81 	Training Loss: -0.0102545168 	Validation Loss: -0.0098467791 	Best Validation Loss: -0.0224895308
+  8%|▊         | 82/1000 [06:37<1:14:06,  4.84s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 82 	Training Loss: -0.0102548353 	Validation Loss: -0.0098135361 	Best Validation Loss: -0.0224895308
+  8%|▊         | 83/1000 [06:42<1:14:07,  4.85s/it]0.0005120000000000001 -> 0.0005120000000000001
+Epoch: 83 	Training Loss: -0.0102550737 	Validation Loss: -0.0098979586 	Best Validation Loss: -0.0224895308
+  8%|▊         | 84/1000 [06:47<1:13:45,  4.83s/it]0.0005120000000000001 -> 0.0004096000000000001
+Epoch: 84 	Training Loss: -0.0102552397 	Validation Loss: -0.0099549706 	Best Validation Loss: -0.0224895308
+  8%|▊         | 85/1000 [06:51<1:13:48,  4.84s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 85 	Training Loss: -0.0102576010 	Validation Loss: -0.0099156539 	Best Validation Loss: -0.0224895308
+  9%|▊         | 86/1000 [06:56<1:14:12,  4.87s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 86 	Training Loss: -0.0102578528 	Validation Loss: -0.0099378201 	Best Validation Loss: -0.0224895308
+  9%|▊         | 87/1000 [07:01<1:13:44,  4.85s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 87 	Training Loss: -0.0102580445 	Validation Loss: -0.0098849334 	Best Validation Loss: -0.0224895308
+  9%|▉         | 88/1000 [07:06<1:13:21,  4.83s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 88 	Training Loss: -0.0102582686 	Validation Loss: -0.0097497597 	Best Validation Loss: -0.0224895308
+  9%|▉         | 89/1000 [07:11<1:13:10,  4.82s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 89 	Training Loss: -0.0102584507 	Validation Loss: -0.0096994959 	Best Validation Loss: -0.0224895308
+  9%|▉         | 90/1000 [07:16<1:12:53,  4.81s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 90 	Training Loss: -0.0102585423 	Validation Loss: -0.0096997629 	Best Validation Loss: -0.0224895308
+  9%|▉         | 91/1000 [07:20<1:12:40,  4.80s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 91 	Training Loss: -0.0102587407 	Validation Loss: -0.0097250659 	Best Validation Loss: -0.0224895308
+  9%|▉         | 92/1000 [07:25<1:13:10,  4.84s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 92 	Training Loss: -0.0102591012 	Validation Loss: -0.0097356022 	Best Validation Loss: -0.0224895308
+  9%|▉         | 93/1000 [07:30<1:12:48,  4.82s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 93 	Training Loss: -0.0102590849 	Validation Loss: -0.0097326915 	Best Validation Loss: -0.0224895308
+  9%|▉         | 94/1000 [07:35<1:12:33,  4.80s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 94 	Training Loss: -0.0102594340 	Validation Loss: -0.0097278768 	Best Validation Loss: -0.0224895308
+ 10%|▉         | 95/1000 [07:40<1:12:23,  4.80s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 95 	Training Loss: -0.0102594874 	Validation Loss: -0.0097227565 	Best Validation Loss: -0.0224895308
+ 10%|▉         | 96/1000 [07:44<1:12:10,  4.79s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 96 	Training Loss: -0.0102596696 	Validation Loss: -0.0096563406 	Best Validation Loss: -0.0224895308
+ 10%|▉         | 97/1000 [07:49<1:12:03,  4.79s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 97 	Training Loss: -0.0102597716 	Validation Loss: -0.0096380836 	Best Validation Loss: -0.0224895308
+ 10%|▉         | 98/1000 [07:54<1:12:18,  4.81s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 98 	Training Loss: -0.0102598756 	Validation Loss: -0.0095511963 	Best Validation Loss: -0.0224895308
+ 10%|▉         | 99/1000 [07:59<1:12:54,  4.85s/it]0.0004096000000000001 -> 0.0004096000000000001
+Epoch: 99 	Training Loss: -0.0102601826 	Validation Loss: -0.0095391987 	Best Validation Loss: -0.0224895308
+No Validation early stop loss decrease (-0.5132473768 --> -0.4951149920). Early Stopping
+ 10%|▉         | 99/1000 [08:04<1:13:27,  4.89s/it]
+Saving losses to: /home/alex96/scratch/logs/MU-MISO_AchievableRateExperiments/CSIerr0/repeated_trial_00/03/20PdBm/AQE_loss0.csv
+Saving losses to: /home/alex96/scratch/logs/MU-MISO_AchievableRateExperiments/CSIerr0/repeated_trial_00/03/20PdBm/AQEnoW_loss0.csv
+Saving losses to: /home/alex96/scratch/logs/MU-MISO_AchievableRateExperiments/CSIerr0/repeated_trial_00/03/20PdBm/ACF_loss0.csv
+Saving losses to: /home/alex96/scratch/logs/MU-MISO_AchievableRateExperiments/CSIerr0/repeated_trial_00/03/20PdBm/linQ_loss0.csv
+0it [00:00, ?it/s]9it [00:00, 82.80it/s]18it [00:00, 85.01it/s]27it [00:00, 85.81it/s]36it [00:00, 86.19it/s]45it [00:00, 86.35it/s]54it [00:00, 86.48it/s]63it [00:00, 86.58it/s]72it [00:00, 86.61it/s]81it [00:00, 86.63it/s]90it [00:01, 86.69it/s]99it [00:01, 86.73it/s]108it [00:01, 86.74it/s]117it [00:01, 86.75it/s]126it [00:01, 86.77it/s]135it [00:01, 86.88it/s]144it [00:01, 86.90it/s]153it [00:01, 86.91it/s]157it [00:01, 86.60it/s]
+0it [00:00, ?it/s]12it [00:00, 111.24it/s]24it [00:00, 111.60it/s]36it [00:00, 111.79it/s]48it [00:00, 111.76it/s]60it [00:00, 111.82it/s]72it [00:00, 111.99it/s]84it [00:00, 112.07it/s]96it [00:00, 112.10it/s]108it [00:00, 112.13it/s]120it [00:01, 112.11it/s]132it [00:01, 112.06it/s]144it [00:01, 112.10it/s]156it [00:01, 112.10it/s]157it [00:01, 112.02it/s]
+0it [00:00, ?it/s]11it [00:00, 107.46it/s]22it [00:00, 107.82it/s]33it [00:00, 107.94it/s]44it [00:00, 108.11it/s]55it [00:00, 108.15it/s]66it [00:00, 108.11it/s]77it [00:00, 108.13it/s]88it [00:00, 108.20it/s]99it [00:00, 107.20it/s]110it [00:01, 107.41it/s]121it [00:01, 104.15it/s]132it [00:01, 102.36it/s]143it [00:01, 104.04it/s]154it [00:01, 105.35it/s]157it [00:01, 99.98it/s] 
+0it [00:00, ?it/s]12it [00:00, 118.54it/s]24it [00:00, 118.78it/s]36it [00:00, 118.86it/s]48it [00:00, 118.75it/s]60it [00:00, 118.72it/s]72it [00:00, 118.69it/s]84it [00:00, 118.68it/s]96it [00:00, 118.71it/s]108it [00:00, 118.71it/s]120it [00:01, 118.71it/s]132it [00:01, 118.76it/s]144it [00:01, 118.80it/s]156it [00:01, 118.81it/s]157it [00:01, 118.77it/s]
+-------------------------------------------------------------------------------------------------------
+Training Model parameters:
+{'C_code_words': 2,
+ 'K_UE': 3,
+ 'M_AP': 4,
+ 'N_RIS': 100,
+ 'N_dBm': -30.6,
+ 'Nc_enc': 40,
+ 'Nc_enc_compressed_ratio': 0.4,
+ 'Nh_RIS': 10,
+ 'Nw_RIS': 10,
+ 'P_dBm': 20.0,
+ 'Q_bits': 1,
+ 'batch_size': 128,
+ 'epoch_echo': True,
+ 'epoch_patience': 20,
+ 'epoch_val': 50,
+ 'epochs': 1000,
+ 'lr': 0.001,
+ 'mc_runs': 100000,
+ 'nmse_Har': 0.012644296185165554,
+ 'nmse_Hau': 0.0003812912070938822,
+ 'nmse_Hru': 0.009489400292020346,
+ 'overall_bits': 40,
+ 'snr_dB': 50.6,
+ 'train_test_split': 0.8,
+ 'train_val_split': 0.8}
+Achievable Rate (bps/Hz) using RIS phase shifts with Transmit power SNR 50.60 dB:
+optimum:    7.046368598937988
+AQE net:    4.218661785125732
+AQEnoW net:    3.7762603759765625
+ACF net:    3.509936571121216
+linQ net:   2.791726589202881
+opt rand:   1.165460467338562
+AQE rand:   1.1669052839279175
+AQEnoW rand:   1.1648167371749878
+ACF rand:   1.140425205230713
+linQ rand:  1.1691149473190308
+-------------------------------------------------------------------------------------------------------
+
+
+   train_test_split  train_val_split  ...  Nc_enc_compressed_ratio  overall_bits
+0               0.8              0.8  ...                      0.4            40
+
+[1 rows x 25 columns]
+Saving parameters to: /home/alex96/scratch/logs/MU-MISO_AchievableRateExperiments/CSIerr0/repeated_trial_00/03/20PdBm/trainparams.csv
+Bits per Quantizer: 1
+   Nc     R_opt     R_AQE  R_AQEnoW     R_ACF  R_DQNN    R_linQ  R_opt_rand  R_AQE_rand  R_AQEnoW_rand  R_ACF_rand  R_DQNN_rand  R_linQ_rand
+0  40  7.046369  4.218662   3.77626  3.509937     0.0  2.791727     1.16546    1.166905       1.164817    1.140425          0.0     1.169115
+Saving results to: /home/alex96/scratch/logs/MU-MISO_AchievableRateExperiments/CSIerr0/repeated_trial_00/03/20PdBm/results.csv
+----------
+End Script
+----------
