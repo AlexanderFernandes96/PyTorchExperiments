@@ -114,7 +114,7 @@ results = cat(3,results_10PdBm, results_15PdBm, results_20PdBm, ...
 
 PdBm = [10, 15, 20, 25, 30, 35, 40];
 sz = size(results);
-ftsz = 15;
+ftsz = 20;
 
 %% Figure 1 - Rate vs Tx, 100 control bits
 b = 10;
@@ -286,7 +286,7 @@ set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
 %% Figure 6 - Imperfect CSI Rate vs Bits, 40 Tx dBm
 figure(6); hold on;
 linewidth = 1.5;
-ftsz = 15;
+ftsz = 20;
 for trials = ["CSIerr0", "CSIerr1"]
     % Load
     results_10PdBm00 = readmatrix(dir + trials + "/repeated_trial_00/00/10PdBm/results.csv");
@@ -392,5 +392,5 @@ grid on;
 xlabel('Transmit Power (dBm)')
 ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 1, 'location', 'northwest')
-ylim([0, 20])
+ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
