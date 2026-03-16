@@ -806,7 +806,8 @@ if __name__ == "__main__":
     else:
         PdBm_dir = '40PdBm'
 
-    path_dir = "/home/alex96/scratch/"
+    # path_dir = "/home/alex96/scratch/"
+    path_dir = "/home/alex96/projects/def-psaromil/alex96/"
     # path_dir = "MATLAB/"
     trial = "CSIerr0/repeated_trial_00/00"
     dataset_dir = path_dir + "datasets/HDRISData/MUMISO_CSIerr0/" + PdBm_dir + "/"
@@ -963,13 +964,18 @@ if __name__ == "__main__":
                  torch.real(Hau[i,:,:]),  torch.imag(Hau[i,:,:])]
         data = [input, RISopt[i], Wopt[i,:,:], Hau[i,:,:], Har[i,:,:], Hru[i,:,:]]
         # Imperfect CSI
-        input_err = [RISopt[i],
-                     torch.real(Wopt[i,:,:]), torch.imag(Wopt[i,:,:]),
-                     torch.real(Har[i,:,:] + Har_err[i,:,:]),  torch.imag(Har[i,:,:] + Har_err[i,:,:]),
-                     torch.real(Hru[i,:,:] + Hru_err[i,:,:]),  torch.imag(Hru[i,:,:] + Hru_err[i,:,:]),
-                     torch.real(Hau[i,:,:] + Hau_err[i,:,:]),  torch.imag(Hau[i,:,:] + Hau_err[i,:,:])]
-        data_err = [input, RISopt[i], Wopt[i,:,:], Hau[i,:,:] + Hau_err[i,:,:], Har[i,:,:] + Har_err[i,:,:], Hru[i,:,:] + Hru_err[i,:,:]]
-        # imperfect CSI for training and validation data, use perfect CSI for test data
+        if float(sysmodelparams['CH_err']) == 0:
+            input_err = input
+            data_err = data
+        else:
+
+            input_err = [RISopt[i],
+                         torch.real(Wopt[i,:,:]), torch.imag(Wopt[i,:,:]),
+                         torch.real(Har[i,:,:] + Har_err[i,:,:]),  torch.imag(Har[i,:,:] + Har_err[i,:,:]),
+                         torch.real(Hru[i,:,:] + Hru_err[i,:,:]),  torch.imag(Hru[i,:,:] + Hru_err[i,:,:]),
+                         torch.real(Hau[i,:,:] + Hau_err[i,:,:]),  torch.imag(Hau[i,:,:] + Hau_err[i,:,:])]
+            data_err = [input, RISopt[i], Wopt[i,:,:], Hau[i,:,:] + Hau_err[i,:,:], Har[i,:,:] + Har_err[i,:,:], Hru[i,:,:] + Hru_err[i,:,:]]
+        # Use imperfect CSI for training and validation data, use perfect CSI for test data
         if i < num_train:
             train_set.append(data_err)
         elif i >= num_train_val:
