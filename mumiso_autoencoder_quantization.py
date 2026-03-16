@@ -93,26 +93,30 @@ class EncoderLayer(nn.Module):
         #     nn.BatchNorm1d(128),
         #     nn.Linear(128, Nc_enc + 2*K_UE*M_AP),
         # )
-        H = N_RIS + 2 * K_UE * M_AP
+        # H = N_RIS + 2 * K_UE * M_AP
+        # self.linear_encoder = nn.Sequential(
+        #     nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, 32*H),
+        #     nn.ReLU(),
+        #     nn.Dropout(p),
+        #     nn.BatchNorm1d(32*H),
+        #     nn.Linear(32*H, 16*H),
+        #     nn.ReLU(),
+        #     nn.Dropout(p),
+        #     nn.BatchNorm1d(16*H),
+        #     nn.Linear(16*H, 8*H),
+        #     nn.ReLU(),
+        #     nn.Dropout(p),
+        #     nn.BatchNorm1d(8*H),
+        #     nn.Linear(8*H, 4*H),
+        #     nn.ReLU(),
+        #     nn.Dropout(p),
+        #     nn.BatchNorm1d(4*H),
+        #     # nn.Linear(4*H, Nc_enc + 2*K_UE*M_AP), # include W
+        #     nn.Linear(4*H, Nc_enc), # don't include W
+        # )
+
         self.linear_encoder = nn.Sequential(
-            nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, 32*H),
-            nn.ReLU(),
-            nn.Dropout(p),
-            nn.BatchNorm1d(32*H),
-            nn.Linear(32*H, 16*H),
-            nn.ReLU(),
-            nn.Dropout(p),
-            nn.BatchNorm1d(16*H),
-            nn.Linear(16*H, 8*H),
-            nn.ReLU(),
-            nn.Dropout(p),
-            nn.BatchNorm1d(8*H),
-            nn.Linear(8*H, 4*H),
-            nn.ReLU(),
-            nn.Dropout(p),
-            nn.BatchNorm1d(4*H),
-            # nn.Linear(4*H, Nc_enc + 2*K_UE*M_AP), # include W
-            nn.Linear(4*H, Nc_enc), # don't include W
+            nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, Nc_enc)
         )
 
     def forward(self, x):
@@ -250,10 +254,14 @@ class QuantizerLayer(nn.Module):
 class DecoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_enc):
         super(DecoderLayer, self).__init__()
+        # self.linear_decoder = nn.Sequential(
+        #     nn.Linear(Nc_enc, N_RIS),
+        #     nn.ReLU(),
+        #     nn.Linear(N_RIS, N_RIS),
+        #     nn.ReLU(),
+        # )
         self.linear_decoder = nn.Sequential(
             nn.Linear(Nc_enc, N_RIS),
-            nn.ReLU(),
-            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
         )
         # self.cnn_decoder = nn.Sequential(
@@ -809,8 +817,8 @@ if __name__ == "__main__":
     # path_dir = "/home/alex96/scratch/"
     path_dir = "/home/alex96/projects/def-psaromil/alex96/"
     # path_dir = "MATLAB/"
-    trial = "CSIerr0/repeated_trial_00/00"
-    dataset_dir = path_dir + "datasets/HDRISData/MUMISO_CSIerr0/" + PdBm_dir + "/"
+    trial = "PerfectCSI/repeated_trial_00/00"
+    dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
     results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
     # if len(sys.argv) > 1:
     #     results_dir = results_dir + sys.argv[1] + "/"
@@ -822,7 +830,7 @@ if __name__ == "__main__":
     Path(results_dir).mkdir(parents=True, exist_ok=True)
 
     # Make print statements go to file instead of stdout:
-    if path_dir == "/home/alex96/scratch/":
+    if path_dir == "/home/alex96/projects/def-psaromil/alex96/":
         orig_stdout = sys.stdout
         orig_stderr = sys.stderr
         f_python_output = open(results_dir + "python_log.out", 'w')
@@ -899,15 +907,19 @@ if __name__ == "__main__":
     for d in range(num_dirs):
         print(dataset_dir + str(d) + "/", flush=True)
         sp = pd.read_csv(dataset_dir + str(d) + "/" + "systemModelParameters.csv").iloc[0]
-        print('Loading... (Hau error)', flush=True)
-        Hau_err_ = load_complex(dataset_dir + str(d) + "/", "Hau_err_r", "Hau_err_i")
-        Hau_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hau_err_)
-        print('Loading... (Har error)', flush=True)
-        Har_err_ = load_complex(dataset_dir + str(d) + "/", "Har_err_r", "Har_err_i")
-        Har_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Har_err_)
-        print('Loading... (Hru error)', flush=True)
-        Hru_err_ = load_complex(dataset_dir + str(d) + "/", "Hru_err_r", "Hru_err_i")
-        Hru_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hru_err_)
+        print("CH_err:", sysmodelparams['CH_err'], flush=True)
+        if float(sysmodelparams['CH_err']) == 0:
+            print("Perfect CSI", flush=True)
+        else:
+            print('Loading... (Hau error)', flush=True)
+            Hau_err_ = load_complex(dataset_dir + str(d) + "/", "Hau_err_r", "Hau_err_i")
+            Hau_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hau_err_)
+            print('Loading... (Har error)', flush=True)
+            Har_err_ = load_complex(dataset_dir + str(d) + "/", "Har_err_r", "Har_err_i")
+            Har_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Har_err_)
+            print('Loading... (Hru error)', flush=True)
+            Hru_err_ = load_complex(dataset_dir + str(d) + "/", "Hru_err_r", "Hru_err_i")
+            Hru_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hru_err_)
         print('Loading... (Hau)', flush=True)
         Hau_ = load_complex(dataset_dir + str(d) + "/", "Hau_r", "Hau_i")
         Hau[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hau_)
@@ -968,7 +980,6 @@ if __name__ == "__main__":
             input_err = input
             data_err = data
         else:
-
             input_err = [RISopt[i],
                          torch.real(Wopt[i,:,:]), torch.imag(Wopt[i,:,:]),
                          torch.real(Har[i,:,:] + Har_err[i,:,:]),  torch.imag(Har[i,:,:] + Har_err[i,:,:]),
