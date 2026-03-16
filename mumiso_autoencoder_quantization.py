@@ -93,26 +93,30 @@ class EncoderLayer(nn.Module):
         #     nn.BatchNorm1d(128),
         #     nn.Linear(128, Nc_enc + 2*K_UE*M_AP),
         # )
-        H = N_RIS + 2 * K_UE * M_AP
+        # H = N_RIS + 2 * K_UE * M_AP
+        # self.linear_encoder = nn.Sequential(
+        #     nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, 32*H),
+        #     nn.ReLU(),
+        #     nn.Dropout(p),
+        #     nn.BatchNorm1d(32*H),
+        #     nn.Linear(32*H, 16*H),
+        #     nn.ReLU(),
+        #     nn.Dropout(p),
+        #     nn.BatchNorm1d(16*H),
+        #     nn.Linear(16*H, 8*H),
+        #     nn.ReLU(),
+        #     nn.Dropout(p),
+        #     nn.BatchNorm1d(8*H),
+        #     nn.Linear(8*H, 4*H),
+        #     nn.ReLU(),
+        #     nn.Dropout(p),
+        #     nn.BatchNorm1d(4*H),
+        #     # nn.Linear(4*H, Nc_enc + 2*K_UE*M_AP), # include W
+        #     nn.Linear(4*H, Nc_enc), # don't include W
+        # )
+
         self.linear_encoder = nn.Sequential(
-            nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, 32*H),
-            nn.ReLU(),
-            nn.Dropout(p),
-            nn.BatchNorm1d(32*H),
-            nn.Linear(32*H, 16*H),
-            nn.ReLU(),
-            nn.Dropout(p),
-            nn.BatchNorm1d(16*H),
-            nn.Linear(16*H, 8*H),
-            nn.ReLU(),
-            nn.Dropout(p),
-            nn.BatchNorm1d(8*H),
-            nn.Linear(8*H, 4*H),
-            nn.ReLU(),
-            nn.Dropout(p),
-            nn.BatchNorm1d(4*H),
-            # nn.Linear(4*H, Nc_enc + 2*K_UE*M_AP), # include W
-            nn.Linear(4*H, Nc_enc), # don't include W
+            nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, Nc_enc),
         )
 
     def forward(self, x):
@@ -195,7 +199,7 @@ class QuantizerLayer(nn.Module):
         self.a = torch.nn.Parameter(
             data=torch.from_numpy(
                 np.ones(C_code_words-1) * np.pi / ( C_code_words )
-            ), requires_grad=False)
+            ), requires_grad=True)
         spacing = np.linspace(-1, 1, C_code_words + 1) * np.pi
         self.b = torch.nn.Parameter(
             data=torch.from_numpy(
@@ -250,10 +254,14 @@ class QuantizerLayer(nn.Module):
 class DecoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_enc):
         super(DecoderLayer, self).__init__()
+        # self.linear_decoder = nn.Sequential(
+        #     nn.Linear(Nc_enc, N_RIS),
+        #     nn.ReLU(),
+        #     nn.Linear(N_RIS, N_RIS),
+        #     nn.ReLU(),
+        # )
         self.linear_decoder = nn.Sequential(
-            nn.Linear(Nc_enc, N_RIS),
-            nn.ReLU(),
-            nn.Linear(N_RIS, N_RIS),
+            nn.Linear(Nc_enc, Nc_enc),
             nn.ReLU(),
         )
         # self.cnn_decoder = nn.Sequential(
@@ -273,7 +281,7 @@ class DecoderLayer(nn.Module):
         # )
         # self.reshape_dim = (N_RIS, 1, 1)
         self.out_layer = nn.Sequential(
-            nn.Linear(N_RIS, N_RIS), # best to make output layer a linear operator
+            nn.Linear(Nc_enc, N_RIS), # best to make output layer a linear operator
             # nn.LeakyReLU(), # LeakyReLU or ReLU will make negative phase shifts not work
             # nn.Tanh(), # Note Tanh at output makes training harder considering the optimal value is periodic wrt 2pi
         )
@@ -457,7 +465,8 @@ class ACFNetCompressionNetwork(nn.Module):
             nn.ReLU(),
         )
         self.dense_layer = nn.Sequential(
-            nn.Linear(297, N_enc),
+            # nn.Linear(297, N_enc), # 297 = (100-1) * (2-1) * 3
+            nn.Linear((N_RIS-1) * 3, N_enc),
         )
     def forward(self, theta):
         theta_c = torch.exp(1j * theta) # complex
@@ -482,7 +491,8 @@ class ACFNetDecoderNetwork(nn.Module):
             nn.ReLU(),
         )
         self.dense_layer2 = nn.Sequential(
-            nn.Linear(513, 2*N_RIS),
+            # nn.Linear(513, 2*N_RIS), # 513 = (2*10-1) * (10-1) * 3
+            nn.Linear((2*trainparams['Nh_RIS']-1)*(trainparams['Nw_RIS']-1)*3, 2*N_RIS),
         )
     def forward(self, theta_qnt):
         theta_cnn = self.dense_layer1(theta_qnt)
@@ -804,10 +814,11 @@ if __name__ == "__main__":
     else:
         PdBm_dir = '40PdBm'
 
-    path_dir = "/home/alex96/scratch/"
+    # path_dir = "/home/alex96/scratch/"
+    path_dir = "/home/alex96/projects/def-psaromil/alex96/"
     # path_dir = "MATLAB/"
-    trial = "CSIerr0/repeated_trial_00/00"
-    dataset_dir = path_dir + "datasets/HDRISData/MUMISO_CSIerr0/" + PdBm_dir + "/"
+    trial = "PerfectCSI/repeated_trial_00/00"
+    dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
     results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
     # if len(sys.argv) > 1:
     #     results_dir = results_dir + sys.argv[1] + "/"
@@ -819,7 +830,7 @@ if __name__ == "__main__":
     Path(results_dir).mkdir(parents=True, exist_ok=True)
 
     # Make print statements go to file instead of stdout:
-    if path_dir == "/home/alex96/scratch/":
+    if path_dir == "/home/alex96/projects/def-psaromil/alex96/":
         orig_stdout = sys.stdout
         orig_stderr = sys.stderr
         f_python_output = open(results_dir + "python_log.out", 'w')
@@ -833,7 +844,7 @@ if __name__ == "__main__":
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.001, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 128, #2**np.random.randint(7, 11), # batch training size
+                  'batch_size': 2**np.random.randint(7, 11), # batch training size
                   'epochs': 1000,  # total training duration
                   'epoch_val': 50, # validate early stop every epoch number
                   'epoch_patience': 20, # number of epochs before loss decrease
@@ -852,8 +863,8 @@ if __name__ == "__main__":
     # Nc_array = 2**np.array(range(1,8))
     # Nc_array = [8,16,32,64,100,128]
     # Nc_array = [100]
-    # Nc_array = 10 * np.array(range(1,11))
-    Nc_array = [40]
+    Nc_array = 10 * np.array(range(1,11))
+    # Nc_array = [40]
 
     num_dirs = 25 # number of directories to use which includes data samples
 
@@ -896,15 +907,19 @@ if __name__ == "__main__":
     for d in range(num_dirs):
         print(dataset_dir + str(d) + "/", flush=True)
         sp = pd.read_csv(dataset_dir + str(d) + "/" + "systemModelParameters.csv").iloc[0]
-        print('Loading... (Hau error)', flush=True)
-        Hau_err_ = load_complex(dataset_dir + str(d) + "/", "Hau_err_r", "Hau_err_i")
-        Hau_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hau_err_)
-        print('Loading... (Har error)', flush=True)
-        Har_err_ = load_complex(dataset_dir + str(d) + "/", "Har_err_r", "Har_err_i")
-        Har_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Har_err_)
-        print('Loading... (Hru error)', flush=True)
-        Hru_err_ = load_complex(dataset_dir + str(d) + "/", "Hru_err_r", "Hru_err_i")
-        Hru_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hru_err_)
+        print("CH_err:", sysmodelparams['CH_err'], flush=True)
+        if float(sysmodelparams['CH_err']) == 0:
+            print("Perfect CSI", flush=True)
+        else:
+            print('Loading... (Hau error)', flush=True)
+            Hau_err_ = load_complex(dataset_dir + str(d) + "/", "Hau_err_r", "Hau_err_i")
+            Hau_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hau_err_)
+            print('Loading... (Har error)', flush=True)
+            Har_err_ = load_complex(dataset_dir + str(d) + "/", "Har_err_r", "Har_err_i")
+            Har_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Har_err_)
+            print('Loading... (Hru error)', flush=True)
+            Hru_err_ = load_complex(dataset_dir + str(d) + "/", "Hru_err_r", "Hru_err_i")
+            Hru_err[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hru_err_)
         print('Loading... (Hau)', flush=True)
         Hau_ = load_complex(dataset_dir + str(d) + "/", "Hau_r", "Hau_i")
         Hau[d*int(sp['mc_runs']):(d+1)*int(sp['mc_runs']), :] = torch.from_numpy(Hau_)
@@ -961,13 +976,17 @@ if __name__ == "__main__":
                  torch.real(Hau[i,:,:]),  torch.imag(Hau[i,:,:])]
         data = [input, RISopt[i], Wopt[i,:,:], Hau[i,:,:], Har[i,:,:], Hru[i,:,:]]
         # Imperfect CSI
-        input_err = [RISopt[i],
-                     torch.real(Wopt[i,:,:]), torch.imag(Wopt[i,:,:]),
-                     torch.real(Har[i,:,:] + Har_err[i,:,:]),  torch.imag(Har[i,:,:] + Har_err[i,:,:]),
-                     torch.real(Hru[i,:,:] + Hru_err[i,:,:]),  torch.imag(Hru[i,:,:] + Hru_err[i,:,:]),
-                     torch.real(Hau[i,:,:] + Hau_err[i,:,:]),  torch.imag(Hau[i,:,:] + Hau_err[i,:,:])]
-        data_err = [input, RISopt[i], Wopt[i,:,:], Hau[i,:,:] + Hau_err[i,:,:], Har[i,:,:] + Har_err[i,:,:], Hru[i,:,:] + Hru_err[i,:,:]]
-        # imperfect CSI for training and validation data, use perfect CSI for test data
+        if float(sysmodelparams['CH_err']) == 0:
+            input_err = input
+            data_err = data
+        else:
+            input_err = [RISopt[i],
+                         torch.real(Wopt[i,:,:]), torch.imag(Wopt[i,:,:]),
+                         torch.real(Har[i,:,:] + Har_err[i,:,:]),  torch.imag(Har[i,:,:] + Har_err[i,:,:]),
+                         torch.real(Hru[i,:,:] + Hru_err[i,:,:]),  torch.imag(Hru[i,:,:] + Hru_err[i,:,:]),
+                         torch.real(Hau[i,:,:] + Hau_err[i,:,:]),  torch.imag(Hau[i,:,:] + Hau_err[i,:,:])]
+            data_err = [input, RISopt[i], Wopt[i,:,:], Hau[i,:,:] + Hau_err[i,:,:], Har[i,:,:] + Har_err[i,:,:], Hru[i,:,:] + Hru_err[i,:,:]]
+        # Use imperfect CSI for training and validation data, use perfect CSI for test data
         if i < num_train:
             train_set.append(data_err)
         elif i >= num_train_val:
