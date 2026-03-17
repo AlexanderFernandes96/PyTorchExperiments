@@ -93,31 +93,31 @@ class EncoderLayer(nn.Module):
         #     nn.BatchNorm1d(128),
         #     nn.Linear(128, Nc_enc + 2*K_UE*M_AP),
         # )
-        # H = N_RIS + 2 * K_UE * M_AP
-        # self.linear_encoder = nn.Sequential(
-        #     nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, 32*H),
-        #     nn.ReLU(),
-        #     nn.Dropout(p),
-        #     nn.BatchNorm1d(32*H),
-        #     nn.Linear(32*H, 16*H),
-        #     nn.ReLU(),
-        #     nn.Dropout(p),
-        #     nn.BatchNorm1d(16*H),
-        #     nn.Linear(16*H, 8*H),
-        #     nn.ReLU(),
-        #     nn.Dropout(p),
-        #     nn.BatchNorm1d(8*H),
-        #     nn.Linear(8*H, 4*H),
-        #     nn.ReLU(),
-        #     nn.Dropout(p),
-        #     nn.BatchNorm1d(4*H),
-        #     # nn.Linear(4*H, Nc_enc + 2*K_UE*M_AP), # include W
-        #     nn.Linear(4*H, Nc_enc), # don't include W
-        # )
-
+        H = N_RIS + 2 * K_UE * M_AP
         self.linear_encoder = nn.Sequential(
-            nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, Nc_enc),
+            nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, 32*H),
+            nn.ReLU(),
+            nn.Dropout(p),
+            nn.BatchNorm1d(32*H),
+            nn.Linear(32*H, 16*H),
+            nn.ReLU(),
+            nn.Dropout(p),
+            nn.BatchNorm1d(16*H),
+            nn.Linear(16*H, 8*H),
+            nn.ReLU(),
+            nn.Dropout(p),
+            nn.BatchNorm1d(8*H),
+            nn.Linear(8*H, 4*H),
+            nn.ReLU(),
+            nn.Dropout(p),
+            nn.BatchNorm1d(4*H),
+            # nn.Linear(4*H, Nc_enc + 2*K_UE*M_AP), # include W
+            nn.Linear(4*H, Nc_enc), # don't include W
         )
+
+        # self.linear_encoder = nn.Sequential(
+        #     nn.Linear(2*(K_UE*M_AP + K_UE*N_RIS + N_RIS*M_AP + K_UE*M_AP) + N_RIS, Nc_enc),
+        # )
 
     def forward(self, x):
         theta = x[0].float()
@@ -254,16 +254,16 @@ class QuantizerLayer(nn.Module):
 class DecoderLayer(nn.Module):
     def __init__(self, N_RIS, Nc_enc):
         super(DecoderLayer, self).__init__()
-        # self.linear_decoder = nn.Sequential(
-        #     nn.Linear(Nc_enc, N_RIS),
-        #     nn.ReLU(),
-        #     nn.Linear(N_RIS, N_RIS),
-        #     nn.ReLU(),
-        # )
         self.linear_decoder = nn.Sequential(
-            nn.Linear(Nc_enc, Nc_enc),
+            nn.Linear(Nc_enc, N_RIS),
+            nn.ReLU(),
+            nn.Linear(N_RIS, N_RIS),
             nn.ReLU(),
         )
+        # self.linear_decoder = nn.Sequential(
+        #     nn.Linear(Nc_enc, Nc_enc),
+        #     nn.ReLU(),
+        # )
         # self.cnn_decoder = nn.Sequential(
         #     nn.Upsample(scale_factor=2),
         #     nn.ConvTranspose2d(N_RIS, 64, 3, padding=0),
@@ -281,7 +281,7 @@ class DecoderLayer(nn.Module):
         # )
         # self.reshape_dim = (N_RIS, 1, 1)
         self.out_layer = nn.Sequential(
-            nn.Linear(Nc_enc, N_RIS), # best to make output layer a linear operator
+            nn.Linear(N_RIS, N_RIS), # best to make output layer a linear operator
             # nn.LeakyReLU(), # LeakyReLU or ReLU will make negative phase shifts not work
             # nn.Tanh(), # Note Tanh at output makes training harder considering the optimal value is periodic wrt 2pi
         )
