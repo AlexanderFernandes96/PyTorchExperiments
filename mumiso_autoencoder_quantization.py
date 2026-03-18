@@ -206,20 +206,21 @@ class QuantizerLayer(nn.Module):
                 np.delete(spacing,[0,-1])
                 # np.random.rand(C_code_words - 1, 1) * 2 * np.pi - 3 * np.pi),
             ), requires_grad=True)
-        c_slope = 0.5
+        c_slope = 1
+        # c_slope = 0.5
         # c_slope = 10
         if len(self.b) > 1:
             self.c = torch.nn.Parameter(
                 # data=torch.from_numpy((15 / np.mean(np.diff(self.b.data.numpy()))) * np.ones(C_code_words - 1)),
-                data=torch.from_numpy((c_slope * 2 * np.pi / np.mean(np.diff(self.b.data.numpy())) ) * np.ones(C_code_words - 1)),
-                # data=torch.from_numpy(0.9 * np.ones(C_code_words - 1)),
-                requires_grad=True)
+                # data=torch.from_numpy((c_slope * 2 * np.pi / np.mean(np.diff(self.b.data.numpy())) ) * np.ones(C_code_words - 1)),
+                data=torch.from_numpy(c_slope * np.ones(C_code_words - 1)),
+                requires_grad=False)
         else:
             self.b = torch.nn.Parameter(data=torch.from_numpy(np.zeros(C_code_words - 1)), requires_grad=True)
             self.c = torch.nn.Parameter(
                 data=torch.from_numpy(c_slope * np.ones(C_code_words - 1)),
                 # data=torch.from_numpy(15 / np.pi * np.ones(C_code_words - 1)),
-                requires_grad=True)
+                requires_grad=False)
         self.C_code_words = C_code_words
         self.hardQ = False
         self.device = dev
@@ -700,6 +701,7 @@ class Trainer(object):
             with torch.enable_grad():
                 try:
                     self.model.quantizer_layer.hardQ = False
+                    self.model.quantizer_layer.c *= 1.005                   # increment c = c * 1.005 every epoch
                 except AttributeError:
                     self.model.module.quantizer_layer.hardQ = False
                 for i, data in (enumerate(self.train_loader)):
@@ -759,7 +761,7 @@ class Trainer(object):
                         if trainparams['epoch_echo']:
                             print('No Validation early stop loss decrease ({:.10f} --> {:.10f}). Early Stopping'.format(
                             val_loss_min_earlystop, running_loss), flush=True)
-                        break
+                        # break # early stopping by breaking out of epoch training for loop
                     running_loss = 0.0
 
                 train_losses.append(train_loss)
@@ -844,7 +846,7 @@ if __name__ == "__main__":
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.001, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 2**np.random.randint(7, 11), # batch training size
+                  'batch_size': 128, #2**np.random.randint(7, 11), # batch training size
                   'epochs': 1000,  # total training duration
                   'epoch_val': 50, # validate early stop every epoch number
                   'epoch_patience': 20, # number of epochs before loss decrease
