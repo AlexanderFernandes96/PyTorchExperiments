@@ -846,7 +846,7 @@ if __name__ == "__main__":
                   'train_val_split': 0.8,  # after the train/test split, split train data into train/val data
                   'lr': 0.001, #10**(-1*np.random.uniform(2, 5)), # optimizer learning rate
                   # 'momentum': 0.9, # optimizer momentum for SGD
-                  'batch_size': 128, #2**np.random.randint(7, 11), # batch training size
+                  'batch_size': 512, #2**np.random.randint(7, 11), # batch training size
                   'epochs': 1000,  # total training duration
                   'epoch_val': 50, # validate early stop every epoch number
                   'epoch_patience': 20, # number of epochs before loss decrease
