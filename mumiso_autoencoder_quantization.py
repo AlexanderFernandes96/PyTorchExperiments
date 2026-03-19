@@ -823,7 +823,7 @@ if __name__ == "__main__":
     # dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
     # results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
 
-    N_RIS_list = ['Nwh5', 'Nwh6', 'Nwh7', 'Nwh8', 'Nwh9', 'Nwh0'] # 6 total
+    N_RIS_list = ['Nwh5', 'Nwh6', 'Nwh7', 'Nwh8', 'Nwh9', 'Nwh10'] # 6 total
     if len(sys.argv) > 1:
         N_RIS_dir = N_RIS_list[int(sys.argv[1])]
     else:
