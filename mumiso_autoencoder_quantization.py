@@ -810,18 +810,29 @@ if __name__ == "__main__":
     print('Start Script')
     print('------------')
 
-    PdBm_list = ['10PdBm', '15PdBm', '20PdBm', '25PdBm', '30PdBm', '35PdBm', '40PdBm']
-    if len(sys.argv) > 1:
-        PdBm_dir = PdBm_list[int(sys.argv[1])]
-    else:
-        PdBm_dir = '40PdBm'
-
     # path_dir = "/home/alex96/scratch/"
     path_dir = "/home/alex96/projects/def-psaromil/alex96/"
     # path_dir = "MATLAB/"
-    trial = "PerfectCSI/repeated_trial_00/00"
-    dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
-    results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
+
+    # PdBm_list = ['10PdBm', '15PdBm', '20PdBm', '25PdBm', '30PdBm', '35PdBm', '40PdBm'] # 7 total
+    # if len(sys.argv) > 1:
+    #     PdBm_dir = PdBm_list[int(sys.argv[1])]
+    # else:
+    #     PdBm_dir = '35PdBm'
+    # trial = "PerfectCSI/repeated_trial_01/00"
+    # dataset_dir = path_dir + "datasets/HDRISData/MUMISO/" + PdBm_dir + "/"
+    # results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
+
+    N_RIS_list = ['Nw5', 'Nw6', 'Nw7', 'Nw8', 'Nw9', 'Nw10'] # 6 total
+    if len(sys.argv) > 1:
+        N_RIS_dir = N_RIS_list[int(sys.argv[1])]
+    else:
+        N_RIS_dir = 'Nw10'
+    trial = "VaryNPerfectCSI/repeated_trial_00/00"
+    dataset_dir = path_dir + "datasets/HDRISData/MUMISO_35PdBm/" + N_RIS_dir + "/"
+    results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + N_RIS_dir + "/"
+
+
     # if len(sys.argv) > 1:
     #     results_dir = results_dir + sys.argv[1] + "/"
     results_file = "results.csv"
@@ -865,8 +876,9 @@ if __name__ == "__main__":
     # Nc_array = 2**np.array(range(1,8))
     # Nc_array = [8,16,32,64,100,128]
     # Nc_array = [100]
-    Nc_array = 10 * np.array(range(1,11))
+    # Nc_array = 10 * np.array(range(1,11))
     # Nc_array = [40]
+    Nc_compression = 0.4 # Nc compression wrt N_RIS: floor(Nc_compression * N_RIS)
 
     num_dirs = 25 # number of directories to use which includes data samples
 
@@ -889,6 +901,8 @@ if __name__ == "__main__":
         trainparams['P_dBm'] = sysmodelparams['PdBm']
         trainparams['N_dBm'] = sysmodelparams['NdBm']
         trainparams['snr_dB'] = sysmodelparams['SNRdB']
+
+    Nc_array = [np.floor(Nc_compression*trainparams['N_RIS'])] # Comment out if not using Nc_compression
 
     print("Training Model parameters:", flush=True)
     pprint.pprint(trainparams)
