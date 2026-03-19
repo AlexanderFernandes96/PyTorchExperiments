@@ -902,7 +902,9 @@ if __name__ == "__main__":
         trainparams['N_dBm'] = sysmodelparams['NdBm']
         trainparams['snr_dB'] = sysmodelparams['SNRdB']
 
-    Nc_array = [np.floor(Nc_compression*trainparams['N_RIS'])] # Comment out if not using Nc_compression
+    # Comment out if not using Nc_compression
+    Nc = int( np.floor(Nc_compression*int(sysmodelparams['N'])) )
+    Nc_array = [Nc]
 
     print("Training Model parameters:", flush=True)
     pprint.pprint(trainparams)
