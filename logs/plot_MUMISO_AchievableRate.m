@@ -291,69 +291,69 @@ linewidth = 1.5;
 % ftsz = 20;
 for trials = ["CSIerr0", "CSIerr1"]
     % Load
-    results_10PdBm00 = readmatrix(dir + trials + "/repeated_trial_00/00/10PdBm/results.csv");
-    results_15PdBm00 = readmatrix(dir + trials + "/repeated_trial_00/00/15PdBm/results.csv");
-    results_20PdBm00 = readmatrix(dir + trials + "/repeated_trial_00/00/20PdBm/results.csv");
-    results_25PdBm00 = readmatrix(dir + trials + "/repeated_trial_00/00/25PdBm/results.csv");
-    results_30PdBm00 = readmatrix(dir + trials + "/repeated_trial_00/00/30PdBm/results.csv");
-    results_35PdBm00 = readmatrix(dir + trials + "/repeated_trial_00/00/35PdBm/results.csv");
-    results_40PdBm00 = readmatrix(dir + trials + "/repeated_trial_00/00/40PdBm/results.csv");
-    results_10PdBm01 = readmatrix(dir + trials + "/repeated_trial_00/01/10PdBm/results.csv");
-    results_15PdBm01 = readmatrix(dir + trials + "/repeated_trial_00/01/15PdBm/results.csv");
-    results_20PdBm01 = readmatrix(dir + trials + "/repeated_trial_00/01/20PdBm/results.csv");
-    results_25PdBm01 = readmatrix(dir + trials + "/repeated_trial_00/01/25PdBm/results.csv");
-    results_30PdBm01 = readmatrix(dir + trials + "/repeated_trial_00/01/30PdBm/results.csv");
-    results_35PdBm01 = readmatrix(dir + trials + "/repeated_trial_00/01/35PdBm/results.csv");
-    results_40PdBm01 = readmatrix(dir + trials + "/repeated_trial_00/01/40PdBm/results.csv");
-    results_10PdBm02 = readmatrix(dir + trials + "/repeated_trial_00/02/10PdBm/results.csv");
-    results_15PdBm02 = readmatrix(dir + trials + "/repeated_trial_00/02/15PdBm/results.csv");
-    results_20PdBm02 = readmatrix(dir + trials + "/repeated_trial_00/02/20PdBm/results.csv");
-    results_25PdBm02 = readmatrix(dir + trials + "/repeated_trial_00/02/25PdBm/results.csv");
-    results_30PdBm02 = readmatrix(dir + trials + "/repeated_trial_00/02/30PdBm/results.csv");
-    results_35PdBm02 = readmatrix(dir + trials + "/repeated_trial_00/02/35PdBm/results.csv");
-    results_40PdBm02 = readmatrix(dir + trials + "/repeated_trial_00/02/40PdBm/results.csv");
-    results_10PdBm03 = readmatrix(dir + trials + "/repeated_trial_00/03/10PdBm/results.csv");
-    results_15PdBm03 = readmatrix(dir + trials + "/repeated_trial_00/03/15PdBm/results.csv");
-    results_20PdBm03 = readmatrix(dir + trials + "/repeated_trial_00/03/20PdBm/results.csv");
-    results_25PdBm03 = readmatrix(dir + trials + "/repeated_trial_00/03/25PdBm/results.csv");
-    results_30PdBm03 = readmatrix(dir + trials + "/repeated_trial_00/03/30PdBm/results.csv");
-    results_35PdBm03 = readmatrix(dir + trials + "/repeated_trial_00/03/35PdBm/results.csv");
-    results_40PdBm03 = readmatrix(dir + trials + "/repeated_trial_00/03/40PdBm/results.csv");
-    results_10PdBm04 = readmatrix(dir + trials + "/repeated_trial_00/04/10PdBm/results.csv");
-    results_15PdBm04 = readmatrix(dir + trials + "/repeated_trial_00/04/15PdBm/results.csv");
-    results_20PdBm04 = readmatrix(dir + trials + "/repeated_trial_00/04/20PdBm/results.csv");
-    results_25PdBm04 = readmatrix(dir + trials + "/repeated_trial_00/04/25PdBm/results.csv");
-    results_30PdBm04 = readmatrix(dir + trials + "/repeated_trial_00/04/30PdBm/results.csv");
-    results_35PdBm04 = readmatrix(dir + trials + "/repeated_trial_00/04/35PdBm/results.csv");
-    results_40PdBm04 = readmatrix(dir + trials + "/repeated_trial_00/04/40PdBm/results.csv");
+    results_10PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/10PdBm/results.csv");
+    results_15PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/15PdBm/results.csv");
+    results_20PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/20PdBm/results.csv");
+    results_25PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/25PdBm/results.csv");
+    results_30PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/30PdBm/results.csv");
+    results_35PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/35PdBm/results.csv");
+    results_40PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/40PdBm/results.csv");
+    results_10PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/10PdBm/results.csv");
+    results_15PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/15PdBm/results.csv");
+    results_20PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/20PdBm/results.csv");
+    results_25PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/25PdBm/results.csv");
+    results_30PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/30PdBm/results.csv");
+    results_35PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/35PdBm/results.csv");
+    results_40PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/40PdBm/results.csv");
+    results_10PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/10PdBm/results.csv");
+    results_15PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/15PdBm/results.csv");
+    results_20PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/20PdBm/results.csv");
+    results_25PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/25PdBm/results.csv");
+    results_30PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/30PdBm/results.csv");
+    results_35PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/35PdBm/results.csv");
+    results_40PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/40PdBm/results.csv");
+    results_10PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/10PdBm/results.csv");
+    results_15PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/15PdBm/results.csv");
+    results_20PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/20PdBm/results.csv");
+    results_25PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/25PdBm/results.csv");
+    results_30PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/30PdBm/results.csv");
+    results_35PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/35PdBm/results.csv");
+    results_40PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/40PdBm/results.csv");
+    results_10PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/10PdBm/results.csv");
+    results_15PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/15PdBm/results.csv");
+    results_20PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/20PdBm/results.csv");
+    results_25PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/25PdBm/results.csv");
+    results_30PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/30PdBm/results.csv");
+    results_35PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/35PdBm/results.csv");
+    results_40PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/40PdBm/results.csv");
     
-    results_10PdBm_mean = (results_10PdBm00 + results_10PdBm01 + results_10PdBm02 + results_10PdBm03 + results_10PdBm04) / 5;
-    results_15PdBm_mean = (results_15PdBm00 + results_15PdBm01 + results_15PdBm02 + results_15PdBm03 + results_15PdBm04) / 5;
-    results_20PdBm_mean = (results_20PdBm00 + results_20PdBm01 + results_20PdBm02 + results_20PdBm03 + results_20PdBm04) / 5;
-    results_25PdBm_mean = (results_25PdBm00 + results_25PdBm01 + results_25PdBm02 + results_25PdBm03 + results_25PdBm04) / 5;
-    results_30PdBm_mean = (results_30PdBm00 + results_30PdBm01 + results_30PdBm02 + results_30PdBm03 + results_30PdBm04) / 5;
-    results_35PdBm_mean = (results_35PdBm00 + results_35PdBm01 + results_35PdBm02 + results_35PdBm03 + results_35PdBm04) / 5;
-    results_40PdBm_mean = (results_40PdBm00 + results_40PdBm01 + results_40PdBm02 + results_40PdBm03 + results_40PdBm04) / 5;
+    results_10PdBm_mean_CSIerr = (results_10PdBm00_CSIerr + results_10PdBm01_CSIerr + results_10PdBm02_CSIerr + results_10PdBm03_CSIerr + results_10PdBm04_CSIerr) / 5;
+    results_15PdBm_mean_CSIerr = (results_15PdBm00_CSIerr + results_15PdBm01_CSIerr + results_15PdBm02_CSIerr + results_15PdBm03_CSIerr + results_15PdBm04_CSIerr) / 5;
+    results_20PdBm_mean_CSIerr = (results_20PdBm00_CSIerr + results_20PdBm01_CSIerr + results_20PdBm02_CSIerr + results_20PdBm03_CSIerr + results_20PdBm04_CSIerr) / 5;
+    results_25PdBm_mean_CSIerr = (results_25PdBm00_CSIerr + results_25PdBm01_CSIerr + results_25PdBm02_CSIerr + results_25PdBm03_CSIerr + results_25PdBm04_CSIerr) / 5;
+    results_30PdBm_mean_CSIerr = (results_30PdBm00_CSIerr + results_30PdBm01_CSIerr + results_30PdBm02_CSIerr + results_30PdBm03_CSIerr + results_30PdBm04_CSIerr) / 5;
+    results_35PdBm_mean_CSIerr = (results_35PdBm00_CSIerr + results_35PdBm01_CSIerr + results_35PdBm02_CSIerr + results_35PdBm03_CSIerr + results_35PdBm04_CSIerr) / 5;
+    results_40PdBm_mean_CSIerr = (results_40PdBm00_CSIerr + results_40PdBm01_CSIerr + results_40PdBm02_CSIerr + results_40PdBm03_CSIerr + results_40PdBm04_CSIerr) / 5;
     
-    results_10PdBm_var = (results_10PdBm00.^2 + results_10PdBm01.^2 + results_10PdBm02.^2 + results_10PdBm03.^2 + results_10PdBm04.^2) / 5 - results_10PdBm_mean.^2;
-    results_15PdBm_var = (results_15PdBm00.^2 + results_15PdBm01.^2 + results_15PdBm02.^2 + results_15PdBm03.^2 + results_15PdBm04.^2) / 5 - results_15PdBm_mean.^2;
-    results_20PdBm_var = (results_20PdBm00.^2 + results_20PdBm01.^2 + results_20PdBm02.^2 + results_20PdBm03.^2 + results_20PdBm04.^2) / 5 - results_20PdBm_mean.^2;
-    results_25PdBm_var = (results_25PdBm00.^2 + results_25PdBm01.^2 + results_25PdBm02.^2 + results_25PdBm03.^2 + results_25PdBm04.^2) / 5 - results_25PdBm_mean.^2;
-    results_30PdBm_var = (results_30PdBm00.^2 + results_30PdBm01.^2 + results_30PdBm02.^2 + results_30PdBm03.^2 + results_30PdBm04.^2) / 5 - results_30PdBm_mean.^2;
-    results_35PdBm_var = (results_35PdBm00.^2 + results_35PdBm01.^2 + results_35PdBm02.^2 + results_35PdBm03.^2 + results_35PdBm04.^2) / 5 - results_35PdBm_mean.^2;
-    results_40PdBm_var = (results_40PdBm00.^2 + results_40PdBm01.^2 + results_40PdBm02.^2 + results_40PdBm03.^2 + results_40PdBm04.^2) / 5 - results_40PdBm_mean.^2;
+    results_10PdBm_var_CSIerr = (results_10PdBm00_CSIerr.^2 + results_10PdBm01_CSIerr.^2 + results_10PdBm02_CSIerr.^2 + results_10PdBm03_CSIerr.^2 + results_10PdBm04_CSIerr.^2) / 5 - results_10PdBm_mean_CSIerr.^2;
+    results_15PdBm_var_CSIerr = (results_15PdBm00_CSIerr.^2 + results_15PdBm01_CSIerr.^2 + results_15PdBm02_CSIerr.^2 + results_15PdBm03_CSIerr.^2 + results_15PdBm04_CSIerr.^2) / 5 - results_15PdBm_mean_CSIerr.^2;
+    results_20PdBm_var_CSIerr = (results_20PdBm00_CSIerr.^2 + results_20PdBm01_CSIerr.^2 + results_20PdBm02_CSIerr.^2 + results_20PdBm03_CSIerr.^2 + results_20PdBm04_CSIerr.^2) / 5 - results_20PdBm_mean_CSIerr.^2;
+    results_25PdBm_var_CSIerr = (results_25PdBm00_CSIerr.^2 + results_25PdBm01_CSIerr.^2 + results_25PdBm02_CSIerr.^2 + results_25PdBm03_CSIerr.^2 + results_25PdBm04_CSIerr.^2) / 5 - results_25PdBm_mean_CSIerr.^2;
+    results_30PdBm_var_CSIerr = (results_30PdBm00_CSIerr.^2 + results_30PdBm01_CSIerr.^2 + results_30PdBm02_CSIerr.^2 + results_30PdBm03_CSIerr.^2 + results_30PdBm04_CSIerr.^2) / 5 - results_30PdBm_mean_CSIerr.^2;
+    results_35PdBm_var_CSIerr = (results_35PdBm00_CSIerr.^2 + results_35PdBm01_CSIerr.^2 + results_35PdBm02_CSIerr.^2 + results_35PdBm03_CSIerr.^2 + results_35PdBm04_CSIerr.^2) / 5 - results_35PdBm_mean_CSIerr.^2;
+    results_40PdBm_var_CSIerr = (results_40PdBm00_CSIerr.^2 + results_40PdBm01_CSIerr.^2 + results_40PdBm02_CSIerr.^2 + results_40PdBm03_CSIerr.^2 + results_40PdBm04_CSIerr.^2) / 5 - results_40PdBm_mean_CSIerr.^2;
     
-    results_10PdBm = results_10PdBm_mean;
-    results_15PdBm = results_15PdBm_mean;
-    results_20PdBm = results_20PdBm_mean;
-    results_25PdBm = results_25PdBm_mean;
-    results_30PdBm = results_30PdBm_mean;
-    results_35PdBm = results_35PdBm_mean;
-    results_40PdBm = results_40PdBm_mean;
+    results_10PdBm_CSIerr = results_10PdBm_mean_CSIerr;
+    results_15PdBm_CSIerr = results_15PdBm_mean_CSIerr;
+    results_20PdBm_CSIerr = results_20PdBm_mean_CSIerr;
+    results_25PdBm_CSIerr = results_25PdBm_mean_CSIerr;
+    results_30PdBm_CSIerr = results_30PdBm_mean_CSIerr;
+    results_35PdBm_CSIerr = results_35PdBm_mean_CSIerr;
+    results_40PdBm_CSIerr = results_40PdBm_mean_CSIerr;
 
     NetNames = {'Nc','Upper Bound','AQE-WMMSE','AQE','ACFNet','DQNN','linQ','Upper Bound random','AQE-WMMSE random','AQE random','ACFNet random','DQNN random','linQ random'};
-    results = cat(3,results_10PdBm, results_15PdBm, results_20PdBm, ...
-        results_25PdBm, results_30PdBm, results_35PdBm, results_40PdBm);
+    results_CSIerr = cat(3,results_10PdBm_CSIerr, results_15PdBm_CSIerr, results_20PdBm_CSIerr, ...
+        results_25PdBm_CSIerr, results_30PdBm_CSIerr, results_35PdBm_CSIerr, results_40PdBm_CSIerr);
     
     trainparams = readmatrix(dir + trials + "/repeated_trial_00/00/40PdBm/trainparams.csv");
     nmse_Hau = trainparams(1,19);
@@ -375,11 +375,11 @@ for trials = ["CSIerr0", "CSIerr1"]
         linemark = '--';
     end
 
-%     plot(PdBm, squeeze(results(b1,2,:)), '+-', 'Color', colour_list{1}, 'Marker',...
+%     plot(PdBm, squeeze(results_CSIerr(b1,2,:)), '+-', 'Color', colour_list{1}, 'Marker',...
 %         marker_list{1}, 'DisplayName', strcat(NetNames{2}, " (", accCSI, ")"), 'LineWidth', linewidth)
     for net = [3,4,5,7]
 %     for net = [3,4]
-        plot(PdBm, squeeze(results(b1,net,:)), linemark, 'Color', colour_list{c}, ...
+        plot(PdBm, squeeze(results_CSIerr(b1,net,:)), linemark, 'Color', colour_list{c}, ...
             'Marker', marker_list{m}, 'LineWidth', linewidth, ...
             'DisplayName', strcat(NetNames{net}, " ", accCSI, ""))
         c = c+1;
@@ -394,5 +394,106 @@ grid on;
 xlabel('Transmit Power (dBm)')
 ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 1, 'location', 'northwest')
+ylim([0, 25])
+fontsize(gca,ftsz,"pixels")
+
+%% Figure 7 - Perfect CSI Rate vs N, 35 Tx dBm
+figure(7); hold on;
+linewidth = 1.5;
+% ftsz = 20;
+trials = "VaryNPerfectCSI";
+% Load
+results_Nwh5_00 = readmatrix(dir + trials + "/repeated_trial_00/00/Nwh5/results.csv");
+results_Nwh6_00 = readmatrix(dir + trials + "/repeated_trial_00/00/Nwh6/results.csv");
+results_Nwh7_00 = readmatrix(dir + trials + "/repeated_trial_00/00/Nwh7/results.csv");
+results_Nwh8_00 = readmatrix(dir + trials + "/repeated_trial_00/00/Nwh8/results.csv");
+results_Nwh9_00 = readmatrix(dir + trials + "/repeated_trial_00/00/Nwh9/results.csv");
+results_Nwh10_00 = readmatrix(dir + trials + "/repeated_trial_00/00/Nwh10/results.csv");
+results_Nwh5_01 = readmatrix(dir + trials + "/repeated_trial_00/01/Nwh5/results.csv");
+results_Nwh6_01 = readmatrix(dir + trials + "/repeated_trial_00/01/Nwh6/results.csv");
+results_Nwh7_01 = readmatrix(dir + trials + "/repeated_trial_00/01/Nwh7/results.csv");
+results_Nwh8_01 = readmatrix(dir + trials + "/repeated_trial_00/01/Nwh8/results.csv");
+results_Nwh9_01 = readmatrix(dir + trials + "/repeated_trial_00/01/Nwh9/results.csv");
+results_Nwh10_01 = readmatrix(dir + trials + "/repeated_trial_00/01/Nwh10/results.csv");
+results_Nwh5_02 = readmatrix(dir + trials + "/repeated_trial_00/02/Nwh5/results.csv");
+results_Nwh6_02 = readmatrix(dir + trials + "/repeated_trial_00/02/Nwh6/results.csv");
+results_Nwh7_02 = readmatrix(dir + trials + "/repeated_trial_00/02/Nwh7/results.csv");
+results_Nwh8_02 = readmatrix(dir + trials + "/repeated_trial_00/02/Nwh8/results.csv");
+results_Nwh9_02 = readmatrix(dir + trials + "/repeated_trial_00/02/Nwh9/results.csv");
+results_Nwh10_02 = readmatrix(dir + trials + "/repeated_trial_00/02/Nwh10/results.csv");
+results_Nwh5_03 = readmatrix(dir + trials + "/repeated_trial_00/03/Nwh5/results.csv");
+results_Nwh6_03 = readmatrix(dir + trials + "/repeated_trial_00/03/Nwh6/results.csv");
+results_Nwh7_03 = readmatrix(dir + trials + "/repeated_trial_00/03/Nwh7/results.csv");
+results_Nwh8_03 = readmatrix(dir + trials + "/repeated_trial_00/03/Nwh8/results.csv");
+results_Nwh9_03 = readmatrix(dir + trials + "/repeated_trial_00/03/Nwh9/results.csv");
+results_Nwh10_03 = readmatrix(dir + trials + "/repeated_trial_00/03/Nwh10/results.csv");
+results_Nwh5_04 = readmatrix(dir + trials + "/repeated_trial_00/04/Nwh5/results.csv");
+results_Nwh6_04 = readmatrix(dir + trials + "/repeated_trial_00/04/Nwh6/results.csv");
+results_Nwh7_04 = readmatrix(dir + trials + "/repeated_trial_00/04/Nwh7/results.csv");
+results_Nwh8_04 = readmatrix(dir + trials + "/repeated_trial_00/04/Nwh8/results.csv");
+results_Nwh9_04 = readmatrix(dir + trials + "/repeated_trial_00/04/Nwh9/results.csv");
+results_Nwh10_04 = readmatrix(dir + trials + "/repeated_trial_00/04/Nwh10/results.csv");
+
+results_Nwh5_mean = (results_Nwh5_00 + results_Nwh5_01 + results_Nwh5_02 + results_Nwh5_03 + results_Nwh5_04) / 5;
+results_Nwh6_mean = (results_Nwh6_00 + results_Nwh6_01 + results_Nwh6_02 + results_Nwh6_03 + results_Nwh6_04) / 5;
+results_Nwh7_mean = (results_Nwh7_00 + results_Nwh7_01 + results_Nwh7_02 + results_Nwh7_03 + results_Nwh7_04) / 5;
+results_Nwh8_mean = (results_Nwh8_00 + results_Nwh8_01 + results_Nwh8_02 + results_Nwh8_03 + results_Nwh8_04) / 5;
+results_Nwh9_mean = (results_Nwh9_00 + results_Nwh9_01 + results_Nwh9_02 + results_Nwh9_03 + results_Nwh9_04) / 5;
+results_Nwh10_mean = (results_Nwh10_00 + results_Nwh10_01 + results_Nwh10_02 + results_Nwh10_03 + results_Nwh10_04) / 5;
+
+results_Nwh5_var = (results_Nwh5_00.^2 + results_Nwh5_01.^2 + results_Nwh5_02.^2 + results_Nwh5_03.^2 + results_Nwh5_04.^2) / 5 - results_Nwh5_mean.^2;
+results_Nwh6_var = (results_Nwh6_00.^2 + results_Nwh6_01.^2 + results_Nwh6_02.^2 + results_Nwh6_03.^2 + results_Nwh6_04.^2) / 5 - results_Nwh6_mean.^2;
+results_Nwh7_var = (results_Nwh7_00.^2 + results_Nwh7_01.^2 + results_Nwh7_02.^2 + results_Nwh7_03.^2 + results_Nwh7_04.^2) / 5 - results_Nwh7_mean.^2;
+results_Nwh8_var = (results_Nwh8_00.^2 + results_Nwh8_01.^2 + results_Nwh8_02.^2 + results_Nwh8_03.^2 + results_Nwh8_04.^2) / 5 - results_Nwh8_mean.^2;
+results_Nwh9_var = (results_Nwh9_00.^2 + results_Nwh9_01.^2 + results_Nwh9_02.^2 + results_Nwh9_03.^2 + results_Nwh9_04.^2) / 5 - results_Nwh9_mean.^2;
+results_Nwh10_var = (results_Nwh10_00.^2 + results_Nwh10_01.^2 + results_Nwh10_02.^2 + results_Nwh10_03.^2 + results_Nwh10_04.^2) / 5 - results_Nwh10_mean.^2;
+
+results_Nwh5 = results_Nwh5_mean;
+results_Nwh6 = results_Nwh6_mean;
+results_Nwh7 = results_Nwh7_mean;
+results_Nwh8 = results_Nwh8_mean;
+results_Nwh9 = results_Nwh9_mean;
+results_Nwh10 = results_Nwh10_mean;
+
+NetNames = {'Nc','Upper Bound','AQE-WMMSE','AQE','ACFNet','DQNN','linQ','Upper Bound random','AQE-WMMSE random','AQE random','ACFNet random','DQNN random','linQ random'};
+results_VaryN = cat(3,results_Nwh5, results_Nwh6, results_Nwh7, ...
+    results_Nwh8, results_Nwh9, results_Nwh10);
+
+N_RIS_list = [5^2, 6^2, 7^2, 8^2, 9^2, 10^2];
+
+% Plot
+b1 = 1;
+m = 1;
+c = 1;
+
+%     plot(PdBm, squeeze(results_VaryN(b1,2,:)), '+-', 'Color', colour_list{1}, 'Marker',...
+%         marker_list{1}, 'DisplayName', strcat(NetNames{2}, " (", accCSI, ")"), 'LineWidth', linewidth)
+for net = [2,3,4,5,7]
+%     for net = [3,4]
+    plot(N_RIS_list, squeeze(results_VaryN(b1,net,:)), '-', 'Color', colour_list{c}, ...
+        'Marker', marker_list{m}, 'LineWidth', linewidth, ...
+        'DisplayName', NetNames{net})
+    c = c+1;
+    m = m+1;
+    hold on;
+end
+c = 1;
+m = 1;
+for net = [8,9,10,11,13]
+    plot(N_RIS_list, squeeze(results_VaryN(b1,net,:)), '--', 'Color', colour_list{c}, ...
+        'Marker', marker_list{m}, 'DisplayName', NetNames{net}, 'LineWidth', linewidth)
+    c = c+1;
+    m = m+1;
+end
+hold off;
+
+
+hold off;
+grid on;
+% title("Number of control bits: ", int2str(results(b,1,1)) + " bits");
+xlabel('Number of RIS elements')
+ylabel('Achievable Sum Rate (bps/Hz)')
+legend('NumColumns', 2, 'location', 'northwest')
+% axis tight
 ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
