@@ -291,41 +291,41 @@ linewidth = 1.5;
 % ftsz = 20;
 for trials = ["CSIerr0", "CSIerr1"]
     % Load
-    results_10PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/10PdBm/results.csv");
-    results_15PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/15PdBm/results.csv");
-    results_20PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/20PdBm/results.csv");
-    results_25PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/25PdBm/results.csv");
-    results_30PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/30PdBm/results.csv");
-    results_35PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/35PdBm/results.csv");
-    results_40PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/00/40PdBm/results.csv");
-    results_10PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/10PdBm/results.csv");
-    results_15PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/15PdBm/results.csv");
-    results_20PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/20PdBm/results.csv");
-    results_25PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/25PdBm/results.csv");
-    results_30PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/30PdBm/results.csv");
-    results_35PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/35PdBm/results.csv");
-    results_40PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/01/40PdBm/results.csv");
-    results_10PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/10PdBm/results.csv");
-    results_15PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/15PdBm/results.csv");
-    results_20PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/20PdBm/results.csv");
-    results_25PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/25PdBm/results.csv");
-    results_30PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/30PdBm/results.csv");
-    results_35PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/35PdBm/results.csv");
-    results_40PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/02/40PdBm/results.csv");
-    results_10PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/10PdBm/results.csv");
-    results_15PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/15PdBm/results.csv");
-    results_20PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/20PdBm/results.csv");
-    results_25PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/25PdBm/results.csv");
-    results_30PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/30PdBm/results.csv");
-    results_35PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/35PdBm/results.csv");
-    results_40PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/03/40PdBm/results.csv");
-    results_10PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/10PdBm/results.csv");
-    results_15PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/15PdBm/results.csv");
-    results_20PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/20PdBm/results.csv");
-    results_25PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/25PdBm/results.csv");
-    results_30PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/30PdBm/results.csv");
-    results_35PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/35PdBm/results.csv");
-    results_40PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_00/04/40PdBm/results.csv");
+    results_10PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/00/10PdBm/results.csv");
+    results_15PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/00/15PdBm/results.csv");
+    results_20PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/00/20PdBm/results.csv");
+    results_25PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/00/25PdBm/results.csv");
+    results_30PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/00/30PdBm/results.csv");
+    results_35PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/00/35PdBm/results.csv");
+    results_40PdBm00_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/00/40PdBm/results.csv");
+    results_10PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/01/10PdBm/results.csv");
+    results_15PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/01/15PdBm/results.csv");
+    results_20PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/01/20PdBm/results.csv");
+    results_25PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/01/25PdBm/results.csv");
+    results_30PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/01/30PdBm/results.csv");
+    results_35PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/01/35PdBm/results.csv");
+    results_40PdBm01_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/01/40PdBm/results.csv");
+    results_10PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/02/10PdBm/results.csv");
+    results_15PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/02/15PdBm/results.csv");
+    results_20PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/02/20PdBm/results.csv");
+    results_25PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/02/25PdBm/results.csv");
+    results_30PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/02/30PdBm/results.csv");
+    results_35PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/02/35PdBm/results.csv");
+    results_40PdBm02_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/02/40PdBm/results.csv");
+    results_10PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/03/10PdBm/results.csv");
+    results_15PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/03/15PdBm/results.csv");
+    results_20PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/03/20PdBm/results.csv");
+    results_25PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/03/25PdBm/results.csv");
+    results_30PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/03/30PdBm/results.csv");
+    results_35PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/03/35PdBm/results.csv");
+    results_40PdBm03_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/03/40PdBm/results.csv");
+    results_10PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/04/10PdBm/results.csv");
+    results_15PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/04/15PdBm/results.csv");
+    results_20PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/04/20PdBm/results.csv");
+    results_25PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/04/25PdBm/results.csv");
+    results_30PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/04/30PdBm/results.csv");
+    results_35PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/04/35PdBm/results.csv");
+    results_40PdBm04_CSIerr = readmatrix(dir + trials + "/repeated_trial_01/04/40PdBm/results.csv");
     
     results_10PdBm_mean_CSIerr = (results_10PdBm00_CSIerr + results_10PdBm01_CSIerr + results_10PdBm02_CSIerr + results_10PdBm03_CSIerr + results_10PdBm04_CSIerr) / 5;
     results_15PdBm_mean_CSIerr = (results_15PdBm00_CSIerr + results_15PdBm01_CSIerr + results_15PdBm02_CSIerr + results_15PdBm03_CSIerr + results_15PdBm04_CSIerr) / 5;
@@ -355,7 +355,7 @@ for trials = ["CSIerr0", "CSIerr1"]
     results_CSIerr = cat(3,results_10PdBm_CSIerr, results_15PdBm_CSIerr, results_20PdBm_CSIerr, ...
         results_25PdBm_CSIerr, results_30PdBm_CSIerr, results_35PdBm_CSIerr, results_40PdBm_CSIerr);
     
-    trainparams = readmatrix(dir + trials + "/repeated_trial_00/00/40PdBm/trainparams.csv");
+    trainparams = readmatrix(dir + trials + "/repeated_trial_01/00/40PdBm/trainparams.csv");
     nmse_Hau = trainparams(1,19);
     nmse_Har = trainparams(1,20);
     nmse_Hru = trainparams(1,21);
@@ -495,5 +495,5 @@ xlabel('Number of RIS elements')
 ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 2, 'location', 'northwest')
 % axis tight
-ylim([0, 25])
+ylim([0, 45])
 fontsize(gca,ftsz,"pixels")
