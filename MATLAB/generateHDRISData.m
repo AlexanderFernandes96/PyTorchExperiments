@@ -8,10 +8,12 @@ addpath("src")
 systemModelParameters
 
 job_id = str2num(getenv("SLURM_ARRAY_TASK_ID"));
-dataDir = "~/scratch/datasets/HDRISData/MUMISO/10PdBm/";
+% dataDir = "~/projects/def-psaromil/alex96/datasets/HDRISData/MUMISO_PerfectCSI/30PdBm/";
+dataDir = "~/projects/def-psaromil/alex96/datasets/HDRISData/MUMISO_SNR20dB/Nwh5/"
+
 % job_id = 0;
 % dataDir = "datasets/HDRISData/17/";
-% rng(job_id)
+rng(job_id)
 dataDir = dataDir + num2str(job_id) + "/";
 mkdir(dataDir);
 fileSaveName = dataDir + "HDRISData";

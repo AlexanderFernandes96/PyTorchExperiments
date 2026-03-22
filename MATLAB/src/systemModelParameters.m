@@ -19,7 +19,7 @@ Nh = 10;
 N = Nw*Nh; % Number of RIS elements
 LOS = 10; % Number of LOS paths
 B = N+1; % Number of RIS transmission blocks
-PdBm = 40;
+PdBm = -10.6; % NdBm = -30.6 dBm -> SNR 20 dB at P = -10.6 dBm
 NdBm = -170*180/1000; % -170 dBm/Hz noise power spectral density 180 kHz bandwidth
 SNRdB = PdBm - NdBm;
 % SINRdB = 0;
@@ -35,8 +35,8 @@ pl = @(d,a) -30*d^-a;
 g_ur = -pl(d_ur,a_ur); % User-RIS gain
 g_ra = -pl(d_ra,a_ra); % RIS-AP gain
 g_ua = -pl(d_ua,a_ua); % Direct-Path gain
-% CH_err = 0;
-CH_err = 10^(-45/10);
+CH_err = 0;
+% CH_err = 10^(-45/10);
 % CH_err = 10^(-30/10);
 max_AO_iterations = 100;
 
