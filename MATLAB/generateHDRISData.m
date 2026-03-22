@@ -8,8 +8,9 @@ addpath("src")
 systemModelParameters
 
 job_id = str2num(getenv("SLURM_ARRAY_TASK_ID"));
-% dataDir = "~/projects/def-psaromil/alex96/datasets/HDRISData/MUMISO_PerfectCSI/30PdBm/";
-dataDir = "~/projects/def-psaromil/alex96/datasets/HDRISData/MUMISO_SNR20dB/Nwh5/"
+dataDir = "~/projects/def-psaromil/alex96/datasets/HDRISData/MUMISO_PerfectCSI/40PdBm/";
+% dataDir = "~/projects/def-psaromil/alex96/datasets/HDRISData/MUMISO_CSIerr0/40PdBm/";
+% dataDir = "~/projects/def-psaromil/alex96/datasets/HDRISData/MUMISO_VaryN/Nwh7/"
 
 % job_id = 0;
 % dataDir = "datasets/HDRISData/17/";
