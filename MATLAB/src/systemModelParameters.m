@@ -35,9 +35,13 @@ pl = @(d,a) -30*d^-a;
 g_ur = -pl(d_ur,a_ur); % User-RIS gain
 g_ra = -pl(d_ra,a_ra); % RIS-AP gain
 g_ua = -pl(d_ua,a_ua); % Direct-Path gain
-CH_err = 0;
-% CH_err = 10^(-45/10);
+% CH_err = 0;
+CH_err = 10^(-45/10);
+% CH_err = 10^(-40/10);
+% CH_err = 10^(-35/10);
 % CH_err = 10^(-30/10);
+% CH_err = 10^(-25/10);
+% CH_err = 10^(-20/10);
 max_AO_iterations = 100;
 
 % Generate pilot scheme based on energy or power constraint: use E or P

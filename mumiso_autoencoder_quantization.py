@@ -814,15 +814,21 @@ if __name__ == "__main__":
     path_dir = "/home/alex96/projects/def-psaromil/alex96/"
     # path_dir = "MATLAB/"
 
-    PdBm_list = ['10PdBm', '15PdBm', '20PdBm', '25PdBm', '30PdBm', '35PdBm', '40PdBm'] # 7 total
+    # PdBm_list = ['10PdBm', '15PdBm', '20PdBm', '25PdBm', '30PdBm', '35PdBm', '40PdBm'] # 7 total
+    # if len(sys.argv) > 1:
+    #     PdBm_dir = PdBm_list[int(sys.argv[1])]
+    # else:
+    #     PdBm_dir = '35PdBm'
+    # trial = "PerfectCSI/repeated_trial_02/00"
+    # dataset_dir = path_dir + "datasets/HDRISData/MUMISO_PerfectCSI/" + PdBm_dir + "/"
+
+    PdBm_list = ['n45dB', 'n40dB', 'n35dB', 'n30dB', 'n25dB', 'n20dB'] # 6 total
     if len(sys.argv) > 1:
         PdBm_dir = PdBm_list[int(sys.argv[1])]
     else:
         PdBm_dir = '35PdBm'
-    trial = "PerfectCSI/repeated_trial_02/00"
-    dataset_dir = path_dir + "datasets/HDRISData/MUMISO_PerfectCSI/" + PdBm_dir + "/"
-    # trial = "CSIerr0/repeated_trial_02/00"
-    # dataset_dir = path_dir + "datasets/HDRISData/MUMISO_CSIerr0/" + PdBm_dir + "/"
+    trial = "CSIerr0/repeated_trial_02/00"
+    dataset_dir = path_dir + "datasets/HDRISData/MUMISO_CSIerr35PdBm/" + PdBm_dir + "/"
 
     # N_RIS_list = ['Nwh5', 'Nwh6', 'Nwh7', 'Nwh8', 'Nwh9', 'Nwh10'] # 6 total
     # if len(sys.argv) > 1:
