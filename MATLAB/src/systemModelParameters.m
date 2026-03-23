@@ -19,7 +19,7 @@ Nh = 10;
 N = Nw*Nh; % Number of RIS elements
 LOS = 10; % Number of LOS paths
 B = N+1; % Number of RIS transmission blocks
-PdBm = 40; %-10.6; % NdBm = -30.6 dBm -> SNR 20 dB at P = -10.6 dBm
+PdBm = 35; %-10.6; % NdBm = -30.6 dBm -> SNR 20 dB at P = -10.6 dBm
 NdBm = -170*180/1000; % -170 dBm/Hz noise power spectral density 180 kHz bandwidth
 SNRdB = PdBm - NdBm;
 % SINRdB = 0;
