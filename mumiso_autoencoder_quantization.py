@@ -821,14 +821,16 @@ if __name__ == "__main__":
     #     PdBm_dir = '35PdBm'
     # trial = "PerfectCSI/repeated_trial_02/00"
     # dataset_dir = path_dir + "datasets/HDRISData/MUMISO_PerfectCSI/" + PdBm_dir + "/"
+    # results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
 
-    PdBm_list = ['n45dB', 'n40dB', 'n35dB', 'n30dB', 'n25dB', 'n20dB'] # 6 total
+    dB_list = ['n45dB', 'n40dB', 'n35dB', 'n30dB', 'n25dB', 'n20dB'] # 6 total
     if len(sys.argv) > 1:
-        PdBm_dir = PdBm_list[int(sys.argv[1])]
+        dB_dir = dB_list[int(sys.argv[1])]
     else:
-        PdBm_dir = '35PdBm'
-    trial = "CSIerr0/repeated_trial_02/00"
-    dataset_dir = path_dir + "datasets/HDRISData/MUMISO_CSIerr35PdBm/" + PdBm_dir + "/"
+        dB_dir = 'n45dB'
+    trial = "CSIerr35PdBm/repeated_trial_00/00"
+    dataset_dir = path_dir + "datasets/HDRISData/MUMISO_CSIerr35PdBm/" + dB_dir + "/"
+    results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + dB_dir + "/"
 
     # N_RIS_list = ['Nwh5', 'Nwh6', 'Nwh7', 'Nwh8', 'Nwh9', 'Nwh10'] # 6 total
     # if len(sys.argv) > 1:
@@ -837,8 +839,8 @@ if __name__ == "__main__":
     #     N_RIS_dir = 'Nwh10'
     # trial = "VaryNPerfectCSI/repeated_trial_02/00"
     # dataset_dir = path_dir + "datasets/HDRISData/MUMISO_VaryN/" + N_RIS_dir + "/"
+    # results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + N_RIS_dir + "/"
 
-    results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + PdBm_dir + "/"
 
     # if len(sys.argv) > 1:
     #     results_dir = results_dir + sys.argv[1] + "/"
