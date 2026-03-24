@@ -374,8 +374,8 @@ end
 plot(errdBm, squeeze(results_CSIerr(b1,8,:)), '--', 'Color', colour_list{1}, ...
     'Marker', marker_list{1}, 'LineWidth', linewidth, ...
     'DisplayName', 'WMMSE-PI random')
-c = 1;
-m = 1;
+c = 2;
+m = 2;
 for net = [9,10,11,13]
     plot(errdBm, squeeze(results_CSIerr(b1,net,:)), '--', 'Color', colour_list{c}, ...
         'Marker', marker_list{m}, 'LineWidth', linewidth, ...
@@ -392,6 +392,13 @@ ylabel('Achievable Sum Rate (bps/Hz)')
 legend('NumColumns', 2, 'location', 'northwest')
 ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
+
+% create smaller axes in top right, and plot on it
+x2 = linspace(3/4,1);
+y2 = sin(2*pi*x2);
+axes('Position',[.7 .7 .2 .2])
+box on
+plot(x2,y2)
 
 % %% Figure 6 - Imperfect CSI Rate vs Bits, 40 Tx dBm
 % figure(6); hold on;
