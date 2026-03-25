@@ -27,7 +27,7 @@ linewidth = 1.5;
 
 marker_list = {'p', '^', 'v', 'o', 's', '+'};
 
-dir = "logs/MU-MISO_AchievableRateExperiments/";
+dir = "MU-MISO_AchievableRateExperiments/";
 % results = zeros(6,11,7);
 % opts = detectImportOptions(dir + trial + "/10PdBm/results.csv");
 % NetNames = strrep(strrep(opts.VariableNames, 'R_', ''),'_',' ');
