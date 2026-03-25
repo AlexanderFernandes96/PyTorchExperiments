@@ -513,7 +513,7 @@ plot(x2,y2)
 % fontsize(gca,ftsz,"pixels")
 
 %% Figure 7 - Perfect CSI Rate vs N, 35 Tx dBm
-figure(7); hold on;
+ax = figure(7);
 linewidth = 1.5;
 % ftsz = 20;
 trials = "VaryNPerfectCSI/repeated_trial_02";
@@ -574,41 +574,68 @@ NetNames = {'Nc','Upper Bound','AQE-WMMSE','AQE','ACFNet','DQNN','linQ','Upper B
 results_VaryN = cat(3,results_Nwh5, results_Nwh6, results_Nwh7, ...
     results_Nwh8, results_Nwh9, results_Nwh10);
 
-N_RIS_list = [5^2, 6^2, 7^2, 8^2, 9^2, 10^2];
+Nh_RIS_list = [5, 6, 7, 8, 9, 10];
+N_RIS_list = power(Nh_RIS_list, 2);
+B_RIS_list = floor(0.4.*N_RIS_list);
+% x_list = ["N=25, B=10", "N=36, B=14", "N=49, B=19", "N=64, B=25", "N=81, B=32", "N=100, B=40"];
+X = categorical({'N=25, B=10', 'N=36, B=14', 'N=49, B=19', 'N=64, B=25', 'N=81, B=32', 'N=100, B=40'});
+X = reordercats(X,{'N=25, B=10', 'N=36, B=14', 'N=49, B=19', 'N=64, B=25', 'N=81, B=32', 'N=100, B=40'});
 
 % Plot
 b1 = 1;
 m = 1;
 c = 1;
 
-%     plot(PdBm, squeeze(results_VaryN(b1,2,:)), '+-', 'Color', colour_list{1}, 'Marker',...
-%         marker_list{1}, 'DisplayName', strcat(NetNames{2}, " (", accCSI, ")"), 'LineWidth', linewidth)
-for net = [2,3,4,5,7]
-%     for net = [3,4]
-    plot(N_RIS_list, squeeze(results_VaryN(b1,net,:)), '-', 'Color', colour_list{c}, ...
-        'Marker', marker_list{m}, 'LineWidth', linewidth, ...
-        'DisplayName', NetNames{net})
-    c = c+1;
-    m = m+1;
+% hold on;
+% for net = [2,3,4,5,7]
+%     plot(N_RIS_list, squeeze(results_VaryN(b1,net,:)), '-', 'Color', colour_list{c}, ...
+%         'Marker', marker_list{m}, 'LineWidth', linewidth, ...
+%         'DisplayName', NetNames{net})
+%     c = c+1;
+%     m = m+1;
+%     hold on;
+% end
+% c = 1;
+% m = 1;
+% for net = [8,9,10,11,13]
+%     plot(N_RIS_list, squeeze(results_VaryN(b1,net,:)), '--', 'Color', colour_list{c}, ...
+%         'Marker', marker_list{m}, 'DisplayName', NetNames{net}, 'LineWidth', linewidth)
+%     c = c+1;
+%     m = m+1;
+% end
+% hold off;
+
+VaryN_data = zeros(6,4);
+i = 1;
+for net = [3,4,5,7]
+    VaryN_data(:,i) = squeeze(results_VaryN(b1,net,:));
+    i = i+1;
+end
+
+for p = 1:6
+    bh = bar(X(p), VaryN_data(p,:));
+    for c = 2:5
+        bh(c-1).FaceColor = colour_list{c};
+        bh(c-1).EdgeColor = 'none';
+    end
+    grid on;
+    ylim([0, 15])
     hold on;
 end
-c = 1;
-m = 1;
-for net = [8,9,10,11,13]
-    plot(N_RIS_list, squeeze(results_VaryN(b1,net,:)), '--', 'Color', colour_list{c}, ...
-        'Marker', marker_list{m}, 'DisplayName', NetNames{net}, 'LineWidth', linewidth)
-    c = c+1;
-    m = m+1;
-end
 hold off;
-
-
-hold off;
-grid on;
 % title("Number of control bits: ", int2str(results(b,1,1)) + " bits");
-xlabel('Number of RIS elements')
+xlabel('N RIS elements, B control bits')
 ylabel('Achievable Sum Rate (bps/Hz)')
-legend('NumColumns', 2, 'location', 'northwest')
+legend('AQE-WMMSE','AQE','ACFNet','linQ', 'Location','best')
 % axis tight
-ylim([0, 25])
+
+% heatmap(["AQE-WMMSE","AQE","ACFNet","linQ"], x_list, VaryN_data);
+% % heatmap(x_list, ["AQE-WMMSE","AQE","ACFNet","linQ"], VaryN_data');
+% for c = 2:5
+% %     bh(c-1).FaceColor = colour_list{c};
+% %     bh(c-1).EdgeColor = 'none';
+% end
+% colormap default
+% title("Achievable Sum Rate (bps/Hz)");
+
 fontsize(gca,ftsz,"pixels")
