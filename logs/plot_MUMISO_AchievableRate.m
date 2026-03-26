@@ -316,9 +316,9 @@ trial = "PerfectCSI/repeated_trial_02/";
 linewidth = 3;
 % ftsz = 15;
 
-% loss = '3'; % 40 bits
+loss = '3'; % 40 bits
 % loss = '7'; % 80 bits
-loss = '9'; % 100 bits
+% loss = '9'; % 100 bits
 PdBm = '20PdBm';
 t = 4; % trial
 
@@ -365,11 +365,20 @@ qw{1} = plot(nan, '-', 'Color', colour_list{2}, 'LineWidth', linewidth);
 qw{2} = plot(nan, '-', 'Color', colour_list{3}, 'LineWidth', linewidth);
 qw{3} = plot(nan, '-', 'Color', colour_list{4}, 'LineWidth', linewidth);
 qw{4} = plot(nan, '-', 'Color', colour_list{5}, 'LineWidth', linewidth);
-qw{5} = plot(nan, '-', 'Color', colour_list{6}, 'LineWidth', linewidth);
-qw{6} = plot(nan, 'k--', 'LineWidth', linewidth);
-qw{7} = plot(nan, 'k-', 'LineWidth', linewidth);
+if loss == '9'
+    qw{5} = plot(nan, '-', 'Color', colour_list{6}, 'LineWidth', linewidth);
+    qw{6} = plot(nan, 'k--', 'LineWidth', linewidth);
+    qw{7} = plot(nan, 'k-', 'LineWidth', linewidth);
+else
+    qw{5} = plot(nan, 'k--', 'LineWidth', linewidth);
+    qw{6} = plot(nan, 'k-', 'LineWidth', linewidth);
+end
 hold off;
-legend([qw{:}], {'AQE-WMMSE', 'AQE', 'ACF', 'linQ', 'DQNN', 'train', 'validation'}, 'location', 'best', 'NumColumns', 3)
+if loss == '9'
+    legend([qw{:}], {'AQE-WMMSE', 'AQE', 'ACF', 'linQ', 'DQNN', 'train', 'validation'}, 'location', 'best', 'NumColumns', 3)
+else
+    legend([qw{:}], {'AQE-WMMSE', 'AQE', 'ACF', 'linQ', 'train', 'validation'}, 'location', 'best', 'NumColumns', 2)
+end
 % ylim([-0.22, inf])
 % xticks([1, 10, 100, 1000])
 axis tight
