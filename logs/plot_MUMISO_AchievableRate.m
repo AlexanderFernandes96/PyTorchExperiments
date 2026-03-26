@@ -44,7 +44,7 @@ dir = "MU-MISO_AchievableRateExperiments/";
 
 % Multiple Trial - resubmitted results
 % trials = "repeated_trial_00";
-trials = "PerfectCSI/repeated_trial_01";
+trials = "PerfectCSI/repeated_trial_02";
 results_10PdBm00 = readmatrix(dir + trials + "/00/10PdBm/results.csv");
 results_15PdBm00 = readmatrix(dir + trials + "/00/15PdBm/results.csv");
 results_20PdBm00 = readmatrix(dir + trials + "/00/20PdBm/results.csv");
@@ -105,9 +105,6 @@ results_30PdBm = results_30PdBm_mean;
 results_35PdBm = results_35PdBm_mean;
 results_40PdBm = results_40PdBm_mean;
 
-% trial for loss curves
-trial = "PerfectCSI/repeated_trial_01/02";
-
 NetNames = {'Nc','Upper Bound','AQE-WMMSE','AQE','ACFNet','DQNN','linQ','Upper Bound random','AQE-WMMSE random','AQE random','ACFNet random','DQNN random','linQ random'};
 results = cat(3,results_10PdBm, results_15PdBm, results_20PdBm, ...
     results_25PdBm, results_30PdBm, results_35PdBm, results_40PdBm);
@@ -121,12 +118,15 @@ ftsz = 17;
 b = 10;
 c = 1;
 m = 1;
+l = 1;
+qw = {};
 figure(1);
 for net = [2,3,4,5,7,6]
-    plot(PdBm, squeeze(results(b,net,:)), '-', 'Color', colour_list{c}, ...
-        'Marker', marker_list{m}, 'DisplayName', NetNames{net}, 'LineWidth', linewidth)
+    qw{l} = plot(PdBm, squeeze(results(b,net,:)), '-', 'Color', colour_list{c}, ...
+        'Marker', marker_list{m}, 'DisplayName', NetNames{net}, 'LineWidth', linewidth);
     c = c+1;
     m = m+1;
+    l = l+1;
     hold on;
 end
 c = 1;
@@ -142,7 +142,11 @@ grid on;
 % title("Number of control bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
 ylabel('Achievable Sum Rate (bps/Hz)')
-legend('NumColumns', 2, 'location', 'best')
+% legend('NumColumns', 2, 'location', 'best')
+hold on;
+qw{7} = plot(nan, 'k--', 'LineWidth', linewidth);
+hold off;
+legend([qw{:}], {'Upper Bound','AQE-WMMSE','AQE','ACFNet','linQ','DQNN','random'}, 'location', 'best')
 ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
 
@@ -151,7 +155,8 @@ b1 = 4; b2 = 1;
 m = 2;
 figure(2);
 c = 2;
-plot(PdBm, squeeze(results(b1,2,:)), '+-', 'Color', colour_list{1}, 'Marker', marker_list{1}, 'DisplayName', strcat(NetNames{2}), 'LineWidth', linewidth)
+qw = {};
+% qw{1} = plot(PdBm, squeeze(results(b1,2,:)), '-', 'Color', colour_list{1}, 'Marker', marker_list{1}, 'DisplayName', strcat(NetNames{2}), 'LineWidth', linewidth);
 hold on;
 for net = [3,4,5,7]
     plot(PdBm, squeeze(results(b1,net,:)), 'o-', 'Color', colour_list{c}, ...
@@ -178,8 +183,14 @@ grid on;
 % title("Number of control bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('Transmit Power (dBm)')
 ylabel('Achievable Sum Rate (bps/Hz)')
-legend('NumColumns', 1, 'location', 'northwest')
-ylim([0, 25])
+% legend('NumColumns', 1, 'location', 'northwest')
+hold on;
+qw{1} = plot(nan, 'k-', 'LineWidth', linewidth);
+qw{2} = plot(nan, 'k--', 'LineWidth', linewidth);
+hold off;
+% legend([qw{:}], {'Upper Bound', '40 bits','10 bits'}, 'location', 'best')
+legend([qw{:}], {'40 bits','10 bits'}, 'location', 'best')
+% ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
 
 %% Figure 3 - Rate vs Bits, 40 & 15 Tx dBm
@@ -188,9 +199,10 @@ mark = {'o-', '', '', '', '', '', '*-'};
 figure(3);
 p = 6; % 35 PdBm
 % p = 5; % 30 PdBm
-c = 1;
-m = 1;
-for net = [2,3,4,5,7]
+c = 2;
+m = 2;
+% for net = [2,3,4,5,7]
+for net = [3,4,5,7]
     plot(results(bits,1,1), squeeze(results(bits,net,p)), 'o-', 'Color', colour_list{c}, ...
         'Marker', marker_list{m}, 'LineWidth', linewidth, ...
         'DisplayName', strcat(NetNames{net}, " ", int2str(PdBm(p)), " dBm"))
@@ -199,9 +211,10 @@ for net = [2,3,4,5,7]
     hold on;
 end
 p = 2; % 15 PdBm
-c = 1;
-m = 1;
-for net = [2,3,4,5,7]
+c = 2;
+m = 2;
+% for net = [2,3,4,5,7]
+for net = [3,4,5,7]
     plot(results(bits,1,1), squeeze(results(bits,net,p)), '*--', 'Color', colour_list{c}, ...
         'Marker', marker_list{m}, 'LineWidth', linewidth, ...
         'DisplayName', strcat(NetNames{net}, " ", int2str(PdBm(p)), " dBm"))
@@ -214,27 +227,48 @@ set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
 % title("Transmit Power: ", int2str(PdBm(p)) + " (dBm)");
 xlabel('Number of control bits')
 ylabel('Achievable Sum Rate (bps/Hz)')
-legend('NumColumns', 2, 'location', 'best')
-% legend('location', 'eastoutside')
+% legend('NumColumns', 2, 'location', 'best')
+hold on;
+qw = {};
+qw{1} = plot(nan, 'k-', 'LineWidth', linewidth);
+qw{2} = plot(nan, 'k--', 'LineWidth', linewidth);
+hold off;
+legend([qw{:}], {'35 PdBm','15 PdBm'}, 'location', 'best')
 axis tight
-ylim([0, 25])
+ylim([0, 12])
 % set (gca, 'Xscale', 'log');
 % set(gca,'XTick', results(bits,1,1));
 fontsize(gca,ftsz,"pixels")
 xticks([10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
 
 %% Figure 4 - Train/Val Loss Setup 1
-% linewidth = 2;
-% ftsz = 20;
-linewidth = 2;
 figure(4);
-loss = '3'; % 40 bits
-% loss = '2'; % 30 bits
-AQEWMMSE_loss = readmatrix(dir + trial + "/35PdBm/AQE_loss" + loss + ".csv");
-AQE_loss = readmatrix(dir + trial + "/35PdBm/AQEnoW_loss" + loss + ".csv");
-ACF_loss = readmatrix(dir + trial + "/35PdBm/ACF_loss" + loss + ".csv");
-linQ_loss = readmatrix(dir + trial + "/35PdBm/linQ_loss" + loss + ".csv");
 
+% trial for loss curves
+trial = "PerfectCSI/repeated_trial_02/";
+linewidth = 3;
+% ftsz = 15;
+
+% loss = '3'; % 40 bits
+% loss = '7'; % 80 bits
+loss = '9'; % 100 bits
+
+PdBm = '35PdBm';
+
+AQEWMMSE_loss = zeros(1000,2);
+AQE_loss = zeros(1000,2);
+ACF_loss = zeros(1000,2);
+linQ_loss = zeros(1000,2);
+DQNN_loss = zeros(1000,2);
+for t = 0:4
+    AQEWMMSE_loss = AQEWMMSE_loss + readmatrix(dir + trial + "/0" + int2str(t) + "/" + PdBm + "/AQE_loss" + loss + ".csv")./5;
+    AQE_loss = AQE_loss + readmatrix(dir + trial + "/0" + int2str(t) + "/" + PdBm + "/AQEnoW_loss" + loss + ".csv")./5;
+    ACF_loss = ACF_loss + readmatrix(dir + trial + "/0" + int2str(t) + "/" + PdBm + "/ACF_loss" + loss + ".csv")./5;
+    linQ_loss = linQ_loss + readmatrix(dir + trial + "/0" + int2str(t) + "/" + PdBm + "/linQ_loss" + loss + ".csv")./5;
+    if loss == '9'
+        DQNN_loss = DQNN_loss + readmatrix(dir + trial + "/0" + int2str(t) + "/" + PdBm + "/DQNN_loss" + loss + ".csv")./5;
+    end
+end
 % train_num = 64000;
 % val_num = 16000;
 train_num = 1;
@@ -249,44 +283,34 @@ semilogx(train_num*ACF_loss(:,1), '-', 'Color', colour_list{4}, 'DisplayName', '
 semilogx(val_num*ACF_loss(:,2), '--', 'Color', colour_list{4}, 'DisplayName', 'ACF val', 'LineWidth', linewidth/2)
 semilogx(train_num*linQ_loss(:,1), '-', 'Color', colour_list{5}, 'DisplayName', 'linQ train', 'LineWidth', linewidth)
 semilogx(val_num*linQ_loss(:,2), '--', 'Color', colour_list{5}, 'DisplayName', 'linQ val', 'LineWidth', linewidth/2)
+if loss == '9'
+    plot(train_num*DQNN_loss(:,1), '-', 'Color', colour_list{6}, 'DisplayName', 'DQNN train', 'LineWidth', linewidth)
+    plot(val_num*DQNN_loss(:,2), '--', 'Color', colour_list{6}, 'DisplayName', 'DQNN val', 'LineWidth', linewidth/2)
+end
 hold off;
 
 xlabel('Epoch')
-ylabel('Normalized Loss')
-legend('NumColumns', 2, 'location', 'best')
-% ylim([-2700, -900])
-fontsize(gca,ftsz,"pixels")
-set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
-
-
-%% Figure 5 - Train/Val Loss Setup 2
-% linewidth = 2;
-figure(5);
-AQEWMMSE_loss = readmatrix(dir + trial + "/15PdBm/AQE_loss" + loss + ".csv");
-AQE_loss = readmatrix(dir + trial + "/15PdBm/AQEnoW_loss" + loss + ".csv");
-ACF_loss = readmatrix(dir + trial + "/15PdBm/ACF_loss" + loss + ".csv");
-linQ_loss = readmatrix(dir + trial + "/15PdBm/linQ_loss" + loss + ".csv");
-
-semilogx(train_num*AQEWMMSE_loss(:,1), '-', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE train', 'LineWidth', linewidth)
+ylabel('Mean Normalized Loss (average of 5 trials)')
+% legend('NumColumns', 1, 'location', 'bestoutside')
 hold on;
-semilogx(val_num*AQEWMMSE_loss(:,2), '--', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE val', 'LineWidth', linewidth/2)
-semilogx(train_num*AQE_loss(:,1), '-', 'Color', colour_list{3}, 'DisplayName', 'AQE train', 'LineWidth', linewidth)
-semilogx(val_num*AQE_loss(:,2), '--', 'Color', colour_list{3}, 'DisplayName', 'AQE val', 'LineWidth', linewidth/2)
-semilogx(train_num*ACF_loss(:,1), '-', 'Color', colour_list{4}, 'DisplayName', 'ACF train', 'LineWidth', linewidth)
-semilogx(val_num*ACF_loss(:,2), '--', 'Color', colour_list{4}, 'DisplayName', 'ACF val', 'LineWidth', linewidth/2)
-semilogx(train_num*linQ_loss(:,1), '-', 'Color', colour_list{5}, 'DisplayName', 'linQ train', 'LineWidth', linewidth)
-semilogx(val_num*linQ_loss(:,2), '--', 'Color', colour_list{5}, 'DisplayName', 'linQ val', 'LineWidth', linewidth/2)
+qw = {};
+qw{1} = plot(nan, '-', 'Color', colour_list{2}, 'LineWidth', linewidth);
+qw{2} = plot(nan, '-', 'Color', colour_list{3}, 'LineWidth', linewidth);
+qw{3} = plot(nan, '-', 'Color', colour_list{4}, 'LineWidth', linewidth);
+qw{4} = plot(nan, '-', 'Color', colour_list{5}, 'LineWidth', linewidth);
+qw{5} = plot(nan, '-', 'Color', colour_list{6}, 'LineWidth', linewidth);
+qw{6} = plot(nan, 'k-', 'LineWidth', linewidth);
+qw{7} = plot(nan, 'k--', 'LineWidth', linewidth/2);
 hold off;
-
-xlabel('Epoch')
-ylabel('Normalized Loss')
-legend('NumColumns', 2, 'location', 'best')
-% ylim([-2700, -900])
+legend([qw{:}], {'AQE-WMMSE', 'AQE', 'ACF', 'linQ', 'DQNN', 'train','validation'}, 'location', 'best')
+% ylim([-0.12, 0])
+% ylim([-inf, 0])
+xticks([1, 10, 100, 1000])
 fontsize(gca,ftsz,"pixels")
-set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
+set(gca,'xminorgrid','on','yminorgrid','off','xgrid','on','ygrid','on')
 
-%% Figure 6 - Imperfect CSI Rate vs Bits, 40 Tx dBm
-figure(6); hold on;
+%% Figure 5 - Imperfect CSI Rate vs Bits, 40 Tx dBm
+figure(5); hold on;
 linewidth = 1.5;
 % ftsz = 20;
 trials = "CSIerr35PdBm/repeated_trial_00";
@@ -359,15 +383,18 @@ errdBm = [-20, -25, -30, -35, -40, -45];
 b1 = 1;
 m = 2;
 c = 2;
-plot(errdBm, squeeze(results_CSIerr(b1,2,:)), '-', 'Color', colour_list{1}, ...
+qw = {};
+qw{1} = plot(errdBm, squeeze(results_CSIerr(b1,2,:)), '-', 'Color', colour_list{1}, ...
     'Marker', marker_list{1}, 'LineWidth', linewidth, ...
-    'DisplayName', 'WMMSE-PI')
+    'DisplayName', 'WMMSE-PI');
+l = 2;
 for net = [3,4,5,7]
-    plot(errdBm, squeeze(results_CSIerr(b1,net,:)), '-', 'Color', colour_list{c}, ...
+    qw{l} = plot(errdBm, squeeze(results_CSIerr(b1,net,:)), '-', 'Color', colour_list{c}, ...
         'Marker', marker_list{m}, 'LineWidth', linewidth, ...
-        'DisplayName', NetNames{net})
+        'DisplayName', NetNames{net});
     c = c+1;
     m = m+1;
+    l = l+1;
     hold on;
 end
 plot(errdBm, squeeze(results_CSIerr(b1,8,:)), '--', 'Color', colour_list{1}, ...
@@ -388,7 +415,11 @@ grid on;
 % title("Number of control bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('CSI error \sigma_E^2 (dB)')
 ylabel('Achievable Sum Rate (bps/Hz)')
-legend('NumColumns', 2, 'location', 'northwest')
+% legend('NumColumns', 2, 'location', 'northwest')
+hold on;
+qw{7} = plot(nan, 'k--', 'LineWidth', linewidth);
+hold off;
+legend([qw{:}], {'WMMSE-PI','AQE-WMMSE','AQE','ACFNet','linQ','random'}, 'location', 'best', 'NumColumns', 2)
 ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
 
@@ -582,8 +613,8 @@ xticks(errdBm_zoom)
 % ylim([0, 25])
 % fontsize(gca,ftsz,"pixels")
 
-%% Figure 7 - Perfect CSI Rate vs N, 35 Tx dBm
-ax = figure(7);
+%% Figure 6 - Perfect CSI Rate vs N, 35 Tx dBm
+ax = figure(6);
 linewidth = 1.5;
 % ftsz = 20;
 trials = "VaryNPerfectCSI/repeated_trial_02";
@@ -688,7 +719,7 @@ for p = 1:6
         bh(c-1).FaceColor = colour_list{c};
         bh(c-1).EdgeColor = 'none';
     end
-    grid on;
+    grid off;
     ylim([0, 15])
     hold on;
 end
@@ -696,7 +727,7 @@ hold off;
 % title("Number of control bits: ", int2str(results(b,1,1)) + " bits");
 xlabel('N RIS elements, B control bits')
 ylabel('Achievable Sum Rate (bps/Hz)')
-legend('AQE-WMMSE','AQE','ACFNet','linQ', 'Location','best')
+legend('AQE-WMMSE','AQE','ACFNet','linQ', 'Location', 'best', 'NumColumns', 2)
 % axis tight
 
 % heatmap(["AQE-WMMSE","AQE","ACFNet","linQ"], x_list, VaryN_data);
