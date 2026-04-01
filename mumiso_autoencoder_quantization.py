@@ -828,7 +828,7 @@ if __name__ == "__main__":
         dB_dir = dB_list[int(sys.argv[1])]
     else:
         dB_dir = 'n45dB'
-    trial = "CSIerr35PdBm/repeated_trial_00/00"
+    trial = "CSIerr35PdBm/repeated_trial_01/00"
     dataset_dir = path_dir + "datasets/HDRISData/MUMISO_CSIerr35PdBm/" + dB_dir + "/"
     results_dir = path_dir + "logs/MU-MISO_AchievableRateExperiments/" + trial + "/" + dB_dir + "/"
 
@@ -1012,7 +1012,8 @@ if __name__ == "__main__":
                          torch.real(Har[i,:,:] + Har_err[i,:,:]),  torch.imag(Har[i,:,:] + Har_err[i,:,:]),
                          torch.real(Hru[i,:,:] + Hru_err[i,:,:]),  torch.imag(Hru[i,:,:] + Hru_err[i,:,:]),
                          torch.real(Hau[i,:,:] + Hau_err[i,:,:]),  torch.imag(Hau[i,:,:] + Hau_err[i,:,:])]
-            data_err = [input, RISopt[i], Wopt[i,:,:], Hau[i,:,:] + Hau_err[i,:,:], Har[i,:,:] + Har_err[i,:,:], Hru[i,:,:] + Hru_err[i,:,:]]
+            data_err = [input_err, RISopt[i], Wopt[i,:,:], Hau[i,:,:] + Hau_err[i,:,:], Har[i,:,:] + Har_err[i,:,:], Hru[i,:,:] + Hru_err[i,:,:]]
+            data = [input_err, RISopt[i], Wopt[i,:,:], Hau[i,:,:], Har[i,:,:], Hru[i,:,:]]
         # Use imperfect CSI for training and validation data, use perfect CSI for test data
         if i < num_train:
             train_set.append(data_err)
