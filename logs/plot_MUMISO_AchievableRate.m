@@ -389,7 +389,7 @@ set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
 figure(5); hold on;
 linewidth = 1.5;
 % ftsz = 20;
-trials = "CSIerr35PdBm/repeated_trial_00";
+trials = "CSIerr35PdBm/repeated_trial_01";
 % Load
 results_n20dB00_CSIerr = readmatrix(dir + trials + "/00/n20dB/results.csv");
 results_n25dB00_CSIerr = readmatrix(dir + trials + "/00/n25dB/results.csv");
@@ -499,79 +499,79 @@ legend([qw{:}], {'WMMSE-PI','AQE-WMMSE','AQE','ACFNet','linQ','random'}, 'locati
 ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
 
-% Create smaller axes for values between -30dB and -35dB
-results_n31dB00_CSIerr = readmatrix(dir + trials + "/00/n31dB/results.csv");
-results_n32dB00_CSIerr = readmatrix(dir + trials + "/00/n32dB/results.csv");
-results_n33dB00_CSIerr = readmatrix(dir + trials + "/00/n33dB/results.csv");
-results_n34dB00_CSIerr = readmatrix(dir + trials + "/00/n34dB/results.csv");
-results_n31dB01_CSIerr = readmatrix(dir + trials + "/01/n31dB/results.csv");
-results_n32dB01_CSIerr = readmatrix(dir + trials + "/01/n32dB/results.csv");
-results_n33dB01_CSIerr = readmatrix(dir + trials + "/01/n33dB/results.csv");
-results_n34dB01_CSIerr = readmatrix(dir + trials + "/01/n34dB/results.csv");
-results_n31dB02_CSIerr = readmatrix(dir + trials + "/02/n31dB/results.csv");
-results_n32dB02_CSIerr = readmatrix(dir + trials + "/02/n32dB/results.csv");
-results_n33dB02_CSIerr = readmatrix(dir + trials + "/02/n33dB/results.csv");
-results_n34dB02_CSIerr = readmatrix(dir + trials + "/02/n34dB/results.csv");
-results_n31dB03_CSIerr = readmatrix(dir + trials + "/03/n31dB/results.csv");
-results_n32dB03_CSIerr = readmatrix(dir + trials + "/03/n32dB/results.csv");
-results_n33dB03_CSIerr = readmatrix(dir + trials + "/03/n33dB/results.csv");
-results_n34dB03_CSIerr = readmatrix(dir + trials + "/03/n34dB/results.csv");
-results_n31dB04_CSIerr = readmatrix(dir + trials + "/04/n31dB/results.csv");
-results_n32dB04_CSIerr = readmatrix(dir + trials + "/04/n32dB/results.csv");
-results_n33dB04_CSIerr = readmatrix(dir + trials + "/04/n33dB/results.csv");
-results_n34dB04_CSIerr = readmatrix(dir + trials + "/04/n34dB/results.csv");
-
-results_n31dB_mean_CSIerr = (results_n31dB00_CSIerr + results_n31dB01_CSIerr + results_n31dB02_CSIerr + results_n31dB03_CSIerr + results_n31dB04_CSIerr) / 5;
-results_n32dB_mean_CSIerr = (results_n32dB00_CSIerr + results_n32dB01_CSIerr + results_n32dB02_CSIerr + results_n32dB03_CSIerr + results_n32dB04_CSIerr) / 5;
-results_n33dB_mean_CSIerr = (results_n33dB00_CSIerr + results_n33dB01_CSIerr + results_n33dB02_CSIerr + results_n33dB03_CSIerr + results_n33dB04_CSIerr) / 5;
-results_n34dB_mean_CSIerr = (results_n34dB00_CSIerr + results_n34dB01_CSIerr + results_n34dB02_CSIerr + results_n34dB03_CSIerr + results_n34dB04_CSIerr) / 5;
-
-results_n31dB_var_CSIerr = (results_n31dB00_CSIerr.^2 + results_n31dB01_CSIerr.^2 + results_n31dB02_CSIerr.^2 + results_n31dB03_CSIerr.^2 + results_n31dB04_CSIerr.^2) / 5 - results_n31dB_mean_CSIerr.^2;
-results_n32dB_var_CSIerr = (results_n32dB00_CSIerr.^2 + results_n32dB01_CSIerr.^2 + results_n32dB02_CSIerr.^2 + results_n32dB03_CSIerr.^2 + results_n32dB04_CSIerr.^2) / 5 - results_n32dB_mean_CSIerr.^2;
-results_n33dB_var_CSIerr = (results_n33dB00_CSIerr.^2 + results_n33dB01_CSIerr.^2 + results_n33dB02_CSIerr.^2 + results_n33dB03_CSIerr.^2 + results_n33dB04_CSIerr.^2) / 5 - results_n33dB_mean_CSIerr.^2;
-results_n34dB_var_CSIerr = (results_n34dB00_CSIerr.^2 + results_n34dB01_CSIerr.^2 + results_n34dB02_CSIerr.^2 + results_n34dB03_CSIerr.^2 + results_n34dB04_CSIerr.^2) / 5 - results_n34dB_mean_CSIerr.^2;
-
-results_n31dB_CSIerr = results_n31dB_mean_CSIerr;
-results_n32dB_CSIerr = results_n32dB_mean_CSIerr;
-results_n33dB_CSIerr = results_n33dB_mean_CSIerr;
-results_n34dB_CSIerr = results_n34dB_mean_CSIerr;
-
-results_CSIerr_zoom = cat(3,results_n35dB_CSIerr, results_n34dB_CSIerr, results_n33dB_CSIerr, results_n32dB_CSIerr, results_n31dB_CSIerr, results_n30dB_CSIerr);
-errdBm_zoom = [-35, -34, -33, -32, -31, -30];
-linewidth_zoom = 1;
-
-axes('Position',[.7 .7 .2 .2])
-box on
-m = 2;
-c = 2;
-plot(errdBm_zoom, squeeze(results_CSIerr_zoom(b1,2,:)), '-', 'Color', colour_list{1}, ...
-    'Marker', marker_list{1}, 'LineWidth', linewidth_zoom, ...
-    'DisplayName', 'WMMSE-PI')
-hold on;
-for net = [3,4,5,7]
-    plot(errdBm_zoom, squeeze(results_CSIerr_zoom(b1,net,:)), '-', 'Color', colour_list{c}, ...
-        'Marker', marker_list{m}, 'LineWidth', linewidth_zoom, ...
-        'DisplayName', NetNames{net})
-    c = c+1;
-    m = m+1;
-end
-plot(errdBm_zoom, squeeze(results_CSIerr_zoom(b1,8,:)), '--', 'Color', colour_list{1}, ...
-    'Marker', marker_list{1}, 'LineWidth', linewidth_zoom, ...
-    'DisplayName', 'WMMSE-PI random')
-c = 2;
-m = 2;
-for net = [9,10,11,13]
-    plot(errdBm_zoom, squeeze(results_CSIerr_zoom(b1,net,:)), '--', 'Color', colour_list{c}, ...
-        'Marker', marker_list{m}, 'LineWidth', linewidth_zoom, ...
-        'DisplayName', NetNames{net})
-    c = c+1;
-    m = m+1;
-end
-hold off;
-axis tight
-grid on
-xticks(errdBm_zoom)
-% xticklabels({'x = 0','x = 5','x = 10'})
+% % Create smaller axes for values between -30dB and -35dB
+% results_n31dB00_CSIerr = readmatrix(dir + trials + "/00/n31dB/results.csv");
+% results_n32dB00_CSIerr = readmatrix(dir + trials + "/00/n32dB/results.csv");
+% results_n33dB00_CSIerr = readmatrix(dir + trials + "/00/n33dB/results.csv");
+% results_n34dB00_CSIerr = readmatrix(dir + trials + "/00/n34dB/results.csv");
+% results_n31dB01_CSIerr = readmatrix(dir + trials + "/01/n31dB/results.csv");
+% results_n32dB01_CSIerr = readmatrix(dir + trials + "/01/n32dB/results.csv");
+% results_n33dB01_CSIerr = readmatrix(dir + trials + "/01/n33dB/results.csv");
+% results_n34dB01_CSIerr = readmatrix(dir + trials + "/01/n34dB/results.csv");
+% results_n31dB02_CSIerr = readmatrix(dir + trials + "/02/n31dB/results.csv");
+% results_n32dB02_CSIerr = readmatrix(dir + trials + "/02/n32dB/results.csv");
+% results_n33dB02_CSIerr = readmatrix(dir + trials + "/02/n33dB/results.csv");
+% results_n34dB02_CSIerr = readmatrix(dir + trials + "/02/n34dB/results.csv");
+% results_n31dB03_CSIerr = readmatrix(dir + trials + "/03/n31dB/results.csv");
+% results_n32dB03_CSIerr = readmatrix(dir + trials + "/03/n32dB/results.csv");
+% results_n33dB03_CSIerr = readmatrix(dir + trials + "/03/n33dB/results.csv");
+% results_n34dB03_CSIerr = readmatrix(dir + trials + "/03/n34dB/results.csv");
+% results_n31dB04_CSIerr = readmatrix(dir + trials + "/04/n31dB/results.csv");
+% results_n32dB04_CSIerr = readmatrix(dir + trials + "/04/n32dB/results.csv");
+% results_n33dB04_CSIerr = readmatrix(dir + trials + "/04/n33dB/results.csv");
+% results_n34dB04_CSIerr = readmatrix(dir + trials + "/04/n34dB/results.csv");
+% 
+% results_n31dB_mean_CSIerr = (results_n31dB00_CSIerr + results_n31dB01_CSIerr + results_n31dB02_CSIerr + results_n31dB03_CSIerr + results_n31dB04_CSIerr) / 5;
+% results_n32dB_mean_CSIerr = (results_n32dB00_CSIerr + results_n32dB01_CSIerr + results_n32dB02_CSIerr + results_n32dB03_CSIerr + results_n32dB04_CSIerr) / 5;
+% results_n33dB_mean_CSIerr = (results_n33dB00_CSIerr + results_n33dB01_CSIerr + results_n33dB02_CSIerr + results_n33dB03_CSIerr + results_n33dB04_CSIerr) / 5;
+% results_n34dB_mean_CSIerr = (results_n34dB00_CSIerr + results_n34dB01_CSIerr + results_n34dB02_CSIerr + results_n34dB03_CSIerr + results_n34dB04_CSIerr) / 5;
+% 
+% results_n31dB_var_CSIerr = (results_n31dB00_CSIerr.^2 + results_n31dB01_CSIerr.^2 + results_n31dB02_CSIerr.^2 + results_n31dB03_CSIerr.^2 + results_n31dB04_CSIerr.^2) / 5 - results_n31dB_mean_CSIerr.^2;
+% results_n32dB_var_CSIerr = (results_n32dB00_CSIerr.^2 + results_n32dB01_CSIerr.^2 + results_n32dB02_CSIerr.^2 + results_n32dB03_CSIerr.^2 + results_n32dB04_CSIerr.^2) / 5 - results_n32dB_mean_CSIerr.^2;
+% results_n33dB_var_CSIerr = (results_n33dB00_CSIerr.^2 + results_n33dB01_CSIerr.^2 + results_n33dB02_CSIerr.^2 + results_n33dB03_CSIerr.^2 + results_n33dB04_CSIerr.^2) / 5 - results_n33dB_mean_CSIerr.^2;
+% results_n34dB_var_CSIerr = (results_n34dB00_CSIerr.^2 + results_n34dB01_CSIerr.^2 + results_n34dB02_CSIerr.^2 + results_n34dB03_CSIerr.^2 + results_n34dB04_CSIerr.^2) / 5 - results_n34dB_mean_CSIerr.^2;
+% 
+% results_n31dB_CSIerr = results_n31dB_mean_CSIerr;
+% results_n32dB_CSIerr = results_n32dB_mean_CSIerr;
+% results_n33dB_CSIerr = results_n33dB_mean_CSIerr;
+% results_n34dB_CSIerr = results_n34dB_mean_CSIerr;
+% 
+% results_CSIerr_zoom = cat(3,results_n35dB_CSIerr, results_n34dB_CSIerr, results_n33dB_CSIerr, results_n32dB_CSIerr, results_n31dB_CSIerr, results_n30dB_CSIerr);
+% errdBm_zoom = [-35, -34, -33, -32, -31, -30];
+% linewidth_zoom = 1;
+% 
+% axes('Position',[.7 .7 .2 .2])
+% box on
+% m = 2;
+% c = 2;
+% plot(errdBm_zoom, squeeze(results_CSIerr_zoom(b1,2,:)), '-', 'Color', colour_list{1}, ...
+%     'Marker', marker_list{1}, 'LineWidth', linewidth_zoom, ...
+%     'DisplayName', 'WMMSE-PI')
+% hold on;
+% for net = [3,4,5,7]
+%     plot(errdBm_zoom, squeeze(results_CSIerr_zoom(b1,net,:)), '-', 'Color', colour_list{c}, ...
+%         'Marker', marker_list{m}, 'LineWidth', linewidth_zoom, ...
+%         'DisplayName', NetNames{net})
+%     c = c+1;
+%     m = m+1;
+% end
+% plot(errdBm_zoom, squeeze(results_CSIerr_zoom(b1,8,:)), '--', 'Color', colour_list{1}, ...
+%     'Marker', marker_list{1}, 'LineWidth', linewidth_zoom, ...
+%     'DisplayName', 'WMMSE-PI random')
+% c = 2;
+% m = 2;
+% for net = [9,10,11,13]
+%     plot(errdBm_zoom, squeeze(results_CSIerr_zoom(b1,net,:)), '--', 'Color', colour_list{c}, ...
+%         'Marker', marker_list{m}, 'LineWidth', linewidth_zoom, ...
+%         'DisplayName', NetNames{net})
+%     c = c+1;
+%     m = m+1;
+% end
+% hold off;
+% axis tight
+% grid on
+% xticks(errdBm_zoom)
+% % xticklabels({'x = 0','x = 5','x = 10'})
 
 % x2 = linspace(3/4,1);
 % y2 = sin(2*pi*x2);
