@@ -150,7 +150,7 @@ legend([qw{:}], {'Upper Bound','AQE-WMMSE','AQE','ACFNet','linQ','DQNN','random'
 ylim([0, 25])
 fontsize(gca,ftsz,"pixels")
 
-%% Figure 2 - Rate vs Tx, 10 & 40 control bits
+%% Figure 2 - Rate vs Tx, vary control bits
 % figure(2);
 % b1 = 4; b2 = 1;
 % m = 2;
@@ -194,8 +194,10 @@ fontsize(gca,ftsz,"pixels")
 % fontsize(gca,ftsz,"pixels")
 
 figure(2);
-tiledlayout(2,2)
-for b = 2:2:8
+% tiledlayout(2,2)
+tiledlayout(2,5)
+% for b = 2:2:8
+for b = 1:1:9
     nexttile
     m = 2;
     c = 2;
@@ -221,8 +223,19 @@ for b = 2:2:8
     yticks(0:3:16)
     fontsize(gca,ftsz,"pixels")
 end
+nexttile
+hold on;
+qw{1} = plot(nan, 'k-', 'Color', colour_list{2}, 'Marker', marker_list{2}, 'LineWidth', linewidth);
+qw{2} = plot(nan, 'k-', 'Color', colour_list{3}, 'Marker', marker_list{3}, 'LineWidth', linewidth);
+qw{3} = plot(nan, 'k-', 'Color', colour_list{4}, 'Marker', marker_list{4}, 'LineWidth', linewidth);
+qw{4} = plot(nan, 'k-', 'Color', colour_list{5}, 'Marker', marker_list{5}, 'LineWidth', linewidth);
+hold off;
+legend([qw{:}], {'AQE-WMMSE','AQE','ACFNet','linQ'}, 'location', 'best')
+set(gca,'XColor', 'none','YColor','none')
+set(gca, 'color', 'none');
+fontsize(gca,ftsz,"pixels")
 
-%% Figure 3 - Rate vs Bits, 40 & 15 Tx dBm
+%% Figure 3 - Rate vs Bits, vary Tx dBm
 % bits = 1:10;
 % mark = {'o-', '', '', '', '', '', '*-'};
 % figure(3);
@@ -274,9 +287,13 @@ bits = 1:10;
 figure(3);
 % p = 6; % 35 PdBm
 powers_list = ["10 PdBm", "15 PdBm", "20 PdBm", "25 PdBm", "30 PdBm", "35 PdBm", "40 PdBm"];
+PdBm_names_list = ["10 dBm", "15 dBm", "20 dBm", "25 dBm", "30 dBm", "35 dBm", "40 dBm"];
+qw = {};
 
-tiledlayout(2,2)
-for p = 1:2:7
+% tiledlayout(2,2)
+tiledlayout(2,4)
+% for p = 1:2:7
+for p = 1:1:7
     nexttile
     c = 2;
     m = 2;
@@ -293,12 +310,7 @@ for p = 1:2:7
     set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
     xlabel('Number of control bits')
     ylabel('ASR (bps/Hz)')
-%     hold on;
-%     qw = {};
-%     qw{1} = plot(nan, 'k-', 'LineWidth', linewidth);
-%     hold off;
-%     legend([qw{:}], {powers_list(p)}, 'location', 'south')
-    title(powers_list(p))
+    title(PdBm_names_list(p))
     axis tight
 %     ylim([0, inf])
     yl = ylim;
@@ -307,12 +319,23 @@ for p = 1:2:7
     yticks(yl(1):(yl(2)-yl(1))/3:yl(2))
     ytickformat('%.1f')
 end
+nexttile
+hold on;
+qw{1} = plot(nan, 'k-', 'Color', colour_list{2}, 'Marker', marker_list{2}, 'LineWidth', linewidth);
+qw{2} = plot(nan, 'k-', 'Color', colour_list{3}, 'Marker', marker_list{3}, 'LineWidth', linewidth);
+qw{3} = plot(nan, 'k-', 'Color', colour_list{4}, 'Marker', marker_list{4}, 'LineWidth', linewidth);
+qw{4} = plot(nan, 'k-', 'Color', colour_list{5}, 'Marker', marker_list{5}, 'LineWidth', linewidth);
+hold off;
+legend([qw{:}], {'AQE-WMMSE','AQE','ACFNet','linQ'}, 'location', 'best')
+set(gca,'XColor', 'none','YColor','none')
+set(gca, 'color', 'none');
+fontsize(gca,ftsz,"pixels")
 
 %% Figure 4 - Train/Val Loss Setup 1
 figure(4);
 
 % trial for loss curves
-trial = "PerfectCSI/repeated_trial_02/";
+trial = "PerfectCSI/repeated_trial_02";
 linewidth = 3;
 % ftsz = 15;
 
@@ -816,3 +839,75 @@ legend('AQE-WMMSE','AQE','ACFNet','linQ', 'Location', 'best', 'NumColumns', 2)
 % title("Achievable Sum Rate (bps/Hz)");
 
 fontsize(gca,ftsz,"pixels")
+
+%% Figure 7 - Train/Val Loss Setup Tiled
+figure(7);
+
+% trial for loss curves
+trial = "PerfectCSI/repeated_trial_02";
+linewidth = 3;
+% ftsz = 15;
+
+% bits = '3'; % 40 bits
+% bits = '7'; % 80 bits
+% bits = '9'; % 100 bits
+% PdBm = '20PdBm';
+t = 4; % trial
+
+PdBm_list = ["10PdBm", "15PdBm", "20PdBm", "25PdBm", "30PdBm", "35PdBm", "40PdBm"];
+PdBm_names_list = ["10 dBm", "15 dBm", "20 dBm", "25 dBm", "30 dBm", "35 dBm", "40 dBm"];
+% bits_list = ["0", "1", "2", "3", "4"];
+% bits_names_list = ["10 bits", "20 bits", "30 bits", "40 bits", "50 bits"];
+bits_list = ["5", "6", "7", "8", "9"];
+bits_names_list = ["60 bits", "70 bits", "80 bits", "90 bits", "100 bits"];
+
+tiledlayout(5,7)
+for b = 1:length(bits_list)
+    for p = 1:length(PdBm_list)
+        nexttile
+        PdBm = PdBm_list(p);
+        bits = bits_list(b);
+        AQEWMMSE_loss = zeros(1000,2);
+        AQE_loss = zeros(1000,2);
+        ACF_loss = zeros(1000,2);
+        linQ_loss = zeros(1000,2);
+        DQNN_loss = zeros(1000,2);
+        AQEWMMSE_loss = AQEWMMSE_loss + readmatrix(dir + trial + "/0" + int2str(t) + "/" + PdBm + "/AQE_loss" + bits + ".csv");
+        AQE_loss = AQE_loss + readmatrix(dir + trial + "/0" + int2str(t) + "/" + PdBm + "/AQEnoW_loss" + bits + ".csv");
+        ACF_loss = ACF_loss + readmatrix(dir + trial + "/0" + int2str(t) + "/" + PdBm + "/ACF_loss" + bits + ".csv");
+        linQ_loss = linQ_loss + readmatrix(dir + trial + "/0" + int2str(t) + "/" + PdBm + "/linQ_loss" + bits + ".csv");
+        if bits == '9'
+            DQNN_loss = DQNN_loss + readmatrix(dir + trial + "/0" + int2str(t) + "/" + PdBm + "/DQNN_loss" + bits + ".csv");
+        end
+        % train_num = 64000;
+        % val_num = 16000;
+        train_num = 1;
+        val_num = 1;
+        
+        plot(train_num*AQEWMMSE_loss(:,1), '--', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE train', 'LineWidth', linewidth)
+        hold on;
+        plot(train_num*AQE_loss(:,1), '--', 'Color', colour_list{3}, 'DisplayName', 'AQE train', 'LineWidth', linewidth)
+        plot(train_num*ACF_loss(:,1), '--', 'Color', colour_list{4}, 'DisplayName', 'ACF train', 'LineWidth', linewidth)
+        plot(train_num*linQ_loss(:,1), '--', 'Color', colour_list{5}, 'DisplayName', 'linQ train', 'LineWidth', linewidth)
+        if bits == '9'
+            plot(train_num*DQNN_loss(:,1), '--', 'Color', colour_list{6}, 'DisplayName', 'DQNN train', 'LineWidth', linewidth)
+        end
+        plot(val_num*AQEWMMSE_loss(:,2), '-', 'Color', colour_list{2}, 'DisplayName', 'AQE-WMMSE val', 'LineWidth', linewidth)
+        plot(val_num*AQE_loss(:,2), '-', 'Color', colour_list{3}, 'DisplayName', 'AQE val', 'LineWidth', linewidth)
+        plot(val_num*ACF_loss(:,2), '-', 'Color', colour_list{4}, 'DisplayName', 'ACF val', 'LineWidth', linewidth)
+        plot(val_num*linQ_loss(:,2), '-', 'Color', colour_list{5}, 'DisplayName', 'linQ val', 'LineWidth', linewidth)
+        if bits == '9'
+            plot(val_num*DQNN_loss(:,2), '-', 'Color', colour_list{6}, 'DisplayName', 'DQNN val', 'LineWidth', linewidth)
+        end
+        hold off;
+        
+%         xlabel('Epoch')
+%         ylabel('Normalized Loss')
+        axis tight
+        fontsize(gca,ftsz,"pixels")
+        set(gca,'xminorgrid','off','yminorgrid','off','xgrid','on','ygrid','on')
+%         title(strcat(PdBm_names_list(p), ", ", bits_names_list(b)))
+        xlim([0, inf])
+%         ylim([-0.15, 0])
+    end
+end
