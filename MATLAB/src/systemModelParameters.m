@@ -1,5 +1,5 @@
 %% Parameters
-mc_runs = 4000;
+mc_runs = 100000;
 % M = 8;  % AP
 % K = 6;  % Users
 % Nw = 8;
@@ -35,8 +35,8 @@ pl = @(d,a) -30*d^-a;
 g_ur = -pl(d_ur,a_ur); % User-RIS gain
 g_ra = -pl(d_ra,a_ra); % RIS-AP gain
 g_ua = -pl(d_ua,a_ua); % Direct-Path gain
-% CH_err = 0;
-CH_err = 10^(-45/10);
+CH_err = 0;
+% CH_err = 10^(-45/10);
 % CH_err = 10^(-40/10);
 % CH_err = 10^(-35/10);
 % CH_err = 10^(-30/10);
